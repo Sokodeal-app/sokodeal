@@ -64,19 +64,30 @@ function AlertesTab({ userId }: { userId: string }) {
   const handleCreateAlert = async () => {
     if (!alertForm.query && !alertForm.category && !alertForm.province) return
     setSavingAlert(true)
-    const { error } = await supabase.from('saved_searches').insert([{
-      user_id: userId,
-      query: alertForm.query || null,
-      category: alertForm.category || null,
-      province: alertForm.province || null,
-      price_min: alertForm.price_min ? parseInt(alertForm.price_min) : null,
-      price_max: alertForm.price_max ? parseInt(alertForm.price_max) : null,
-      alert_enabled: true,
-    }])
+
+    const { data, error } = await supabase
+      .from('saved_searches')
+      .insert([{
+        user_id: userId,
+        query: alertForm.query || null,
+        category: alertForm.category || null,
+        province: alertForm.province || null,
+        price_min: alertForm.price_min ? parseInt(alertForm.price_min) : null,
+        price_max: alertForm.price_max ? parseInt(alertForm.price_max) : null,
+        alert_enabled: true,
+      }])
+      .select()
+      .single()
+
     setSavingAlert(false)
-    if (!error) {
-      const { data } = await supabase.from('saved_searches').select('*').eq('user_id', userId).order('created_at', { ascending: false })
-      if (data) setSearches(data)
+
+    if (error) {
+      console.error('Erreur:', JSON.stringify(error))
+      return
+    }
+
+    if (data) {
+      setSearches(prev => [data, ...prev])
       setShowNewAlert(false)
       setAlertForm({ query: '', category: '', province: '', price_min: '', price_max: '' })
     }
@@ -101,8 +112,14 @@ function AlertesTab({ userId }: { userId: string }) {
   }
 
   const deleteAlert = async (id: string) => {
-    await supabase.from('saved_searches').delete().eq('id', id)
-    setSearches(prev => prev.filter(s => s.id !== id))
+    const { error } = await supabase
+      .from('saved_searches')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', userId)
+    if (!error) {
+      setSearches(prev => prev.filter(s => s.id !== id))
+    }
   }
 
   const deleteHistory = async (id: string) => {
