@@ -315,10 +315,16 @@ export default function PublierPage() {
       <div style={{background:'white', borderRadius:'16px', padding:'28px', maxWidth:'540px', width:'100%', border:'1px solid #e8ede9', boxShadow:'0 4px 24px rgba(0,0,0,0.06)'}}>
 
         <div style={{textAlign:'center', marginBottom:'20px'}}>
-          <a href="/" style={{display:'inline-flex', alignItems:'center', gap:'8px', textDecoration:'none'}}>
+          <button
+            onClick={() => {
+              clearPublishDraft()
+              window.location.href = '/'
+            }}
+            style={{background:'none', border:'none', cursor:'pointer', display:'inline-flex', alignItems:'center', gap:'8px', textDecoration:'none', padding:0}}
+          >
             <div style={{width:'34px', height:'34px', background:'#f5a623', borderRadius:'9px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'17px'}}>🦁</div>
             <span style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.2rem', color:'#111a14'}}>Soko<span style={{color:'#1a7a4a'}}>Deal</span></span>
-          </a>
+          </button>
         </div>
 
         <h1 style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.15rem', marginBottom:'4px', color:'#111a14'}}>Déposer une annonce</h1>
@@ -579,9 +585,15 @@ export default function PublierPage() {
           fontSize:'0.95rem', color:'white', cursor: loading ? 'not-allowed' : 'pointer', marginBottom:'12px'
         }}>{loading ? '⏳ Publication...' : 'Publier mon annonce'}</button>
 
-        <a href="/" onClick={() => clearPublishDraft()} style={{display:'block', textAlign:'center', color:'#6b7c6e', fontSize:'0.82rem', textDecoration:'none'}}>
+        <button
+          onClick={() => {
+            clearPublishDraft()
+            window.location.href = '/'
+          }}
+          style={{display:'block', textAlign:'center', color:'#6b7c6e', fontSize:'0.82rem', background:'none', border:'none', cursor:'pointer', width:'100%', padding:'8px'}}
+        >
           Retour
-        </a>
+        </button>
       </div>
     </div>
   )
