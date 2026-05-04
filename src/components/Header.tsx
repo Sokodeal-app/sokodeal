@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { getCurrentUser } from '@/lib/auth'
 import { useUnreadCount } from '@/hooks/useUnreadCount'
 
 export default function Header() {
@@ -11,7 +12,7 @@ export default function Header() {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await getCurrentUser()
       setUser(user)
     }
     getUser()

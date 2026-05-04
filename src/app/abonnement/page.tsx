@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { getCurrentUser } from '@/lib/auth'
 import Header from '@/components/Header'
 import { FEATURE_FLAGS } from '@/lib/feature-flags'
 
@@ -94,7 +95,7 @@ export default function AbonnementPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await getCurrentUser()
       if (!user) {
         sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
           url: window.location.pathname,

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { getCurrentUser } from '@/lib/auth'
 
 export function useUnreadCount() {
   const [unreadCount, setUnreadCount] = useState(0)
@@ -27,7 +28,7 @@ export function useUnreadCount() {
     }
 
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await getCurrentUser()
       if (!user || cancelled) return
 
       userId = user.id

@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { getCurrentUser } from '@/lib/auth'
 import { useParams } from 'next/navigation'
 import ImageCropModal from '@/components/ImageCropModal'
 
@@ -67,7 +68,7 @@ export default function ModifierAnnoncePage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await getCurrentUser()
       if (!user) {
         sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
           url: window.location.pathname,

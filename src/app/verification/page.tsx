@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { getCurrentUser } from '@/lib/auth'
 
 const PUBLISH_DRAFT_KEY = 'sokodeal:publish-draft'
 
@@ -58,7 +59,7 @@ export default function VerificationPage() {
   useEffect(() => {
     const init = async () => {
       setHasPublishDraft(!!window.localStorage.getItem(PUBLISH_DRAFT_KEY))
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await getCurrentUser()
       if (user) {
         window.location.href = window.localStorage.getItem(PUBLISH_DRAFT_KEY) ? '/publier' : '/'
         return

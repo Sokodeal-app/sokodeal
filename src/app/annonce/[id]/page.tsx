@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { getCurrentUser } from '@/lib/auth'
 import Header from '@/components/Header'
 import { extractIdFromSlug, generateSlug, isFullUUID } from '@/lib/slug'
 
@@ -154,7 +155,7 @@ export default function AnnonceDetail() {
         setLoading(false)
         return
       }
-      const { data: authData } = await supabase.auth.getUser()
+      const { data: authData } = await getCurrentUser()
       setUser(authData.user)
 
       // Restaurer message si retour apres connexion, puis supprimer immediatement.

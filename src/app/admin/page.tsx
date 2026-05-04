@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { getCurrentUser } from '@/lib/auth'
 import { generateSlug } from '@/lib/slug'
 
 const ADMIN_EMAIL = 'nmommozine@gmail.com' // ← mets ton email ici
@@ -20,7 +21,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await getCurrentUser()
       if (!user || user.email !== ADMIN_EMAIL) { window.location.href = '/'; return }
       setUser(user)
       await loadData()

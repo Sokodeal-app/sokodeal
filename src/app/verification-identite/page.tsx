@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { getCurrentUser } from '@/lib/auth'
 
 const PUBLISH_DRAFT_KEY = 'sokodeal:publish-draft'
 
@@ -16,7 +17,7 @@ export default function VerificationIdentitePage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await getCurrentUser()
       if (!user) {
         sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
           url: window.location.pathname,

@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { getCurrentUser } from '@/lib/auth'
 import { SUBCATEGORIES } from '@/lib/categories'
 import { LAUNCH_CITIES, LAUNCH_MAIN_CATEGORIES, LAUNCH_SUBCATEGORIES } from '@/lib/market-config'
 import ImageCropModal from '@/components/ImageCropModal'
@@ -165,7 +166,7 @@ export default function PublierPage() {
       return
     }
     setLoading(true); setMsg('')
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await getCurrentUser()
     if (!user) {
       savePublishDraft()
       sessionStorage.setItem('sokodeal:redirect', JSON.stringify({

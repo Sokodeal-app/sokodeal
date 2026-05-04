@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import FavoriteButton from '@/components/FavoriteButton'
 import { supabase } from '@/lib/supabase'
+import { getCurrentUser } from '@/lib/auth'
 import { FEATURE_FLAGS } from '@/lib/feature-flags'
 import { generateSlug } from '@/lib/slug'
 import ImageCropModal from '@/components/ImageCropModal'
@@ -91,7 +92,7 @@ export default function PublicProfile() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await getCurrentUser()
       setCurrentUser(user)
 
       const { data: userData } = await supabase

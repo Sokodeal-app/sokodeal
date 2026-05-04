@@ -1,6 +1,7 @@
 // hooks/useFavorites.js
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import { getCurrentUser } from '@/lib/auth'
 
 /**
  * Hook pour gérer les favoris de l'utilisateur connecté.
@@ -15,7 +16,7 @@ export function useFavorites() {
 
   // Récupérer l'utilisateur connecté
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    getCurrentUser().then(({ data }) => {
       setUserId(data?.user?.id ?? null)
     })
 

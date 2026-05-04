@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
+import { getCurrentUser } from '@/lib/auth'
 import Header from '@/components/Header'
 
 export default function MessagesPage() {
@@ -16,7 +17,7 @@ export default function MessagesPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await getCurrentUser()
       if (!user) {
         sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
           url: window.location.pathname + window.location.search,
@@ -166,7 +167,7 @@ export default function MessagesPage() {
   }
 
   const openConversation = async (conv: any) => {
-    const currentUser = user || (await supabase.auth.getUser()).data.user
+    const currentUser = user || (await getCurrentUser()).data.user
     if (!currentUser) {
       sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
         url: window.location.pathname + window.location.search,

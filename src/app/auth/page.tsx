@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { getCurrentUser } from '@/lib/auth'
 
 export default function AuthPage() {
   const [loading, setLoading] = useState(false)
@@ -16,7 +17,7 @@ export default function AuthPage() {
     }
 
     // Si déjà connecté → rediriger
-    supabase.auth.getUser().then(({ data }) => {
+    getCurrentUser().then(({ data }) => {
       if (data.user) redirectAfterLogin()
     })
   }, [])

@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
+import { getCurrentUser } from '@/lib/auth'
 import FavoriteButton from '@/components/FavoriteButton'
 import { useUnreadCount } from '@/hooks/useUnreadCount'
 import { SUBCATEGORIES } from '@/lib/categories'
@@ -106,7 +107,7 @@ export default function Home() {
     fetchAds()
 
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await getCurrentUser()
       setUser(user)
     }
     getUser()
