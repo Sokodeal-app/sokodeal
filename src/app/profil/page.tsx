@@ -653,6 +653,10 @@ export default function ProfilPage() {
     <div style={{minHeight:'100vh', background:'#f5f7f5'}}>
       <style>{`
         @media (max-width: 768px) {
+          .profile-hero-inner { align-items: flex-start !important; }
+          .profile-hero-avatar { width: 72px !important; height: 72px !important; font-size: 2rem !important; }
+          .profile-hero-name { font-size: 1.75rem !important; }
+          .profile-hero-badges { gap: 8px !important; }
           .profil-grid { grid-template-columns: 1fr 1fr !important; }
           .ads-grid-3 { grid-template-columns: 1fr 1fr !important; }
           .plans-grid { grid-template-columns: 1fr !important; }
@@ -660,6 +664,12 @@ export default function ProfilPage() {
           .fav-grid { grid-template-columns: 1fr 1fr !important; }
         }
         @media (max-width: 480px) {
+          .profile-hero-shell { padding: 18px 5% 0 !important; }
+          .profile-hero-card { padding: 22px 18px !important; }
+          .profile-hero-inner { flex-direction: column !important; gap: 14px !important; }
+          .profile-hero-name { font-size: 1.45rem !important; }
+          .profile-hero-email { font-size: 0.9rem !important; }
+          .profile-hero-badges { width: 100% !important; }
           .ads-grid-3 { grid-template-columns: 1fr !important; }
           .fav-grid { grid-template-columns: 1fr !important; }
         }
@@ -719,36 +729,38 @@ export default function ProfilPage() {
 
       <Header />
 
-      <div style={{background:'linear-gradient(135deg, #0f5233 0%, #1a7a4a 100%)', padding:'28px 5% 50px'}}>
-        <div style={{maxWidth:'1100px', margin:'0 auto', display:'flex', alignItems:'center', gap:'16px'}}>
-          <div style={{width:'56px', height:'56px', borderRadius:'50%', background:'#f5a623', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.4rem', fontWeight:800, color:'#111a14', fontFamily:'Syne,sans-serif', flexShrink:0}}>
-            {(profileForm.full_name || user?.email || 'U')[0].toUpperCase()}
-          </div>
-          <div>
-            <h1 style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.2rem', color:'white', marginBottom:'3px'}}>
-              {profileForm.full_name || 'Mon Profil'}
-            </h1>
-            {profileForm.username && (
-              <p style={{color:'#f5a623', fontSize:'0.82rem', fontWeight:700, marginBottom:'4px'}}>@{profileForm.username}</p>
-            )}
-            <p style={{color:'rgba(255,255,255,0.65)', fontSize:'0.82rem', marginBottom:'8px'}}>{user?.email}</p>
-            <div style={{display:'flex', gap:'8px', flexWrap:'wrap'}}>
-              <span style={{background:'rgba(255,255,255,0.12)', color:'white', padding:'3px 10px', borderRadius:'20px', fontSize:'0.72rem', fontWeight:600}}>Membre SokoDeal</span>
-              <span style={{background:'rgba(245,166,35,0.25)', color:'#f5a623', padding:'3px 10px', borderRadius:'20px', fontSize:'0.72rem', fontWeight:600}}>{ads.length} annonce(s)</span>
-              {favorites.length > 0 && (
-                <span style={{background:'rgba(239,68,68,0.2)', color:'#fca5a5', padding:'3px 10px', borderRadius:'20px', fontSize:'0.72rem', fontWeight:600}}>{favorites.length} favori(s)</span>
-              )}
+      <div className="profile-hero-shell" style={{padding:'24px 5% 0', maxWidth:'1100px', margin:'0 auto', width:'100%', boxSizing:'border-box'}}>
+        <div className="profile-hero-card" style={{background:'linear-gradient(135deg, #0f5233 0%, #1a7a4a 100%)', padding:'30px 5% 26px', borderRadius:'16px', overflow:'hidden'}}>
+          <div className="profile-hero-inner" style={{maxWidth:'1100px', margin:'0 auto', display:'flex', alignItems:'center', gap:'22px'}}>
+            <div className="profile-hero-avatar" style={{width:'88px', height:'88px', borderRadius:'50%', background:'#f5a623', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2.5rem', fontWeight:800, color:'#111a14', fontFamily:'Syne,sans-serif', flexShrink:0, lineHeight:1}}>
+              {(profileForm.full_name || user?.email || 'U')[0].toUpperCase()}
+            </div>
+            <div style={{minWidth:0, flex:1}}>
+              <h1 className="profile-hero-name" style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'2.35rem', color:'white', marginBottom:'6px', lineHeight:1.05, letterSpacing:0}}>
+                {profileForm.full_name || 'Mon Profil'}
+              </h1>
               {profileForm.username && (
-                <a href={'/u/' + profileForm.username} style={{background:'rgba(255,255,255,0.15)', color:'white', padding:'3px 10px', borderRadius:'20px', fontSize:'0.72rem', fontWeight:600, textDecoration:'none'}}>
-                  Voir mon profil public
-                </a>
+                <p style={{color:'#f5a623', fontSize:'1.15rem', fontWeight:800, marginBottom:'8px'}}>@{profileForm.username}</p>
               )}
+              <p className="profile-hero-email" style={{color:'rgba(255,255,255,0.70)', fontSize:'1rem', marginBottom:'16px', fontWeight:600, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{user?.email}</p>
+              <div className="profile-hero-badges" style={{display:'flex', gap:'10px', flexWrap:'wrap', alignItems:'center'}}>
+                <span style={{background:'rgba(255,255,255,0.16)', color:'white', padding:'7px 16px', borderRadius:'999px', fontSize:'0.9rem', fontWeight:800}}>Membre SokoDeal</span>
+                <span style={{background:'rgba(245,166,35,0.30)', color:'#f5a623', padding:'7px 16px', borderRadius:'999px', fontSize:'0.9rem', fontWeight:800}}>{ads.length} annonce(s)</span>
+                {favorites.length > 0 && (
+                  <span style={{background:'rgba(239,68,68,0.22)', color:'#fca5a5', padding:'7px 16px', borderRadius:'999px', fontSize:'0.9rem', fontWeight:800}}>{favorites.length} favori(s)</span>
+                )}
+                {profileForm.username && (
+                  <a href={'/u/' + profileForm.username} style={{background:'rgba(255,255,255,0.18)', color:'white', padding:'7px 16px', borderRadius:'999px', fontSize:'0.9rem', fontWeight:800, textDecoration:'none', display:'inline-flex', alignItems:'center'}}>
+                    Voir mon profil public
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div style={{maxWidth:'1100px', margin:'-22px auto 0', padding:'0 5% 40px'}}>
+      <div style={{maxWidth:'1100px', margin:'24px auto 0', padding:'0 5% 40px'}}>
 
         <div className="profil-grid" style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'10px', marginBottom:'20px'}}>
           {[
