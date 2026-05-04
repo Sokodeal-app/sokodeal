@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { Fragment, useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
 import FavoriteButton from '@/components/FavoriteButton'
@@ -473,17 +473,23 @@ export default function Home() {
         </div>
 
         {/* Navbar catégories */}
-        <div style={{borderTop:'1px solid #f0f4f1', padding:'0 5%', display:'flex', overflowX:'auto', scrollbarWidth:'none', maxWidth:'1300px', margin:'0 auto'}}>
+        <div style={{borderTop:'1px solid #f0f4f1', padding:'0 5%', display:'flex', justifyContent:'safe center', alignItems:'center', overflowX:'auto', scrollbarWidth:'none', maxWidth:'1300px', margin:'0 auto'}}>
           <a href="#" className="nav-cat" onClick={e => { e.preventDefault(); handleNavCat('') }}
             style={{display:'flex', alignItems:'center', padding:'9px 14px', color: filterCat === '' ? '#1a7a4a' : '#6b7c6e', textDecoration:'none', fontSize:'0.82rem', fontWeight: filterCat === '' ? 700 : 400, whiteSpace:'nowrap', borderBottom: filterCat === '' ? '2px solid #f5a623' : '2px solid transparent'}}>
             Tout
           </a>
-          {LAUNCH_MAIN_CATEGORIES.map((item) => (
-            <a key={item.value} href="#" className="nav-cat"
-              onClick={e => { e.preventDefault(); handleNavCat(item.value) }}
-              style={{display:'flex', alignItems:'center', padding:'9px 14px', color: filterCat === item.value ? '#1a7a4a' : '#6b7c6e', textDecoration:'none', fontSize:'0.82rem', fontWeight: filterCat === item.value ? 700 : 400, whiteSpace:'nowrap', borderBottom: filterCat === item.value ? '2px solid #f5a623' : '2px solid transparent'}}>
-              {item.label}
-            </a>
+          <span style={{color:'#d1d5db', fontSize:'0.4rem', flexShrink:0, margin:'0 2px'}}>●</span>
+          {LAUNCH_MAIN_CATEGORIES.map((item, index) => (
+            <Fragment key={item.value}>
+              <a href="#" className="nav-cat"
+                onClick={e => { e.preventDefault(); handleNavCat(item.value) }}
+                style={{display:'flex', alignItems:'center', padding:'9px 14px', color: filterCat === item.value ? '#1a7a4a' : '#6b7c6e', textDecoration:'none', fontSize:'0.82rem', fontWeight: filterCat === item.value ? 700 : 400, whiteSpace:'nowrap', borderBottom: filterCat === item.value ? '2px solid #f5a623' : '2px solid transparent'}}>
+                {item.label}
+              </a>
+              {index < LAUNCH_MAIN_CATEGORIES.length - 1 && (
+                <span style={{color:'#d1d5db', fontSize:'0.4rem', flexShrink:0, margin:'0 2px'}}>●</span>
+              )}
+            </Fragment>
           ))}
         </div>
 
@@ -594,13 +600,15 @@ export default function Home() {
 
       {/* ── HERO ── */}
       {!search.startsWith('@') && activeSection === 'main' && !search && !filterCat && (
-        <div className="hero-section" style={{background:'linear-gradient(135deg, #0f5233 0%, #1a7a4a 100%)', padding:'30px 5% 26px'}}>
-          <div style={{maxWidth:'1300px', margin:'0 auto'}}>
-            <p style={{color:'rgba(255,255,255,0.72)', fontSize:'0.76rem', fontWeight:700, letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:'8px'}}>Kigali</p>
-            <h1 className="hero-title" style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.9rem', color:'white', lineHeight:1.15, marginBottom:'10px'}}>
-              Achetez et vendez partout au Rwanda
-            </h1>
-            <p style={{color:'rgba(255,255,255,0.68)', fontSize:'0.9rem', margin:0, maxWidth:'460px', lineHeight:1.5}}>Immobilier, vehicules, tech, mode et services entre particuliers.</p>
+        <div style={{padding:'24px 5% 0', maxWidth:'1300px', margin:'0 auto', width:'100%', boxSizing:'border-box'}}>
+          <div className="hero-section" style={{background:'linear-gradient(135deg, #0f5233 0%, #1a7a4a 100%)', padding:'30px 5% 26px', borderRadius:'16px', overflow:'hidden'}}>
+            <div style={{maxWidth:'100%', margin:'0 auto', textAlign:'center'}}>
+              <p style={{color:'rgba(255,255,255,0.72)', fontSize:'0.76rem', fontWeight:700, letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:'8px', textAlign:'center'}}>Kigali</p>
+              <h1 className="hero-title" style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.9rem', color:'white', lineHeight:1.15, marginBottom:'10px', textAlign:'center'}}>
+                Achetez et vendez partout au Rwanda
+              </h1>
+              <p style={{color:'rgba(255,255,255,0.68)', fontSize:'0.9rem', margin:'0 auto', maxWidth:'460px', lineHeight:1.5, textAlign:'center'}}>Immobilier, vehicules, tech, mode et services entre particuliers.</p>
+            </div>
           </div>
         </div>
       )}
@@ -664,7 +672,7 @@ export default function Home() {
 
                 <div style={{padding:'12px 14px', display:'flex', flexDirection:'column', justifyContent:'space-between'}}>
                   <div>
-                    <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1rem', color:'#0f5233', marginBottom:'3px'}}>
+                    <div style={{fontFamily:'DM Sans,sans-serif', fontWeight:800, fontSize:'1rem', color:'#0f5233', marginBottom:'3px', fontVariantNumeric:'tabular-nums', letterSpacing:'-0.01em'}}>
                       {Number(ad.price).toLocaleString()} <span style={{fontSize:'0.72rem', fontWeight:600, color:'#6b7c6e'}}>RWF{ad.category === 'immo-location' ? '/mois' : ''}</span>
                     </div>
                     <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'#111a14', marginBottom:'8px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
@@ -856,10 +864,12 @@ export default function Home() {
                       {ad.subcategory ? ad.subcategory : ad.category}
                     </div>
                     <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.93rem', marginBottom:'5px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', color:'#111a14'}}>{ad.title}</div>
-                    <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1rem', color:'#0f5233', marginBottom:'8px'}}>
+                    <div style={{fontFamily:'DM Sans,sans-serif', fontWeight:800, fontSize:'1rem', color:'#0f5233', marginBottom:'8px', fontVariantNumeric:'tabular-nums', letterSpacing:'-0.01em'}}>
                       {Number(ad.price).toLocaleString()} <span style={{fontSize:'0.75rem', fontWeight:600}}>RWF</span>
                     </div>
-                    {ad.province && <div style={{fontSize:'0.72rem', color:'#6b7c6e', marginBottom:'10px'}}>📍 {ad.province}</div>}
+                    <div style={{fontSize:'0.72rem', color:'#6b7c6e', marginBottom:'10px', height:'18px', overflow:'hidden'}}>
+                      {ad.province && <>📍 {ad.province}</>}
+                    </div>
                     <button onClick={e => { e.stopPropagation(); window.location.href='/annonce/' + generateSlug(ad) }} style={{width:'100%', padding:'8px', background:'#f5f7f5', color:'#0f5233', border:'1px solid #d4e6da', borderRadius:'8px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.8rem', cursor:'pointer'}}>
                       Voir l annonce
                     </button>
