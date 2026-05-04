@@ -87,7 +87,12 @@ export default function Home() {
   // ── Chargement des annonces ──
   useEffect(() => {
     const fetchAds = async () => {
-      const { data } = await supabase.from('ads').select('*').eq('is_active', true).order('created_at', { ascending: false })
+      const { data } = await supabase
+        .from('ads')
+        .select('*')
+        .eq('is_active', true)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false })
       if (data) {
         if (!FEATURE_FLAGS.boostedListings) {
           const regularAds = data.map(ad => ({ ...ad, is_boosted: false }))
@@ -648,6 +653,9 @@ export default function Home() {
                     {FEATURE_FLAGS.boostedListings && ad.is_boosted && (
                       <span style={{background:'#f5a623', color:'#111a14', padding:'2px 6px', borderRadius:'5px', fontSize:'0.6rem', fontWeight:800}}>Mis en avant</span>
                     )}
+                    {ad.is_sold && (
+                      <span style={{background:'#f59e0b', color:'white', padding:'2px 6px', borderRadius:'5px', fontSize:'0.6rem', fontWeight:800}}>VENDU</span>
+                    )}
                     <span style={{background: ad.category === 'immo-vente' ? '#1a7a4a' : ad.category === 'immo-location' ? '#0f5233' : '#6b7c6e', color:'white', padding:'2px 6px', borderRadius:'5px', fontSize:'0.6rem', fontWeight:700}}>
                       {catLabel[ad.category] || ad.category}
                     </span>
@@ -822,6 +830,21 @@ export default function Home() {
                     {FEATURE_FLAGS.boostedListings && ad.is_boosted && (
                       <div style={{position:'absolute', top:'10px', left:'10px', background:'#f5a623', color:'#111a14', padding:'3px 9px', borderRadius:'6px', fontSize:'0.68rem', fontWeight:800}}>
                         Mis en avant
+                      </div>
+                    )}
+                    {ad.is_sold && (
+                      <div style={{
+                        position: 'absolute',
+                        top: FEATURE_FLAGS.boostedListings && ad.is_boosted ? '38px' : '10px',
+                        left: '10px',
+                        background: '#f59e0b',
+                        color: 'white',
+                        padding: '3px 9px',
+                        borderRadius: '6px',
+                        fontSize: '0.68rem',
+                        fontWeight: 800,
+                      }}>
+                        VENDU
                       </div>
                     )}
                     <div style={{position:'absolute', top:'10px', right:'10px'}} onClick={e => e.stopPropagation()}>

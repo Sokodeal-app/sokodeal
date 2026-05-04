@@ -301,7 +301,8 @@ function StatsTab({ userId, ads }: { userId: string, ads: any[] }) {
       setLoading(true)
       setError('')
 
-      const adIds = ads.map(ad => ad.id).filter(Boolean)
+      const visibleAds = ads.filter(ad => !ad.deleted_at)
+      const adIds = visibleAds.map(ad => ad.id).filter(Boolean)
       if (adIds.length === 0) {
         setViews([])
         setLoading(false)
@@ -328,18 +329,19 @@ function StatsTab({ userId, ads }: { userId: string, ads: any[] }) {
     loadStats()
   }, [userId, ads])
 
-  const soldAds = ads.filter(ad => ad.is_sold)
-  const activeAds = ads.filter(ad => ad.is_active && !ad.is_sold)
+  const visibleAds = ads.filter(ad => !ad.deleted_at)
+  const soldAds = visibleAds.filter(ad => ad.is_sold)
+  const activeAds = visibleAds.filter(ad => ad.is_active && !ad.is_sold)
   const totalViews = views.length
   const visitorIds = new Set(views.map(view => view.viewer_id).filter(Boolean))
   const anonymousViews = views.filter(view => !view.viewer_id).length
   const uniqueVisitors = visitorIds.size + anonymousViews
   const lastSevenDays = Date.now() - 7 * 24 * 60 * 60 * 1000
   const recentViews = views.filter(view => view.created_at && new Date(view.created_at).getTime() >= lastSevenDays).length
-  const averageViews = ads.length > 0 ? Math.round(totalViews / ads.length) : 0
-  const soldRate = ads.length > 0 ? Math.round((soldAds.length / ads.length) * 100) : 0
+  const averageViews = visibleAds.length > 0 ? Math.round(totalViews / visibleAds.length) : 0
+  const soldRate = visibleAds.length > 0 ? Math.round((soldAds.length / visibleAds.length) * 100) : 0
 
-  const topAds = ads
+  const topAds = visibleAds
     .map(ad => ({
       ...ad,
       views_count: views.filter(view => view.ad_id === ad.id).length,
@@ -501,7 +503,7 @@ export default function ProfilPage() {
     }
     const fetchFavAds = async () => {
       setFavLoading(true)
-      const { data } = await supabase.from('ads').select('*').in('id', favorites).eq('is_active', true)
+      const { data } = await supabase.from('ads').select('*').in('id', favorites).eq('is_active', true).is('deleted_at', null)
       if (data) setFavoriteAds(data)
       setFavLoading(false)
     }
@@ -566,17 +568,22 @@ export default function ProfilPage() {
 
   const handleDeleteAd = async (id: string) => {
     if (!confirm('Supprimer cette annonce ?')) return
-    await supabase.from('ads').delete().eq('id', id).eq('user_id', user.id)
-    setAds(ads.filter(a => a.id !== id))
+    await supabase.from('ads').update({
+      is_active: false,
+      deleted_at: new Date().toISOString(),
+      delete_reason: 'user_deleted',
+    }).eq('id', id).eq('user_id', user.id)
+    setAds(prev => prev.filter(a => a.id !== id))
   }
 
   const handleMarkSold = async (id: string) => {
-    if (!confirm('Marquer cette annonce comme vendue ? Elle sera supprimee dans 24h.')) return
+    if (!confirm("Marquer comme vendue ? L'annonce restera visible 24h puis se déplacera dans \"Vendus\".")) return
+    const soldAt = new Date().toISOString()
     await supabase.from('ads').update({
       is_sold: true,
-      sold_at: new Date().toISOString(),
+      sold_at: soldAt,
     }).eq('id', id).eq('user_id', user.id)
-    setAds(ads.map(a => a.id === id ? { ...a, is_sold: true } : a))
+    setAds(prev => prev.map(a => a.id === id ? { ...a, is_sold: true, sold_at: soldAt } : a))
   }
 
   const handleBoost = async () => {
@@ -609,10 +616,20 @@ export default function ProfilPage() {
     { name:'Boost 30 jours', price:'12 000', icon:'', color:'#0f5233', features:['Top 30 jours','Badge Premium','10x vues'] },
   ]
 
-  const soldCount = ads.filter(a => a.is_sold).length
+  const HEURES_24 = 24 * 60 * 60 * 1000
+
+  const mesAnnonces = ads.filter(a => {
+    if (a.deleted_at) return false
+    if (!a.is_sold) return true
+    if (!a.sold_at) return true
+    return (Date.now() - new Date(a.sold_at).getTime()) < HEURES_24
+  })
+
+  const vendues = ads.filter(a => a.is_sold && !a.deleted_at)
+  const soldCount = vendues.length
 
   const tabs = [
-    { id:'annonces', label:'Mes annonces', count: ads.length },
+    { id:'annonces', label:'Mes annonces', count: mesAnnonces.length },
     { id:'favoris', label:'Favoris', count: favorites.length },
     { id:'profil', label:'Mon profil', count: null },
     ...(FEATURE_FLAGS.monetization ? [
@@ -735,7 +752,7 @@ export default function ProfilPage() {
 
         <div className="profil-grid" style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'10px', marginBottom:'20px'}}>
           {[
-            { label:'Annonces', value: ads.length, icon:'', color:'#1a7a4a' },
+            { label:'Annonces', value: mesAnnonces.length, icon:'', color:'#1a7a4a' },
             { label:'Favoris', value: favorites.length, icon:'', color:'#ef4444' },
             { label:'Messages', value:'-', icon:'', color:'#6b7c6e' },
             { label:'Vendus', value: soldCount, icon:'', color:'#f59e0b' },
@@ -776,7 +793,7 @@ export default function ProfilPage() {
                 + Nouvelle
               </button>
             </div>
-            {ads.length === 0 ? (
+            {mesAnnonces.length === 0 ? (
               <div style={{background:'white', borderRadius:'14px', padding:'48px', textAlign:'center', border:'1px solid #e8ede9'}}>
                 <div style={{fontSize:'2.5rem', marginBottom:'12px'}}></div>
                 <h3 style={{fontFamily:'Syne,sans-serif', fontWeight:800, marginBottom:'8px', color:'#111a14'}}>Aucune annonce</h3>
@@ -787,7 +804,7 @@ export default function ProfilPage() {
               </div>
             ) : (
               <div className="ads-grid-3" style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'12px'}}>
-                {ads.map((ad: any) => (
+                {mesAnnonces.map((ad: any) => (
                   <div key={ad.id} style={{background:'white', borderRadius:'12px', overflow:'hidden', border:'1px solid #e8ede9'}}>
                     <div style={{height:'120px', background:'#f5f7f5', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2.5rem', position:'relative', overflow:'hidden'}}>
                       {ad.images && ad.images.length > 0 ? (
@@ -1020,7 +1037,7 @@ export default function ProfilPage() {
         {activeTab === 'vendus' && (
           <div>
             <h2 style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.1rem', marginBottom:'14px', color:'#111a14'}}>Articles vendus</h2>
-            {ads.filter(a => a.is_sold).length === 0 ? (
+            {vendues.length === 0 ? (
               <div style={{background:'white', borderRadius:'14px', padding:'40px', border:'1px solid #e8ede9', textAlign:'center'}}>
                 <div style={{fontSize:'2.5rem', marginBottom:'12px'}}></div>
                 <h3 style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.1rem', marginBottom:'8px', color:'#111a14'}}>Aucune vente</h3>
@@ -1028,7 +1045,7 @@ export default function ProfilPage() {
               </div>
             ) : (
               <div className="ads-grid-3" style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'12px'}}>
-                {ads.filter(a => a.is_sold).map((ad: any) => (
+                {vendues.map((ad: any) => (
                   <div key={ad.id} style={{background:'white', borderRadius:'12px', overflow:'hidden', border:'1px solid #e8ede9', opacity:0.8}}>
                     <div style={{height:'120px', background:'#f5f7f5', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2.5rem', position:'relative', overflow:'hidden'}}>
                       {ad.images && ad.images.length > 0 ? (
