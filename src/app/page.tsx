@@ -473,7 +473,7 @@ export default function Home() {
         </div>
 
         {/* Navbar catégories */}
-        <div style={{borderTop:'1px solid #f0f4f1', padding:'0 5%', display:'flex', justifyContent:'safe center', alignItems:'center', overflowX:'auto', scrollbarWidth:'none', maxWidth:'1300px', margin:'0 auto'}}>
+        <div style={{padding:'0 5%', display:'flex', justifyContent:'safe center', alignItems:'center', overflowX:'auto', scrollbarWidth:'none', maxWidth:'1300px', margin:'0 auto'}}>
           <a href="#" className="nav-cat" onClick={e => { e.preventDefault(); handleNavCat('') }}
             style={{display:'flex', alignItems:'center', padding:'9px 14px', color: filterCat === '' ? '#1a7a4a' : '#6b7c6e', textDecoration:'none', fontSize:'0.82rem', fontWeight: filterCat === '' ? 700 : 400, whiteSpace:'nowrap', borderBottom: filterCat === '' ? '2px solid #f5a623' : '2px solid transparent'}}>
             Tout
