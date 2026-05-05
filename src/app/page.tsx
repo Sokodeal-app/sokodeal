@@ -356,6 +356,16 @@ export default function Home() {
           .hero-title { font-size: 2.2rem !important; }
           .hero-section { grid-template-columns: 1fr !important; padding: 36px 6% !important; }
           .hero-cta { width: 100% !important; justify-content: center !important; }
+          .hero-premium { background-position: center right !important; }
+          .hero-premium-gradient {
+            background: linear-gradient(
+              90deg,
+              #faf9f7 0%,
+              rgba(250,249,247,0.98) 35%,
+              rgba(250,249,247,0.82) 65%,
+              rgba(250,249,247,0.45) 100%
+            ) !important;
+          }
           .ads-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
           .btn-signup { display: none !important; }
           .header-inner { padding: 0 4% !important; height: 56px !important; }
@@ -616,8 +626,9 @@ export default function Home() {
       {/* ── HERO ── */}
       {!search.startsWith('@') && activeSection === 'main' && !search && !filterCat && (
         <div style={{padding:'24px 5% 0', maxWidth:'1300px', margin:'0 auto', width:'100%', boxSizing:'border-box'}}>
-          <div className="hero-section" style={{background:'#faf9f7', padding:'48px 5%', borderRadius:'16px', display:'grid', gridTemplateColumns:'1.1fr 0.9fr', gap:'32px', alignItems:'center', border:'1px solid #e8e4de'}}>
-            <div style={{maxWidth:'520px'}}>
+          <div className="hero-section hero-premium" style={{position:'relative', overflow:'hidden', background:'#faf9f7', backgroundImage:"url('https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=1400&q=80')", backgroundSize:'cover', backgroundPosition:'right center', backgroundRepeat:'no-repeat', minHeight:'420px', padding:'48px 5%', borderRadius:'16px', display:'grid', gridTemplateColumns:'1.1fr 0.9fr', gap:'32px', alignItems:'center', border:'1px solid #e8e4de'}}>
+            <div className="hero-premium-gradient" style={{position:'absolute', inset:0, background:'linear-gradient(90deg, #faf9f7 0%, rgba(250,249,247,0.95) 25%, rgba(250,249,247,0.6) 45%, rgba(250,249,247,0.2) 65%, transparent 80%)', zIndex:1, pointerEvents:'none'}} />
+            <div style={{maxWidth:'520px', position:'relative', zIndex:2}}>
               <div style={{display:'inline-flex', alignItems:'center', background:'#e8f5ee', color:'#1a7a4a', borderRadius:'20px', padding:'7px 13px', fontSize:'0.72rem', fontWeight:700, marginBottom:'20px', letterSpacing:'0.04em'}}>
                 ⭐ LE MARKETPLACE N°1 AU RWANDA
               </div>
@@ -634,7 +645,7 @@ export default function Home() {
                 🔍 Explorer les annonces
               </button>
             </div>
-            <div style={{position:'relative', minHeight:'280px', display:'flex', alignItems:'center', justifyContent:'center'}} className="hero-cards">
+            <div style={{position:'relative', zIndex:2, minHeight:'280px', display:'flex', alignItems:'center', justifyContent:'center'}} className="hero-cards">
               {ads.slice(0, 2).map((ad, i) => (
                 <div
                   key={ad.id}
