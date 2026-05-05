@@ -1,5 +1,6 @@
 'use client'
 import { Fragment, useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
 import FavoriteButton from '@/components/FavoriteButton'
@@ -13,6 +14,7 @@ import { generateSlug } from '@/lib/slug'
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
 
 export default function Home() {
+  const router = useRouter()
   const [activeSection, setActiveSection] = useState('main')
   const [ads, setAds] = useState<any[]>([])
   const [filtered, setFiltered] = useState<any[]>([])
@@ -41,6 +43,7 @@ export default function Home() {
   const mapInstanceRef = useRef<any>(null)
   const markersRef = useRef<any[]>([])
   const { unreadCount } = useUnreadCount()
+  const favorites: string[] = []
 
   const isImmoMode = filterCat === 'immo' || filterCat === 'immo-vente' || filterCat === 'immo-location' || filterCat === 'immo-terrain'
 
@@ -368,7 +371,12 @@ export default function Home() {
           .immo-map-panel.show { display: flex !important; flex-direction: column; }
           .immo-list-panel.hide { display: none !important; }
           .map-toggle-btn { display: block !important; }
+          .cat-grid { grid-template-columns: repeat(2, 1fr) !important; }
         }
+        @media (max-width: 500px) {
+          .cat-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 768px) { .hero-cards { display: none !important; } }
         .ad-card { transition: transform 0.18s, box-shadow 0.18s; }
         .ad-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.10) !important; }
         @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
@@ -626,7 +634,45 @@ export default function Home() {
                 🔍 Explorer les annonces
               </button>
             </div>
-            <div aria-hidden="true" style={{minHeight:'260px'}} />
+            <div style={{position:'relative', minHeight:'280px', display:'flex', alignItems:'center', justifyContent:'center'}} className="hero-cards">
+              {ads.slice(0, 2).map((ad, i) => (
+                <div
+                  key={ad.id}
+                  onClick={() => router.push('/annonce/' + generateSlug(ad))}
+                  style={{
+                    position:'absolute',
+                    top: i === 0 ? '0px' : 'auto',
+                    bottom: i === 1 ? '0px' : 'auto',
+                    left: i === 0 ? '5%' : 'auto',
+                    right: i === 1 ? '0%' : 'auto',
+                    width:'175px',
+                    background:'white', borderRadius:'14px', overflow:'hidden',
+                    boxShadow:'0 8px 32px rgba(0,0,0,0.12)',
+                    cursor:'pointer', border:'1px solid #e8e4de',
+                    zIndex: i === 0 ? 2 : 1,
+                  }}
+                >
+                  <div style={{height:'90px', background:'#f0f7f3', overflow:'hidden'}}>
+                    {ad.images?.[0] ? (
+                      <img src={ad.images[0]} alt={ad.title} style={{width:'100%', height:'100%', objectFit:'cover'}}/>
+                    ) : (
+                      <div style={{width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.8rem', opacity:0.4}}>
+                        {catEmoji[ad.category] || '📦'}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{padding:'8px 10px'}}>
+                    <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.75rem', color:'#111a14', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:'3px'}}>
+                      {ad.title}
+                    </div>
+                    <div style={{fontFamily:'DM Sans,sans-serif', fontWeight:800, fontSize:'0.85rem', color:'#1a7a4a'}}>
+                      {Number(ad.price).toLocaleString()} RWF
+                    </div>
+                    <div style={{fontSize:'0.65rem', color:'#6b7c6e', marginTop:'2px'}}>📍 {ad.province}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -770,6 +816,74 @@ export default function Home() {
       )}
 
       {/* ── MODE NORMAL — Grid annonces ── */}
+      {!search && !filterCat && !isImmoMode && user && ads.length > 0 && (
+        <div style={{padding:'0 5% 32px', maxWidth:'1300px', margin:'0 auto', width:'100%', boxSizing:'border-box'}}>
+          <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'16px', gap:'14px', flexWrap:'wrap'}}>
+            <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
+              <div style={{width:'32px', height:'32px', background:'#fef9c3', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1rem'}}>⭐</div>
+              <div>
+                <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.1rem', color:'#111a14'}}>Recommandé pour vous</div>
+                <div style={{fontSize:'0.75rem', color:'#6b7c6e'}}>Basé sur vos favoris, recherches, historique et alertes</div>
+              </div>
+            </div>
+            <button onClick={() => router.push('/profil?tab=alertes')} style={{display:'flex', alignItems:'center', gap:'6px', padding:'8px 14px', background:'white', border:'1px solid #e8e4de', borderRadius:'10px', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:'0.78rem', color:'#111a14', cursor:'pointer'}}>
+              🔔 Gérer mes alertes
+            </button>
+          </div>
+          <div style={{display:'flex', gap:'14px', overflowX:'auto', scrollbarWidth:'none', paddingBottom:'8px', WebkitOverflowScrolling:'touch'}}>
+            {[...ads].sort((a, b) => (favorites?.includes(b.id) ? 1 : 0) - (favorites?.includes(a.id) ? 1 : 0)).slice(0, 8).map((ad: any) => (
+              <div key={ad.id} onClick={() => router.push('/annonce/' + generateSlug(ad))} style={{flexShrink:0, width:'200px', background:'white', borderRadius:'14px', overflow:'hidden', border:'1px solid #e8e4de', cursor:'pointer', boxShadow:'0 2px 8px rgba(0,0,0,0.06)'}}>
+                <div style={{height:'130px', background:'#f5f7f5', overflow:'hidden'}}>
+                  {ad.images?.[0] ? (
+                    <img src={ad.images[0]} alt={ad.title} style={{width:'100%', height:'100%', objectFit:'cover'}}/>
+                  ) : (
+                    <div style={{width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2rem', opacity:0.4}}>
+                      {catEmoji[ad.category] || '📦'}
+                    </div>
+                  )}
+                </div>
+                <div style={{padding:'10px 12px'}}>
+                  <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.82rem', color:'#111a14', marginBottom:'4px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{ad.title}</div>
+                  <div style={{fontFamily:'DM Sans,sans-serif', fontWeight:800, fontSize:'0.95rem', color:'#1a7a4a', marginBottom:'4px'}}>
+                    {Number(ad.price).toLocaleString()} <span style={{fontSize:'0.7rem', fontWeight:600, color:'#6b7c6e'}}>RWF</span>
+                  </div>
+                  <div style={{fontSize:'0.68rem', color:'#6b7c6e'}}>
+                    {ad.province && <>📍 {ad.province}</>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!search && !filterCat && !isImmoMode && (
+        <div style={{padding:'0 5% 32px', maxWidth:'1300px', margin:'0 auto', width:'100%', boxSizing:'border-box'}}>
+          <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'16px'}}>
+            <span style={{fontSize:'1.2rem'}}>⚡</span>
+            <span style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.1rem', color:'#111a14'}}>Ou explorez rapidement</span>
+          </div>
+          <div style={{display:'grid', gridTemplateColumns:'repeat(5, 1fr)', gap:'12px'}} className="cat-grid">
+            {[
+              { icon:'🏡', label:'Logement', sub:'Maisons, appartements, chambres à louer', cat:'immo' },
+              { icon:'🚗', label:'Véhicules', sub:'Voitures, motos, camions...', cat:'voiture' },
+              { icon:'📱', label:'Tech', sub:'Téléphones, ordinateurs, accessoires...', cat:'electronique' },
+              { icon:'👗', label:'Mode', sub:'Vêtements, chaussures, accessoires...', cat:'mode' },
+              { icon:'💼', label:'Emploi & services', sub:"Offres d'emploi, services...", cat:'services' },
+            ].map((item) => (
+              <div key={item.cat} onClick={() => handleNavCat(item.cat)} style={{background:'white', borderRadius:'14px', padding:'16px', border:'1px solid #e8e4de', cursor:'pointer', display:'flex', alignItems:'center', gap:'12px', transition:'border-color 0.15s'}} onMouseEnter={e => (e.currentTarget.style.borderColor = '#1a7a4a')} onMouseLeave={e => (e.currentTarget.style.borderColor = '#e8e4de')}>
+                <div style={{width:'42px', height:'42px', borderRadius:'10px', background:'#f0f7f3', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.3rem', flexShrink:0}}>{item.icon}</div>
+                <div style={{flex:1, minWidth:0}}>
+                  <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'#111a14', marginBottom:'2px'}}>{item.label}</div>
+                  <div style={{fontSize:'0.7rem', color:'#6b7c6e', lineHeight:1.4}}>{item.sub}</div>
+                </div>
+                <span style={{color:'#1a7a4a', fontSize:'0.9rem', flexShrink:0}}>→</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {!search.startsWith('@') && activeSection === 'main' && !isImmoMode && (
         <div style={{padding:'24px 5%', maxWidth:'1300px', margin:'0 auto'}}>
           <div style={{background:'white', borderRadius:'12px', padding:'12px 16px', marginBottom:'20px', border:'1px solid #e8e4de'}}>
