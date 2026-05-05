@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script"; // On ajoute cet outil spécial
 import "./globals.css";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 export const metadata: Metadata = {
   title: {

@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
 import mapboxgl from 'mapbox-gl'
-import 'mapbox-gl/dist/mapbox-gl.css'
 import Header from '@/components/Header'
 import { generateSlug } from '@/lib/slug'
 
@@ -137,7 +136,6 @@ export default function ImmoPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#f5f7f5', display: 'flex', flexDirection: 'column' }}>
       <style>{`
-        .mapboxgl-map { border-radius: 0; }
         .immo-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.10) !important; }
         .immo-card { transition: transform 0.18s, box-shadow 0.18s; }
         .map-panel { transition: width 0.3s ease, opacity 0.3s ease; }

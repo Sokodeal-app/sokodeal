@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
 import Header from '@/components/Header'
+import { getApproxCoords } from '@/lib/locations'
 import { extractIdFromSlug, generateSlug, isFullUUID } from '@/lib/slug'
 
 function ReportButton({ adId, userId }: { adId: string, userId?: string }) {
@@ -347,9 +348,7 @@ export default function AnnonceDetail() {
   const twUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareText + ' ' + getShareUrl())
   const waShareUrl = 'https://wa.me/?text=' + encodeURIComponent(shareText + ' ' + getShareUrl())
 
-  // ✅ Adresse pour la map OpenStreetMap
-  const mapAddress = [ad.sector, ad.district, ad.province, 'Rwanda'].filter(Boolean).join(', ')
-  const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=28.8,-3.0,30.9,-1.0&layer=mapnik&marker=-1.95,30.06`
+  const coords = getApproxCoords(ad.province, ad.district, ad.id)
 
   return (
     <div style={{minHeight:'100vh', background:'#f5f7f5'}}>
@@ -467,23 +466,30 @@ export default function AnnonceDetail() {
           {(ad.province || ad.district) && (
             <div style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #e8ede9', marginBottom:'16px'}}>
               <h2 style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.95rem', marginBottom:'14px', color:'#111a14', textTransform:'uppercase', letterSpacing:'0.04em'}}>
-                📍 Localisation
+                📍 Localisation approximative
               </h2>
               <div style={{borderRadius:'10px', overflow:'hidden', height:'220px', border:'1px solid #e8ede9'}}>
-                <iframe
-                  title="Localisation"
-                  width="100%"
-                  height="220"
-                  style={{border:0, display:'block'}}
-                  src={`https://www.openstreetmap.org/export/embed.html?bbox=28.8%2C-3.0%2C30.9%2C-1.0&layer=mapnik`}
-                  allowFullScreen
-                />
+                {coords ? (
+                  <iframe
+                    title="Localisation"
+                    width="100%"
+                    height="220"
+                    style={{border:0, display:'block'}}
+                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${coords.lng - 0.01}%2C${coords.lat - 0.01}%2C${coords.lng + 0.01}%2C${coords.lat + 0.01}&layer=mapnik&marker=${coords.lat}%2C${coords.lng}`}
+                    allowFullScreen
+                  />
+                ) : (
+                  <div style={{height:'100%', display:'flex', alignItems:'center', justifyContent:'center', color:'#6b7c6e', fontSize:'0.88rem'}}>
+                    Localisation non disponible
+                  </div>
+                )}
               </div>
               <p style={{fontSize:'0.78rem', color:'#6b7c6e', marginTop:'10px', display:'flex', alignItems:'center', gap:'6px'}}>
                 <span>📍</span>
-                <span>{[ad.sector, ad.district, ad.province].filter(Boolean).join(', ')}</span>
+                <span>{[ad.district, ad.province].filter(Boolean).join(', ')}</span>
+                <span style={{fontSize:'0.7rem', color:'#9ca3af', marginLeft:'4px'}}>· Localisation approximative</span>
                 <a
-                  href={`https://www.google.com/maps/search/${encodeURIComponent(mapAddress)}`}
+                  href={`https://www.google.com/maps/search/${encodeURIComponent([ad.district, ad.province, 'Rwanda'].filter(Boolean).join(', '))}`}
                   target="_blank" rel="noopener noreferrer"
                   style={{color:'#1a7a4a', fontWeight:600, textDecoration:'none', marginLeft:'auto', fontSize:'0.75rem'}}
                 >

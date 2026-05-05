@@ -6,28 +6,11 @@ import FavoriteButton from '@/components/FavoriteButton'
 import { useUnreadCount } from '@/hooks/useUnreadCount'
 import { SUBCATEGORIES } from '@/lib/categories'
 import { FEATURE_FLAGS } from '@/lib/feature-flags'
+import { getApproxCoords } from '@/lib/locations'
 import { LAUNCH_CITIES, LAUNCH_MAIN_CATEGORIES, LAUNCH_SUBCATEGORIES, matchesCategoryGroup } from '@/lib/market-config'
 import { generateSlug } from '@/lib/slug'
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
-
-// Coordonnées approximatives des villes rwandaises
-const VILLE_COORDS: Record<string, [number, number]> = {
-  'Kigali': [30.0619, -1.9441],
-  'Butare': [29.7392, -2.5967],
-  'Musanze': [29.6349, -1.4994],
-  'Ruhengeri': [29.6349, -1.4994],
-  'Gisenyi': [29.2567, -1.7025],
-  'Cyangugu': [28.9077, -2.4847],
-  'Kibuye': [29.3497, -2.0603],
-  'Byumba': [30.0677, -1.5756],
-  'Rwamagana': [30.4344, -1.9494],
-  'Rubavu': [29.2567, -1.7025],
-  'Rusizi': [28.9077, -2.4847],
-  'Huye': [29.7392, -2.5967],
-  'Nyagatare': [30.3285, -1.2985],
-  'Muhanga': [29.7511, -2.0836],
-}
 
 export default function Home() {
   const [activeSection, setActiveSection] = useState('main')
@@ -53,6 +36,7 @@ export default function Home() {
   const [searchSaved, setSearchSaved] = useState(false)
   const [selectedImmoAd, setSelectedImmoAd] = useState<any>(null)
   const [showMap, setShowMap] = useState(false) // mobile map toggle
+  const [mapReady, setMapReady] = useState(false)
   const mapRef = useRef<any>(null)
   const mapInstanceRef = useRef<any>(null)
   const markersRef = useRef<any[]>([])
@@ -95,7 +79,11 @@ export default function Home() {
         .order('created_at', { ascending: false })
       if (data) {
         if (!FEATURE_FLAGS.boostedListings) {
-          const regularAds = data.map(ad => ({ ...ad, is_boosted: false }))
+          const regularAds = data.map(ad => ({
+            ...ad,
+            is_boosted: false,
+            _coords: getApproxCoords(ad.province, ad.district, ad.id),
+          }))
           setAds(regularAds); setFiltered(regularAds)
           setLoading(false)
           return
@@ -103,7 +91,11 @@ export default function Home() {
         const now = new Date().toISOString()
         const { data: boosts } = await supabase.from('boosts').select('ad_id').eq('is_active', true).gt('ends_at', now)
         const boostedIds = new Set((boosts || []).map((b: any) => b.ad_id))
-        const adsWithBoost = data.map(ad => ({ ...ad, is_boosted: boostedIds.has(ad.id) }))
+        const adsWithBoost = data.map(ad => ({
+          ...ad,
+          is_boosted: boostedIds.has(ad.id),
+          _coords: getApproxCoords(ad.province, ad.district, ad.id),
+        }))
         const sorted = [...adsWithBoost.filter(a => a.is_boosted), ...adsWithBoost.filter(a => !a.is_boosted)]
         setAds(sorted); setFiltered(sorted)
       }
@@ -146,6 +138,8 @@ export default function Home() {
   useEffect(() => {
     if (!isImmoMode || !mapRef.current || mapInstanceRef.current) return
     if (!MAPBOX_TOKEN) return
+    const isMobileMapPanel = window.matchMedia('(max-width: 900px)').matches
+    if (isMobileMapPanel && !showMap) return
 
     const initMap = async () => {
       const mapboxgl = (await import('mapbox-gl')).default
@@ -155,11 +149,17 @@ export default function Home() {
         container: mapRef.current,
         style: 'mapbox://styles/mapbox/light-v11',
         center: [30.0619, -1.9441], // Kigali
-        zoom: 9,
+        zoom: 12,
       })
 
       map.addControl(new mapboxgl.NavigationControl(), 'top-right')
       mapInstanceRef.current = map
+
+      map.on('load', () => {
+        requestAnimationFrame(() => map.resize())
+        setTimeout(() => map.resize(), 300)
+        setMapReady(true)
+      })
     }
 
     initMap()
@@ -168,65 +168,73 @@ export default function Home() {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove()
         mapInstanceRef.current = null
+        setMapReady(false)
       }
     }
-  }, [isImmoMode])
+  }, [isImmoMode, showMap])
+
+  useEffect(() => {
+    if (!isImmoMode || !showMap || !mapInstanceRef.current) return
+
+    setTimeout(() => {
+      mapInstanceRef.current?.resize()
+    }, 100)
+
+    setTimeout(() => {
+      mapInstanceRef.current?.resize()
+    }, 300)
+  }, [isImmoMode, showMap])
 
   // ── Mise à jour des pins sur la map ──
   useEffect(() => {
-    if (!isImmoMode || !mapInstanceRef.current) return
+    if (!isImmoMode || !mapReady || !mapInstanceRef.current) return
+
+    // Supprimer les anciens markers
+    markersRef.current.forEach(m => m.remove())
+    markersRef.current = []
 
     const updateMarkers = async () => {
       const mapboxgl = (await import('mapbox-gl')).default
 
-      // Supprimer les anciens markers
-      markersRef.current.forEach(m => m.remove())
-      markersRef.current = []
-
+      // Filtrer les annonces immo
       const immoAds = filtered.filter(ad =>
         ['immo-vente', 'immo-location', 'immo-terrain'].includes(ad.category)
       )
 
+      // Créer les nouveaux markers
       immoAds.forEach(ad => {
-        const coords = VILLE_COORDS[ad.province] || VILLE_COORDS['Kigali']
-
-        // Offset léger pour éviter les superpositions
-        const offsetLng = (Math.random() - 0.5) * 0.02
-        const offsetLat = (Math.random() - 0.5) * 0.02
+        const coords = ad._coords
+        if (!coords) return
 
         const el = document.createElement('div')
-        el.innerHTML = `
-          <div style="
-            background: ${selectedImmoAd?.id === ad.id ? '#0f5233' : (FEATURE_FLAGS.boostedListings && ad.is_boosted) ? '#f5a623' : '#1a7a4a'};
-            color: white;
-            padding: 6px 10px;
-            border-radius: 20px;
-            font-family: Syne, sans-serif;
-            font-weight: 800;
-            font-size: 0.72rem;
-            white-space: nowrap;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            border: 2px solid white;
-            transition: all 0.15s;
-          ">
-            ${Number(ad.price).toLocaleString()} RWF
-          </div>
-        `
+        el.textContent = Number(ad.price).toLocaleString() + ' RWF'
+        el.style.background = selectedImmoAd?.id === ad.id ? '#0f5233' : '#1a7a4a'
+        el.style.color = 'white'
+        el.style.padding = '5px 10px'
+        el.style.borderRadius = '20px'
+        el.style.fontFamily = 'Syne, sans-serif'
+        el.style.fontWeight = '800'
+        el.style.fontSize = '11px'
+        el.style.whiteSpace = 'nowrap'
         el.style.cursor = 'pointer'
+        el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)'
+        el.style.border = '2px solid white'
+        el.style.lineHeight = '1.4'
         el.addEventListener('click', () => setSelectedImmoAd(ad))
 
-        const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
-          .setLngLat([coords[0] + offsetLng, coords[1] + offsetLat])
+        const marker = new mapboxgl.Marker({
+          element: el,
+          anchor: 'bottom',
+        })
+          .setLngLat([coords.lng, coords.lat])
           .addTo(mapInstanceRef.current)
 
         markersRef.current.push(marker)
       })
     }
 
-    const timer = setTimeout(updateMarkers, 300)
-    return () => clearTimeout(timer)
-  }, [filtered, isImmoMode, selectedImmoAd])
+    updateMarkers()
+  }, [filtered.length, isImmoMode, selectedImmoAd?.id, mapReady])
 
   // ── Filtrage ──
   const saveToHistory = async (q: string, cat: string, ville: string) => {
@@ -369,8 +377,6 @@ export default function Home() {
         .nav-cat:hover { color: #1a7a4a !important; }
         .immo-card:hover { border-color: #1a7a4a !important; }
         .immo-card { transition: border-color 0.15s, box-shadow 0.15s; }
-        .mapboxgl-map { border-radius: 12px; }
-        @import url('https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css');
       `}</style>
 
       {toast && (
@@ -706,8 +712,8 @@ export default function Home() {
           <div className={`immo-map-panel ${showMap ? 'show' : ''}`}
             style={{position:'sticky', top:'140px', display:'flex', flexDirection:'column', gap:'16px'}}>
 
-            <div style={{borderRadius:'14px', overflow:'hidden', border:'1px solid #e8ede9', boxShadow:'0 2px 12px rgba(0,0,0,0.08)', aspectRatio:'1 / 1', position:'relative', background:'#e8ede9', minHeight:'320px'}}>
-              <div ref={mapRef} style={{width:'100%', height:'100%'}} />
+            <div style={{borderRadius:'14px', border:'1px solid #e8ede9', boxShadow:'0 2px 12px rgba(0,0,0,0.08)', aspectRatio:'1 / 1', position:'relative', background:'#e8ede9', minHeight:'320px', isolation:'isolate'}}>
+              <div ref={mapRef} style={{width:'100%', height:'100%', borderRadius:'14px'}} />
 
               {!MAPBOX_TOKEN && (
                 <div style={{position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:'12px', color:'#6b7c6e'}}>
