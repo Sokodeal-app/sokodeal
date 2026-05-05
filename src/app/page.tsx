@@ -817,7 +817,7 @@ export default function Home() {
 
       {/* ── MODE NORMAL — Grid annonces ── */}
       {!search && !filterCat && !isImmoMode && user && ads.length > 0 && (
-        <div style={{padding:'0 5% 32px', maxWidth:'1300px', margin:'0 auto', width:'100%', boxSizing:'border-box'}}>
+        <div style={{padding:'32px 5% 0', maxWidth:'1300px', margin:'0 auto', width:'100%', boxSizing:'border-box'}}>
           <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'16px', gap:'14px', flexWrap:'wrap'}}>
             <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
               <div style={{width:'32px', height:'32px', background:'#fef9c3', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1rem'}}>⭐</div>
@@ -858,7 +858,7 @@ export default function Home() {
       )}
 
       {!search && !filterCat && !isImmoMode && (
-        <div style={{padding:'0 5% 32px', maxWidth:'1300px', margin:'0 auto', width:'100%', boxSizing:'border-box'}}>
+        <div style={{padding:'24px 5% 32px', maxWidth:'1300px', margin:'0 auto', width:'100%', boxSizing:'border-box'}}>
           <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'16px'}}>
             <span style={{fontSize:'1.2rem'}}>⚡</span>
             <span style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.1rem', color:'#111a14'}}>Ou explorez rapidement</span>
@@ -885,7 +885,7 @@ export default function Home() {
       )}
 
       {!search.startsWith('@') && activeSection === 'main' && !isImmoMode && (
-        <div style={{padding:'24px 5%', maxWidth:'1300px', margin:'0 auto'}}>
+        <div style={{padding:'0 5% 24px', maxWidth:'1300px', margin:'0 auto'}}>
           <div style={{background:'white', borderRadius:'12px', padding:'12px 16px', marginBottom:'20px', border:'1px solid #e8e4de'}}>
             <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'10px', flexWrap:'wrap'}}>
               <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
