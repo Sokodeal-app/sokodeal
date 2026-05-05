@@ -351,6 +351,7 @@ export default function Home() {
     <>
       <style>{`
         * { box-sizing: border-box; }
+        body { line-height: 1.4; }
         html, body { overflow-x: hidden; max-width: 100vw; background: #faf9f7; }
         @media (max-width: 768px) {
           .hero-title { font-size: 2.2rem !important; }
@@ -658,10 +659,13 @@ export default function Home() {
                     right: i === 1 ? '0%' : 'auto',
                     width:'175px',
                     background:'white', borderRadius:'14px', overflow:'hidden',
-                    boxShadow:'0 8px 32px rgba(0,0,0,0.12)',
+                    boxShadow:'0 12px 40px rgba(0,0,0,0.14)',
+                    transition:'transform 0.2s ease',
                     cursor:'pointer', border:'1px solid #e8e4de',
                     zIndex: i === 0 ? 2 : 1,
                   }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
                 >
                   <div style={{height:'90px', background:'#f0f7f3', overflow:'hidden'}}>
                     {ad.images?.[0] ? (
@@ -828,13 +832,13 @@ export default function Home() {
 
       {/* ── MODE NORMAL — Grid annonces ── */}
       {!search && !filterCat && !isImmoMode && user && ads.length > 0 && (
-        <div style={{padding:'32px 5% 0', maxWidth:'1300px', margin:'0 auto', width:'100%', boxSizing:'border-box'}}>
+        <div style={{padding:'32px 5% 0', maxWidth:'1300px', margin:'0 auto', marginTop:'40px', width:'100%', boxSizing:'border-box'}}>
           <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'16px', gap:'14px', flexWrap:'wrap'}}>
             <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
               <div style={{width:'32px', height:'32px', background:'#fef9c3', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1rem'}}>⭐</div>
               <div>
-                <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.1rem', color:'#111a14'}}>Recommandé pour vous</div>
-                <div style={{fontSize:'0.75rem', color:'#6b7c6e'}}>Basé sur vos favoris, recherches, historique et alertes</div>
+                <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.1rem', color:'#111a14', letterSpacing:'-0.3px', marginBottom:'4px'}}>Recommandé pour vous</div>
+                <div style={{fontSize:'0.75rem', color:'#6b7c6e', opacity:0.8}}>Basé sur vos favoris, recherches, historique et alertes</div>
               </div>
             </div>
             <button onClick={() => router.push('/profil?tab=alertes')} style={{display:'flex', alignItems:'center', gap:'6px', padding:'8px 14px', background:'white', border:'1px solid #e8e4de', borderRadius:'10px', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:'0.78rem', color:'#111a14', cursor:'pointer'}}>
@@ -844,7 +848,7 @@ export default function Home() {
           <div style={{display:'flex', gap:'14px', overflowX:'auto', scrollbarWidth:'none', paddingBottom:'8px', WebkitOverflowScrolling:'touch'}}>
             {[...ads].sort((a, b) => (favorites?.includes(b.id) ? 1 : 0) - (favorites?.includes(a.id) ? 1 : 0)).slice(0, 8).map((ad: any) => (
               <div key={ad.id} onClick={() => router.push('/annonce/' + generateSlug(ad))} style={{flexShrink:0, width:'200px', background:'white', borderRadius:'14px', overflow:'hidden', border:'1px solid #e8e4de', cursor:'pointer', boxShadow:'0 2px 8px rgba(0,0,0,0.06)'}}>
-                <div style={{height:'130px', background:'#f5f7f5', overflow:'hidden'}}>
+                <div style={{height:'130px', background:'#f5f7f5', overflow:'hidden', position:'relative'}}>
                   {ad.images?.[0] ? (
                     <img src={ad.images[0]} alt={ad.title} style={{width:'100%', height:'100%', objectFit:'cover'}}/>
                   ) : (
@@ -852,11 +856,19 @@ export default function Home() {
                       {catEmoji[ad.category] || '📦'}
                     </div>
                   )}
+                  {(() => {
+                    const days = (Date.now() - new Date(ad.created_at).getTime()) / (1000*60*60*24)
+                    return days < 7 ? (
+                      <div style={{position:'absolute', top:'8px', left:'8px', background:'#1a7a4a', color:'white', padding:'2px 7px', borderRadius:'5px', fontSize:'0.6rem', fontWeight:800}}>
+                        Nouveau
+                      </div>
+                    ) : null
+                  })()}
                 </div>
                 <div style={{padding:'10px 12px'}}>
                   <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.82rem', color:'#111a14', marginBottom:'4px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{ad.title}</div>
                   <div style={{fontFamily:'DM Sans,sans-serif', fontWeight:800, fontSize:'0.95rem', color:'#1a7a4a', marginBottom:'4px'}}>
-                    {Number(ad.price).toLocaleString()} <span style={{fontSize:'0.7rem', fontWeight:600, color:'#6b7c6e'}}>RWF</span>
+                    {Number(ad.price).toLocaleString('fr-FR')} <span style={{fontSize:'0.7rem', fontWeight:600, color:'#6b7c6e'}}>RWF</span>
                   </div>
                   <div style={{fontSize:'0.68rem', color:'#6b7c6e'}}>
                     {ad.province && <>📍 {ad.province}</>}
@@ -869,10 +881,10 @@ export default function Home() {
       )}
 
       {!search && !filterCat && !isImmoMode && (
-        <div style={{padding:'24px 5% 32px', maxWidth:'1300px', margin:'0 auto', width:'100%', boxSizing:'border-box'}}>
+        <div style={{padding:'24px 5% 32px', maxWidth:'1300px', margin:'0 auto', marginTop:'32px', width:'100%', boxSizing:'border-box'}}>
           <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'16px'}}>
             <span style={{fontSize:'1.2rem'}}>⚡</span>
-            <span style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.1rem', color:'#111a14'}}>Ou explorez rapidement</span>
+            <span style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.1rem', color:'#111a14', letterSpacing:'-0.3px', marginBottom:'4px'}}>Ou explorez rapidement</span>
           </div>
           <div style={{display:'grid', gridTemplateColumns:'repeat(5, 1fr)', gap:'12px'}} className="cat-grid">
             {[
@@ -882,7 +894,7 @@ export default function Home() {
               { icon:'👗', label:'Mode', sub:'Vêtements, chaussures, accessoires...', cat:'mode' },
               { icon:'💼', label:'Emploi & services', sub:"Offres d'emploi, services...", cat:'services' },
             ].map((item) => (
-              <div key={item.cat} onClick={() => handleNavCat(item.cat)} style={{background:'white', borderRadius:'14px', padding:'16px', border:'1px solid #e8e4de', cursor:'pointer', display:'flex', alignItems:'center', gap:'12px', transition:'border-color 0.15s'}} onMouseEnter={e => (e.currentTarget.style.borderColor = '#1a7a4a')} onMouseLeave={e => (e.currentTarget.style.borderColor = '#e8e4de')}>
+              <div key={item.cat} onClick={() => handleNavCat(item.cat)} style={{background:'white', borderRadius:'14px', padding:'16px', border:'1px solid #e8e4de', cursor:'pointer', display:'flex', alignItems:'center', gap:'12px', transition:'all 0.2s ease'}} onMouseEnter={e => { e.currentTarget.style.borderColor = '#1a7a4a'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(0,0,0,0.08)' }} onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8e4de'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}>
                 <div style={{width:'42px', height:'42px', borderRadius:'10px', background:'#f0f7f3', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.3rem', flexShrink:0}}>{item.icon}</div>
                 <div style={{flex:1, minWidth:0}}>
                   <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'#111a14', marginBottom:'2px'}}>{item.label}</div>
@@ -896,7 +908,7 @@ export default function Home() {
       )}
 
       {!search.startsWith('@') && activeSection === 'main' && !isImmoMode && (
-        <div style={{padding:'0 5% 24px', maxWidth:'1300px', margin:'0 auto'}}>
+        <div style={{padding:'0 5% 24px', maxWidth:'1300px', margin:'0 auto', marginTop:'32px'}}>
           <div style={{background:'white', borderRadius:'12px', padding:'12px 16px', marginBottom:'20px', border:'1px solid #e8e4de'}}>
             <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'10px', flexWrap:'wrap'}}>
               <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
