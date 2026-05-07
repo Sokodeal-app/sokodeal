@@ -32,3 +32,10 @@ body {
 .bottom-nav {
   padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
 }
+
+.price-text,
+.tabular-nums,
+.numeric-text {
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings: "lnum" 1, "tnum" 1, "onum" 0;
+}

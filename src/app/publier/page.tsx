@@ -445,25 +445,13 @@ export default function PublierPage() {
 
         {/* TITRE */}
         <label style={label}>Titre</label>
-        <input type="text" placeholder="Ex: Villa 4 chambres Kigali Kimironko" value={form.title}
+        <input type="text" placeholder="Ex : Villa 4 chambres avec jardin" value={form.title}
           onChange={e => setForm({...form, title: e.target.value})} style={inp}/>
 
         {/* PRIX */}
         <label style={label}>Prix (RWF){publishCategory === 'immo-location' ? ' / mois' : ''}</label>
         <input type="number" placeholder="Ex: 85000000" value={form.price}
           onChange={e => setForm({...form, price: e.target.value})} style={inp}/>
-
-        {/* DESCRIPTION */}
-        <label style={label}>Description</label>
-        <textarea
-          placeholder={isImmoSelected
-            ? "Décrivez le bien : emplacement, état, équipements..."
-            : form.category === 'animaux'
-            ? "Race, âge, sexe, vaccins, caractère..."
-            : "Décrivez votre article en détail..."}
-          value={form.description}
-          onChange={e => setForm({...form, description: e.target.value})}
-          style={{...inp, minHeight: isImmoSelected ? '120px' : '80px', resize:'vertical'}}/>
 
         {/* VILLE */}
         <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px'}}>
@@ -477,9 +465,24 @@ export default function PublierPage() {
           </div>
           <div>
             <label style={label}>Quartier</label>
-            <input type="text" placeholder="Ex: Kicukiro" value={form.district}
+            <input type="text" placeholder="Ex : Kicukiro, Kimironko" value={form.district}
               onChange={e => setForm({...form, district: e.target.value})} style={inp}/>
           </div>
+        </div>
+
+        {/* DESCRIPTION */}
+        <label style={label}>Description du produit</label>
+        <textarea
+          placeholder={isImmoSelected
+            ? "Décrivez le bien : emplacement, état, équipements..."
+            : form.category === 'animaux'
+            ? "Race, âge, sexe, vaccins, caractère..."
+            : "Ex : Caméra en bon état, utilisée 2 mois, avec accessoires"}
+          value={form.description}
+          onChange={e => setForm({...form, description: e.target.value})}
+          style={{...inp, minHeight: isImmoSelected ? '120px' : '80px', resize:'vertical'}}/>
+        <div style={{fontSize:'0.72rem', color:'#6b7c6e', marginTop:'-6px', marginBottom:'12px', fontFamily:'DM Sans,sans-serif'}}>
+          Ajoute des détails pour donner envie d’acheter.
         </div>
 
         {/* TELEPHONE */}

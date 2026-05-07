@@ -10,6 +10,7 @@ import { FEATURE_FLAGS } from '@/lib/feature-flags'
 import { getApproxCoords } from '@/lib/locations'
 import { LAUNCH_CITIES, LAUNCH_MAIN_CATEGORIES, LAUNCH_SUBCATEGORIES, matchesCategoryGroup } from '@/lib/market-config'
 import { generateSlug } from '@/lib/slug'
+import { formatPrice } from '@/lib/format'
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
 
@@ -210,12 +211,12 @@ export default function Home() {
         if (!coords) return
 
         const el = document.createElement('div')
-        el.textContent = Number(ad.price).toLocaleString() + ' RWF'
+        el.textContent = formatPrice(ad.price)
         el.style.background = selectedImmoAd?.id === ad.id ? '#0f5233' : '#1a7a4a'
         el.style.color = 'white'
         el.style.padding = '5px 10px'
         el.style.borderRadius = '20px'
-        el.style.fontFamily = 'Syne, sans-serif'
+        el.style.fontFamily = "'DM Sans', sans-serif"
         el.style.fontWeight = '800'
         el.style.fontSize = '11px'
         el.style.whiteSpace = 'nowrap'
@@ -223,6 +224,8 @@ export default function Home() {
         el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)'
         el.style.border = '2px solid white'
         el.style.lineHeight = '1.4'
+        el.style.fontVariantNumeric = 'lining-nums tabular-nums'
+        el.style.fontFeatureSettings = '"lnum" 1, "tnum" 1, "onum" 0'
         el.addEventListener('click', () => setSelectedImmoAd(ad))
 
         const marker = new mapboxgl.Marker({
@@ -565,11 +568,11 @@ export default function Home() {
 
             {/* Prix min */}
             <input type="number" placeholder="Prix min" value={filterPriceMin} onChange={e => setFilterPriceMin(e.target.value)}
-              style={{padding:'7px 12px', border:'1px solid #e8e4de', borderRadius:'8px', fontFamily:'DM Sans,sans-serif', fontSize:'0.82rem', outline:'none', background:'white', width:'110px', color:'#111a14'}}/>
+              style={{padding:'7px 12px', border:'1px solid #e8e4de', borderRadius:'8px', fontFamily:"'DM Sans', sans-serif", fontSize:'0.82rem', outline:'none', background:'white', width:'110px', color:'#111a14', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0'}}/>
 
             {/* Prix max */}
             <input type="number" placeholder="Prix max" value={filterPriceMax} onChange={e => setFilterPriceMax(e.target.value)}
-              style={{padding:'7px 12px', border:'1px solid #e8e4de', borderRadius:'8px', fontFamily:'DM Sans,sans-serif', fontSize:'0.82rem', outline:'none', background:'white', width:'110px', color:'#111a14'}}/>
+              style={{padding:'7px 12px', border:'1px solid #e8e4de', borderRadius:'8px', fontFamily:"'DM Sans', sans-serif", fontSize:'0.82rem', outline:'none', background:'white', width:'110px', color:'#111a14', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0'}}/>
 
             {/* Tri */}
             <select value={sortBy} onChange={e => setSortBy(e.target.value)}
@@ -680,8 +683,8 @@ export default function Home() {
                     <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.75rem', color:'#111a14', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:'3px'}}>
                       {ad.title}
                     </div>
-                    <div style={{fontFamily:'DM Sans,sans-serif', fontWeight:800, fontSize:'0.85rem', color:'#1a7a4a'}}>
-                      {Number(ad.price).toLocaleString()} RWF
+                    <div style={{fontFamily:"'DM Sans', sans-serif", fontWeight:800, fontSize:'0.85rem', color:'#1a7a4a', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0'}}>
+                      {formatPrice(ad.price)}
                     </div>
                     <div style={{fontSize:'0.65rem', color:'#6b7c6e', marginTop:'2px'}}>📍 {ad.province}</div>
                   </div>
@@ -751,8 +754,8 @@ export default function Home() {
 
                 <div style={{padding:'12px 14px', display:'flex', flexDirection:'column', justifyContent:'space-between'}}>
                   <div>
-                    <div style={{fontFamily:'DM Sans,sans-serif', fontWeight:800, fontSize:'1rem', color:'#0f5233', marginBottom:'3px', fontVariantNumeric:'tabular-nums', letterSpacing:'-0.01em'}}>
-                      {Number(ad.price).toLocaleString()} <span style={{fontSize:'0.72rem', fontWeight:600, color:'#6b7c6e'}}>RWF{ad.category === 'immo-location' ? '/mois' : ''}</span>
+                    <div style={{fontFamily:"'DM Sans', sans-serif", fontWeight:800, fontSize:'1rem', color:'#0f5233', marginBottom:'3px', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0', letterSpacing:'-0.01em'}}>
+                      {formatPrice(ad.price)}{ad.category === 'immo-location' && <span style={{fontSize:'0.72rem', fontWeight:600, color:'#6b7c6e'}}> /mois</span>}
                     </div>
                     <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'#111a14', marginBottom:'8px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
                       {ad.title}
@@ -762,8 +765,8 @@ export default function Home() {
                       {ad.chambres && <span style={{fontSize:'0.7rem', color:'#6b7c6e'}}>{ad.chambres} ch.</span>}
                       {ad.salles_de_bain && <span style={{fontSize:'0.7rem', color:'#6b7c6e'}}>{ad.salles_de_bain} sdb</span>}
                       {ad.surface && ad.price && ad.category !== 'immo-location' && (
-                        <span style={{fontSize:'0.7rem', color:'#1a7a4a', fontWeight:600}}>
-                          {Math.round(ad.price / ad.surface).toLocaleString()} RWF/m2
+                        <span style={{fontSize:'0.7rem', color:'#1a7a4a', fontWeight:600, fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0'}}>
+                          {formatPrice(Math.round(ad.price / ad.surface)).replace(' RWF', ' RWF/m2')}
                         </span>
                       )}
                     </div>
@@ -806,8 +809,8 @@ export default function Home() {
                   )}
                 </div>
                 <div style={{flex:1, minWidth:0}}>
-                  <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'0.88rem', color:'#0f5233', marginBottom:'2px'}}>
-                    {Number(selectedImmoAd.price).toLocaleString()} RWF
+                  <div style={{fontFamily:"'DM Sans', sans-serif", fontWeight:800, fontSize:'0.88rem', color:'#0f5233', marginBottom:'2px', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0'}}>
+                    {formatPrice(selectedImmoAd.price)}
                   </div>
                   <div style={{fontSize:'0.75rem', color:'#111a14', fontWeight:600, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
                     {selectedImmoAd.title}
@@ -867,8 +870,8 @@ export default function Home() {
                 </div>
                 <div style={{padding:'10px 12px'}}>
                   <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.82rem', color:'#111a14', marginBottom:'4px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{ad.title}</div>
-                  <div style={{fontFamily:'DM Sans,sans-serif', fontWeight:800, fontSize:'0.95rem', color:'#1a7a4a', marginBottom:'4px'}}>
-                    {Number(ad.price).toLocaleString('fr-FR')} <span style={{fontSize:'0.7rem', fontWeight:600, color:'#6b7c6e'}}>RWF</span>
+                  <div style={{fontFamily:"'DM Sans', sans-serif", fontWeight:800, fontSize:'0.95rem', color:'#1a7a4a', marginBottom:'4px', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0'}}>
+                    {formatPrice(ad.price)}
                   </div>
                   <div style={{fontSize:'0.68rem', color:'#6b7c6e'}}>
                     {ad.province && <>📍 {ad.province}</>}
@@ -960,8 +963,8 @@ export default function Home() {
                 <div>
                   <label style={{display:'block', fontSize:'0.7rem', fontWeight:600, color:'#6b7c6e', marginBottom:'5px', textTransform:'uppercase'}}>Prix (RWF)</label>
                   <div style={{display:'flex', gap:'6px'}}>
-                    <input type="number" placeholder="Min" value={filterPriceMin} onChange={e => setFilterPriceMin(e.target.value)} style={{width:'50%', padding:'8px', border:'1px solid #e8e4de', borderRadius:'8px', fontFamily:'DM Sans,sans-serif', fontSize:'0.78rem', outline:'none', background:'white'}}/>
-                    <input type="number" placeholder="Max" value={filterPriceMax} onChange={e => setFilterPriceMax(e.target.value)} style={{width:'50%', padding:'8px', border:'1px solid #e8e4de', borderRadius:'8px', fontFamily:'DM Sans,sans-serif', fontSize:'0.78rem', outline:'none', background:'white'}}/>
+                    <input type="number" placeholder="Min" value={filterPriceMin} onChange={e => setFilterPriceMin(e.target.value)} style={{width:'50%', padding:'8px', border:'1px solid #e8e4de', borderRadius:'8px', fontFamily:"'DM Sans', sans-serif", fontSize:'0.78rem', outline:'none', background:'white', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0'}}/>
+                    <input type="number" placeholder="Max" value={filterPriceMax} onChange={e => setFilterPriceMax(e.target.value)} style={{width:'50%', padding:'8px', border:'1px solid #e8e4de', borderRadius:'8px', fontFamily:"'DM Sans', sans-serif", fontSize:'0.78rem', outline:'none', background:'white', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0'}}/>
                   </div>
                 </div>
               </div>
@@ -1019,8 +1022,8 @@ export default function Home() {
                       {ad.subcategory ? ad.subcategory : ad.category}
                     </div>
                     <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.9rem', marginBottom:'5px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', color:'#111a14'}}>{ad.title}</div>
-                    <div style={{fontFamily:'DM Sans,sans-serif', fontWeight:800, fontSize:'1rem', color:'#1a7a4a', marginBottom:'8px', fontVariantNumeric:'tabular-nums', letterSpacing:'-0.01em'}}>
-                      {Number(ad.price).toLocaleString()} <span style={{fontSize:'0.75rem', fontWeight:600}}>RWF</span>
+                    <div style={{fontFamily:"'DM Sans', sans-serif", fontWeight:800, fontSize:'1rem', color:'#1a7a4a', marginBottom:'8px', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0', letterSpacing:'-0.01em'}}>
+                      {formatPrice(ad.price)}
                     </div>
                     <div style={{fontSize:'0.72rem', color:'#6b7c6e', marginBottom:'10px', height:'18px', overflow:'hidden'}}>
                       {ad.province && <>📍 {ad.province}</>}
@@ -1053,7 +1056,7 @@ export default function Home() {
                 <div style={{fontSize:'0.75rem', color:'#6b7c6e'}}>📍 {job.loc} · {job.type}</div>
               </div>
               <div style={{textAlign:'right', flexShrink:0}}>
-                <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, color:'#111a14', fontSize:'0.82rem', marginBottom:'6px'}}>{job.salary}</div>
+                <div style={{fontFamily:"'DM Sans', sans-serif", fontWeight:700, color:'#111a14', fontSize:'0.82rem', marginBottom:'6px', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0'}}>{job.salary}</div>
                 <button onClick={() => window.location.href='/auth'} style={{padding:'6px 14px', background:'#0f5233', color:'white', border:'none', borderRadius:'8px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.78rem', cursor:'pointer'}}>Postuler</button>
               </div>
             </div>
