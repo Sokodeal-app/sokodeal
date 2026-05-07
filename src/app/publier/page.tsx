@@ -56,8 +56,8 @@ export default function PublierPage() {
         if (draft?.immoForm) setImmoForm((prev) => ({ ...prev, ...draft.immoForm }))
         const photoCount = Number(draft?.photoCount || 0)
         setMsg(photoCount > 0
-          ? 'Votre brouillon a ete restaure. Veuillez rajouter vos photos pour finaliser l annonce.'
-          : 'Votre brouillon a ete restaure.')
+          ? 'Votre brouillon a été restauré. Veuillez rajouter vos photos pour finaliser l’annonce.'
+          : 'Votre brouillon a été restauré.')
         skipNextDraftSaveRef.current = true
         // Supprimer immediatement apres restauration : usage unique.
         window.localStorage.removeItem(PUBLISH_DRAFT_KEY)
@@ -116,13 +116,13 @@ export default function PublierPage() {
 
     const remaining = MAX_PHOTOS - photos.length
     if (remaining <= 0) {
-      setMsg('Vous avez deja 5 photos.')
+      setMsg('Vous avez déjà 5 photos.')
       return
     }
 
     const toProcess = newFiles.slice(0, remaining)
     if (newFiles.length > remaining) {
-      setMsg('Vous pouvez ajouter maximum 5 photos. Les photos en plus ont ete ignorees.')
+      setMsg('Vous pouvez ajouter maximum 5 photos. Les photos en plus ont été ignorées.')
     } else {
       setMsg('')
     }
@@ -156,6 +156,12 @@ export default function PublierPage() {
     }
     if (launchSubcats.length > 0 && !form.subcategory) {
       setMsg('Choisissez une précision pour cette catégorie'); return
+    }
+    if (!form.ville) {
+      setMsg('Choisis une ville'); return
+    }
+    if (!form.district.trim()) {
+      setMsg('Ajoute un quartier'); return
     }
     if (!form.hide_phone && !form.phone) {
       setMsg('Ajoutez un numéro ou activez "Contact via messagerie uniquement"'); return

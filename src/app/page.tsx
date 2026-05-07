@@ -10,7 +10,7 @@ import { FEATURE_FLAGS } from '@/lib/feature-flags'
 import { getApproxCoords } from '@/lib/locations'
 import { LAUNCH_CITIES, LAUNCH_MAIN_CATEGORIES, LAUNCH_SUBCATEGORIES, matchesCategoryGroup } from '@/lib/market-config'
 import { generateSlug } from '@/lib/slug'
-import { formatPrice } from '@/lib/format'
+import { formatPrice, formatRelativeTime } from '@/lib/format'
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
 
@@ -132,7 +132,7 @@ export default function Home() {
       event: 'INSERT', schema: 'public', table: 'messages',
       filter: 'receiver_id=eq.' + user.id
     }, () => {
-      setToast({ text: 'Nouveau message recu !', icon: '💬' })
+      setToast({ text: 'Nouveau message reçu !', icon: '💬' })
       setTimeout(() => setToast(null), 4000)
     }).subscribe()
     return () => { supabase.removeChannel(ch) }
@@ -267,7 +267,7 @@ export default function Home() {
     }])
     if (!error) {
       setSearchSaved(true)
-      setToast({ text: 'Alerte creee !', icon: '🔔' })
+      setToast({ text: 'Alerte créée !', icon: '🔔', href: '/profil?tab=alertes' })
       setTimeout(() => { setSearchSaved(false); setToast(null) }, 3000)
     }
   }
@@ -407,7 +407,7 @@ export default function Home() {
           <span style={{fontSize:'1.2rem'}}>{toast.icon}</span>
           <div>
             <div style={{fontWeight:700, marginBottom:'4px'}}>{toast.text}</div>
-            <button onClick={() => window.location.href='/messages'} style={{background:'#1a7a4a', border:'none', borderRadius:'6px', padding:'3px 10px', fontSize:'0.75rem', fontWeight:700, color:'white', cursor:'pointer'}}>Voir</button>
+            <button onClick={() => window.location.href=toast.href || '/messages'} style={{background:'#1a7a4a', border:'none', borderRadius:'6px', padding:'3px 10px', fontSize:'0.75rem', fontWeight:700, color:'white', cursor:'pointer'}}>Voir</button>
           </div>
           <button onClick={() => setToast(null)} style={{background:'transparent', border:'none', color:'rgba(255,255,255,0.5)', cursor:'pointer', fontSize:'1rem', padding:'0 4px'}}>×</button>
         </div>
@@ -434,7 +434,7 @@ export default function Home() {
             {showSuggestions && localHistory.length > 0 && !search && (
               <div style={{position:'absolute', top:'44px', left:0, right:0, background:'white', borderRadius:'12px', border:'1px solid #e8e4de', boxShadow:'0 8px 24px rgba(0,0,0,0.10)', zIndex:500, overflow:'hidden'}}>
                 <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 14px', borderBottom:'1px solid #e8e4de'}}>
-                  <span style={{fontSize:'0.72rem', fontWeight:700, color:'#6b7c6e', textTransform:'uppercase'}}>Recherches recentes</span>
+                  <span style={{fontSize:'0.72rem', fontWeight:700, color:'#6b7c6e', textTransform:'uppercase'}}>Recherches récentes</span>
                   <button
                     onMouseDown={() => {
                       localStorage.removeItem('sokodeal:search-history')
@@ -492,11 +492,11 @@ export default function Home() {
             ) : (
               <>
                 <button onClick={() => window.location.href='/auth?mode=login'} style={{padding:'8px 16px', border:'1px solid #1a7a4a', borderRadius:'9px', color:'#1a7a4a', background:'white', fontFamily:'DM Sans,sans-serif', fontSize:'0.85rem', cursor:'pointer'}}>Connexion</button>
-                <button className="btn-signup" onClick={() => window.location.href='/auth?mode=signup'} style={{padding:'8px 16px', border:'none', borderRadius:'9px', color:'white', background:'#1a7a4a', fontFamily:'DM Sans,sans-serif', fontWeight:700, fontSize:'0.85rem', cursor:'pointer'}}>S inscrire</button>
+                <button className="btn-signup" onClick={() => window.location.href='/auth?mode=signup'} style={{padding:'8px 16px', border:'none', borderRadius:'9px', color:'white', background:'#1a7a4a', fontFamily:'DM Sans,sans-serif', fontWeight:700, fontSize:'0.85rem', cursor:'pointer'}}>S’inscrire</button>
               </>
             )}
             <button className="deposer-btn" onClick={() => window.location.href='/publier'} style={{padding:'8px 18px', background:'#1a7a4a', border:'none', borderRadius:'9px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'white', cursor:'pointer', whiteSpace:'nowrap'}}>
-              +<span className="deposer-text"> Deposer</span>
+              +<span className="deposer-text"> Publier</span>
             </button>
           </div>
         </div>
@@ -603,7 +603,7 @@ export default function Home() {
           ) : profileResults.length === 0 ? (
             <div style={{background:'white', borderRadius:'12px', padding:'40px', textAlign:'center', border:'1px solid #e8e4de'}}>
               <div style={{fontSize:'2rem', marginBottom:'8px'}}>😕</div>
-              <p style={{color:'#6b7c6e', fontSize:'0.88rem'}}>Aucun profil trouve pour "{search}"</p>
+              <p style={{color:'#6b7c6e', fontSize:'0.88rem'}}>Aucun profil trouvé pour "{search}"</p>
             </div>
           ) : (
             <div style={{display:'flex', flexDirection:'column', gap:'10px'}}>
@@ -639,14 +639,15 @@ export default function Home() {
               <h1 className="hero-title" style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'3rem', color:'#111a14', lineHeight:1.1, marginBottom:0}}>
                 Achetez.<br/>
                 Vendez.<br/>
-                <span style={{color:'#1a7a4a'}}>Simplement.</span>
+                Louez.<br/>
+                <span style={{color:'#1a7a4a'}}>Sans effort.</span>
               </h1>
               <p style={{color:'#6b7c6e', fontSize:'0.95rem', marginTop:'16px', maxWidth:'380px', lineHeight:1.6}}>
-                Des milliers d'annonces pres de chez vous. Rapide, securise et facile a utiliser.
+                Des milliers d’annonces près de chez vous. Simple, rapide et sécurisé.
               </p>
-              <button className="hero-cta" onClick={() => setFilterCat('')}
+              <button className="hero-cta" onClick={() => document.getElementById('explore-rapidement')?.scrollIntoView({ behavior: 'smooth' })}
                 style={{display:'inline-flex', alignItems:'center', justifyContent:'center', background:'#1a7a4a', color:'white', padding:'14px 28px', borderRadius:'10px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.95rem', marginTop:'28px', border:'none', cursor:'pointer'}}>
-                🔍 Explorer les annonces
+                Voir les annonces
               </button>
             </div>
             <div style={{position:'relative', zIndex:2, minHeight:'280px', display:'flex', alignItems:'center', justifyContent:'center'}} className="hero-cards">
@@ -686,7 +687,9 @@ export default function Home() {
                     <div style={{fontFamily:"'DM Sans', sans-serif", fontWeight:800, fontSize:'0.85rem', color:'#1a7a4a', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0'}}>
                       {formatPrice(ad.price)}
                     </div>
-                    <div style={{fontSize:'0.65rem', color:'#6b7c6e', marginTop:'2px'}}>📍 {ad.province}</div>
+                    <div style={{fontSize:'0.65rem', color:'#6b7c6e', marginTop:'2px', fontFamily:"'DM Sans', sans-serif"}}>
+                      📍 {ad.province}{formatRelativeTime(ad.created_at) && <span> · {formatRelativeTime(ad.created_at)}</span>}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -722,7 +725,7 @@ export default function Home() {
             ) : immoAds.length === 0 ? (
               <div style={{background:'white', borderRadius:'14px', padding:'40px', textAlign:'center', border:'1px solid #e8e4de'}}>
                 <div style={{fontSize:'2.5rem', marginBottom:'12px'}}>Immo</div>
-                <h3 style={{fontFamily:'Syne,sans-serif', fontWeight:800, marginBottom:'8px', color:'#111a14'}}>Aucun bien trouve</h3>
+                <h3 style={{fontFamily:'Syne,sans-serif', fontWeight:800, marginBottom:'8px', color:'#111a14'}}>Aucun bien trouvé</h3>
                 <p style={{color:'#6b7c6e', marginBottom:'20px', fontSize:'0.88rem'}}>Modifiez vos filtres</p>
                 <button onClick={resetFilters} style={{padding:'10px 24px', background:'#1a7a4a', color:'white', border:'none', borderRadius:'9px', fontFamily:'Syne,sans-serif', fontWeight:700, cursor:'pointer'}}>
                   Voir tout
@@ -774,6 +777,7 @@ export default function Home() {
                   <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'10px'}}>
                     <span style={{fontSize:'0.7rem', color:'#6b7c6e', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
                       {ad.province}{ad.district ? ' - ' + ad.district : ''}
+                      {formatRelativeTime(ad.created_at) && <span> · {formatRelativeTime(ad.created_at)}</span>}
                     </span>
                     <div onClick={e => e.stopPropagation()}>
                       <FavoriteButton adId={ad.id} onLogin={() => window.location.href='/auth?mode=login'} />
@@ -815,7 +819,9 @@ export default function Home() {
                   <div style={{fontSize:'0.75rem', color:'#111a14', fontWeight:600, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
                     {selectedImmoAd.title}
                   </div>
-                  <div style={{fontSize:'0.68rem', color:'#6b7c6e'}}>{selectedImmoAd.province}</div>
+                  <div style={{fontSize:'0.68rem', color:'#6b7c6e', fontFamily:"'DM Sans', sans-serif"}}>
+                    {selectedImmoAd.province}{formatRelativeTime(selectedImmoAd.created_at) && <span> · {formatRelativeTime(selectedImmoAd.created_at)}</span>}
+                  </div>
                 </div>
                 <div style={{display:'flex', flexDirection:'column', gap:'5px', flexShrink:0}}>
                   <button onClick={() => window.location.href='/annonce/' + generateSlug(selectedImmoAd)}
@@ -873,8 +879,8 @@ export default function Home() {
                   <div style={{fontFamily:"'DM Sans', sans-serif", fontWeight:800, fontSize:'0.95rem', color:'#1a7a4a', marginBottom:'4px', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0'}}>
                     {formatPrice(ad.price)}
                   </div>
-                  <div style={{fontSize:'0.68rem', color:'#6b7c6e'}}>
-                    {ad.province && <>📍 {ad.province}</>}
+                  <div style={{fontSize:'0.68rem', color:'#6b7c6e', fontFamily:"'DM Sans', sans-serif"}}>
+                    {ad.province && <>📍 {ad.province}</>}{formatRelativeTime(ad.created_at) && <span> · {formatRelativeTime(ad.created_at)}</span>}
                   </div>
                 </div>
               </div>
@@ -884,10 +890,10 @@ export default function Home() {
       )}
 
       {!search && !filterCat && !isImmoMode && (
-        <div style={{padding:'24px 5% 32px', maxWidth:'1300px', margin:'0 auto', marginTop:'32px', width:'100%', boxSizing:'border-box'}}>
+        <div id="explore-rapidement" style={{padding:'24px 5% 32px', maxWidth:'1300px', margin:'0 auto', marginTop:'32px', width:'100%', boxSizing:'border-box'}}>
           <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'16px'}}>
             <span style={{fontSize:'1.2rem'}}>⚡</span>
-            <span style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.1rem', color:'#111a14', letterSpacing:'-0.3px', marginBottom:'4px'}}>Ou explorez rapidement</span>
+            <span style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.1rem', color:'#111a14', letterSpacing:'-0.3px', marginBottom:'4px'}}>Explorez rapidement</span>
           </div>
           <div style={{display:'grid', gridTemplateColumns:'repeat(5, 1fr)', gap:'12px'}} className="cat-grid">
             {[
@@ -895,7 +901,7 @@ export default function Home() {
               { icon:'🚗', label:'Véhicules', sub:'Voitures, motos, camions...', cat:'voiture' },
               { icon:'📱', label:'Tech', sub:'Téléphones, ordinateurs, accessoires...', cat:'electronique' },
               { icon:'👗', label:'Mode', sub:'Vêtements, chaussures, accessoires...', cat:'mode' },
-              { icon:'💼', label:'Emploi & services', sub:"Offres d'emploi, services...", cat:'services' },
+              { icon:'💼', label:'Emplois & Services', sub:"Offres d'emploi, services...", cat:'services' },
             ].map((item) => (
               <div key={item.cat} onClick={() => handleNavCat(item.cat)} style={{background:'white', borderRadius:'14px', padding:'16px', border:'1px solid #e8e4de', cursor:'pointer', display:'flex', alignItems:'center', gap:'12px', transition:'all 0.2s ease'}} onMouseEnter={e => { e.currentTarget.style.borderColor = '#1a7a4a'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(0,0,0,0.08)' }} onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8e4de'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}>
                 <div style={{width:'42px', height:'42px', borderRadius:'10px', background:'#f0f7f3', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.3rem', flexShrink:0}}>{item.icon}</div>
@@ -927,11 +933,11 @@ export default function Home() {
               <div style={{display:'flex', alignItems:'center', gap:'10px', flexWrap:'wrap'}}>
                 {hasFilters && (
                   <button className="save-search-btn" onClick={handleSaveSearch} style={{padding:'7px 12px', background: searchSaved ? '#e8f5ee' : '#fffbeb', border:'1px solid ' + (searchSaved ? '#b7dfca' : '#fde68a'), borderRadius:'8px', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:'0.78rem', color: searchSaved ? '#1a7a4a' : '#78350f', cursor:'pointer', whiteSpace:'nowrap'}}>
-                    {searchSaved ? 'Alerte creee !' : 'Creer une alerte'}
+                    {searchSaved ? 'Alerte créée !' : 'Créer une alerte'}
                   </button>
                 )}
                 <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={{padding:'7px 10px', border:'1px solid #e8e4de', borderRadius:'8px', fontFamily:'DM Sans,sans-serif', fontSize:'0.82rem', outline:'none', background:'white', cursor:'pointer', color:'#111a14'}}>
-                  <option value="recent">Plus recent</option>
+                  <option value="recent">Plus récent</option>
                   <option value="ancien">Plus ancien</option>
                   <option value="moins-cher">Moins cher</option>
                   <option value="plus-cher">Plus cher</option>
@@ -945,7 +951,7 @@ export default function Home() {
             {showFilters && (
               <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'10px', marginTop:'12px', paddingTop:'12px', borderTop:'1px solid #e8e4de'}}>
                 <div>
-                  <label style={{display:'block', fontSize:'0.7rem', fontWeight:600, color:'#6b7c6e', marginBottom:'5px', textTransform:'uppercase'}}>Sous-categorie</label>
+                  <label style={{display:'block', fontSize:'0.7rem', fontWeight:600, color:'#6b7c6e', marginBottom:'5px', textTransform:'uppercase'}}>Sous-catégorie</label>
                   <select value={filterSubcat} onChange={e => setFilterSubcat(e.target.value)} style={{width:'100%', padding:'8px 10px', border:'1px solid #e8e4de', borderRadius:'8px', fontFamily:'DM Sans,sans-serif', fontSize:'0.82rem', outline:'none', background:'white', cursor:'pointer'}} disabled={subcats.length === 0}>
                     <option value="">{subcats.length === 0 ? 'Choisir une catégorie' : 'Toutes'}</option>
                     {subcats.filter(s => s.value !== '').map(s => (
@@ -976,8 +982,8 @@ export default function Home() {
           ) : displayAds.length === 0 ? (
             <div style={{background:'white', borderRadius:'14px', padding:'56px', textAlign:'center', border:'1px solid #e8e4de'}}>
               <div style={{fontSize:'2.5rem', marginBottom:'12px'}}>🔍</div>
-              <h3 style={{fontFamily:'Syne,sans-serif', fontWeight:800, marginBottom:'8px', color:'#111a14'}}>Aucun resultat</h3>
-              <p style={{color:'#6b7c6e', marginBottom:'20px', fontSize:'0.9rem'}}>Essayez d autres termes ou filtres</p>
+              <h3 style={{fontFamily:'Syne,sans-serif', fontWeight:800, marginBottom:'8px', color:'#111a14'}}>Aucun résultat</h3>
+              <p style={{color:'#6b7c6e', marginBottom:'20px', fontSize:'0.9rem'}}>Essayez d’autres termes ou filtres</p>
               <button onClick={resetFilters} style={{padding:'10px 24px', background:'#1a7a4a', color:'white', border:'none', borderRadius:'9px', fontFamily:'Syne,sans-serif', fontWeight:700, cursor:'pointer'}}>
                 Voir toutes les annonces
               </button>
@@ -1025,11 +1031,11 @@ export default function Home() {
                     <div style={{fontFamily:"'DM Sans', sans-serif", fontWeight:800, fontSize:'1rem', color:'#1a7a4a', marginBottom:'8px', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0', letterSpacing:'-0.01em'}}>
                       {formatPrice(ad.price)}
                     </div>
-                    <div style={{fontSize:'0.72rem', color:'#6b7c6e', marginBottom:'10px', height:'18px', overflow:'hidden'}}>
-                      {ad.province && <>📍 {ad.province}</>}
+                    <div style={{fontSize:'0.72rem', color:'#6b7c6e', marginBottom:'10px', height:'18px', overflow:'hidden', fontFamily:"'DM Sans', sans-serif"}}>
+                      {ad.province && <>📍 {ad.province}</>}{formatRelativeTime(ad.created_at) && <span> · {formatRelativeTime(ad.created_at)}</span>}
                     </div>
                     <button onClick={e => { e.stopPropagation(); window.location.href='/annonce/' + generateSlug(ad) }} style={{width:'100%', padding:'8px', background:'#f0f7f3', color:'#1a7a4a', border:'1px solid #d4e6da', borderRadius:'8px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.8rem', cursor:'pointer'}}>
-                      Voir l annonce
+                      Voir l’annonce
                     </button>
                   </div>
                 </div>
@@ -1042,10 +1048,10 @@ export default function Home() {
       {/* ── JOBS ── */}
       {activeSection === 'jobs' && (
         <div style={{padding:'32px 5%', maxWidth:'1300px', margin:'0 auto'}}>
-          <h2 style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.4rem', marginBottom:'20px', color:'#111a14'}}>💼 Offres d emploi</h2>
+          <h2 style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.4rem', marginBottom:'20px', color:'#111a14'}}>💼 Offres d’emploi</h2>
           {[
-            {co:'🏦', title:'Developpeur Full-Stack Senior', company:'Bank of Kigali', loc:'Kigali', salary:'1 200 000 - 1 800 000 RWF/mois', type:'CDI'},
-            {co:'🏥', title:'Infirmier diplome', company:'King Faisal Hospital', loc:'Kigali', salary:'700 000 - 950 000 RWF/mois', type:'CDI'},
+            {co:'🏦', title:'Développeur Full-Stack Senior', company:'Bank of Kigali', loc:'Kigali', salary:'1 200 000 - 1 800 000 RWF/mois', type:'CDI'},
+            {co:'🏥', title:'Infirmier diplômé', company:'King Faisal Hospital', loc:'Kigali', salary:'700 000 - 950 000 RWF/mois', type:'CDI'},
             {co:'🌍', title:'Responsable Programmes', company:'Save the Children Rwanda', loc:'Kigali', salary:'1 500 000 - 2 000 000 RWF/mois', type:'CDD'},
           ].map((job, i) => (
             <div key={i} style={{background:'white', borderRadius:'12px', padding:'18px 20px', border:'1px solid #e8e4de', marginBottom:'10px', display:'flex', alignItems:'center', gap:'14px', cursor:'pointer'}}>
@@ -1070,7 +1076,7 @@ export default function Home() {
           <div style={{maxWidth:'1300px', margin:'0 auto', display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:'16px', alignItems:'center'}}>
             <div>
               <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.15rem', color:'white', marginBottom:'4px'}}>Soko<span style={{color:'#4ade80'}}>Deal</span></div>
-              <p style={{fontSize:'0.8rem', color:'rgba(255,255,255,0.5)', maxWidth:'240px', lineHeight:1.6}}>La premiere plateforme d annonces d Afrique.</p>
+              <p style={{fontSize:'0.8rem', color:'rgba(255,255,255,0.5)', maxWidth:'240px', lineHeight:1.6}}>La première plateforme d’annonces d’Afrique.</p>
             </div>
             <div style={{display:'flex', gap:'20px', fontSize:'0.8rem', alignItems:'center'}}>
               <a href="/admin" style={{color:'rgba(255,255,255,0.3)', textDecoration:'none'}}>Admin</a>

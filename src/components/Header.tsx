@@ -96,7 +96,7 @@ export default function Header() {
               </>
             )}
             <button onClick={() => window.location.href = '/publier'} style={{ padding: '7px 12px', background: '#f5a623', border: 'none', borderRadius: '9px', fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: '0.82rem', color: '#111a14', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-              +<span className="deposer-text"> Déposer</span>
+              +<span className="deposer-text"> Publier</span>
             </button>
           </div>
         </div>

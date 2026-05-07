@@ -27,7 +27,7 @@ export default function NotFound() {
               Retour a l accueil →
             </a>
             <a href="/publier" style={{display:'block', padding:'12px', background:'#f5f7f5', borderRadius:'10px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.9rem', color:'#111a14', textDecoration:'none', border:'1px solid #e8ede9'}}>
-              + Deposer une annonce
+              + Publier une annonce
             </a>
           </div>
 

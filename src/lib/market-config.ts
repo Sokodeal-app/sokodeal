@@ -2,19 +2,19 @@ export const LAUNCH_CITIES = ['Kigali']
 
 export const LAUNCH_MAIN_CATEGORIES = [
   { value: 'immo', label: 'Immo', navbar: true },
-  { value: 'mode', label: 'Vetements', navbar: true },
-  { value: 'vehicule', label: 'Vehicules', navbar: true },
-  { value: 'emploi-service', label: 'Emploi & services', navbar: true },
+  { value: 'mode', label: 'Vêtements', navbar: true },
+  { value: 'vehicule', label: 'Véhicules', navbar: true },
+  { value: 'emploi-service', label: 'Emplois & Services', navbar: true },
   { value: 'animaux', label: 'Animaux', navbar: true },
-  { value: 'fourniture', label: 'Fourniture', navbar: true },
+  { value: 'fourniture', label: 'Fournitures', navbar: true },
   { value: 'tech', label: 'Tech', navbar: true },
   { value: 'divers', label: 'Divers', navbar: true },
 ] as const
 
 export const LAUNCH_SUBCATEGORIES: Record<string, { value: string; label: string }[]> = {
   immo: [
-    { value: 'immo-vente', label: 'Vente immobiliere' },
-    { value: 'immo-location', label: 'Location immobiliere' },
+    { value: 'immo-vente', label: 'Vente immobilière' },
+    { value: 'immo-location', label: 'Location immobilière' },
     { value: 'immo-terrain', label: 'Terrain' },
   ],
   vehicule: [
@@ -23,20 +23,20 @@ export const LAUNCH_SUBCATEGORIES: Record<string, { value: string; label: string
   ],
   'emploi-service': [
     { value: 'emploi', label: 'Emploi' },
-    { value: 'services', label: 'Service' },
+    { value: 'services', label: 'Services' },
   ],
   fourniture: [
     { value: 'maison', label: 'Maison et mobilier' },
-    { value: 'materiaux', label: 'Materiaux construction' },
+    { value: 'materiaux', label: 'Matériaux construction' },
   ],
   tech: [
-    { value: 'electronique', label: 'Electronique' },
+    { value: 'electronique', label: 'Électronique' },
   ],
   divers: [
     { value: 'agriculture', label: 'Agriculture' },
-    { value: 'sante', label: 'Sante et beaute' },
+    { value: 'sante', label: 'Santé et beauté' },
     { value: 'sport', label: 'Sport et loisirs' },
-    { value: 'education', label: 'Education' },
+    { value: 'education', label: 'Éducation' },
   ],
 }
 

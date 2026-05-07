@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
 import { useFavorites } from '@/hooks/useFavorites'
@@ -459,6 +460,7 @@ function StatsTab({ userId, ads }: { userId: string, ads: any[] }) {
 }
 
 export default function ProfilPage() {
+  const searchParams = useSearchParams()
   const [user, setUser] = useState<any>(null)
   const [ads, setAds] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -478,6 +480,13 @@ export default function ProfilPage() {
   const [hideReadReceipts, setHideReadReceipts] = useState(false)
 
   const { favorites } = useFavorites()
+
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab && ['annonces', 'favoris', 'profil', 'abonnement', 'boosts', 'alertes', 'stats', 'vendus'].includes(tab)) {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     const init = async () => {
