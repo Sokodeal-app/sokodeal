@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
 import Header from '@/components/Header'
@@ -534,8 +535,8 @@ export default function AnnonceDetail() {
 
           {/* ✅ Profil vendeur */}
           {seller && (
+            <Link href={`/u/${seller.username || seller.id}`} style={{textDecoration:'none'}}>
             <div
-              onClick={() => window.location.href = '/u/' + (seller.username || seller.id)}
               style={{background:'white', borderRadius:'14px', padding:'16px 20px', border:'1px solid #e8ede9', marginBottom:'12px', display:'flex', alignItems:'center', gap:'12px', cursor:'pointer', transition:'box-shadow 0.15s'}}
               onMouseEnter={e => (e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)')}
               onMouseLeave={e => (e.currentTarget.style.boxShadow='none')}
@@ -557,6 +558,7 @@ export default function AnnonceDetail() {
               </div>
               <span style={{color:'#1a7a4a', fontWeight:700, fontSize:'0.85rem', flexShrink:0}}>→</span>
             </div>
+            </Link>
           )}
 
           {/* Contact vendeur */}

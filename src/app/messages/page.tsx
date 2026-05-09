@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
 import Header from '@/components/Header'
@@ -350,14 +351,28 @@ export default function MessagesPage() {
                 <div key={i} className="conv-item" onClick={() => openConversation(conv)}
                   style={{ padding: '14px 16px', cursor: 'pointer', borderBottom: '1px solid #f0f4f1', background: activeConv?.other_id === conv.other_id && activeConv?.ad_id === conv.ad_id ? '#f0f4f1' : 'white', transition: 'background 0.15s' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    {conv.other_user?.username ? (
+                    <Link href={`/u/${conv.other_user.username}`} onClick={e => e.stopPropagation()} style={{textDecoration:'none', flexShrink:0}}>
                     <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#1a7a4a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 800, color: 'white', fontFamily: 'Syne,sans-serif', flexShrink: 0 }}>
                       {(conv.other_user?.username || conv.other_user?.full_name || conv.other_email || 'U')[0].toUpperCase()}
                     </div>
+                    </Link>
+                    ) : (
+                    <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#1a7a4a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 800, color: 'white', fontFamily: 'Syne,sans-serif', flexShrink: 0 }}>
+                      {(conv.other_user?.username || conv.other_user?.full_name || conv.other_email || 'U')[0].toUpperCase()}
+                    </div>
+                    )}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                        {conv.other_user?.username ? (
+                        <Link href={`/u/${conv.other_user.username}`} onClick={e => e.stopPropagation()} style={{ fontFamily: 'Syne,sans-serif', fontWeight: conv.unread > 0 ? 800 : 700, fontSize: '0.85rem', color: '#111a14', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '140px', textDecoration:'none' }}>
+                          {getDisplayName(conv)}
+                        </Link>
+                        ) : (
                         <span style={{ fontFamily: 'Syne,sans-serif', fontWeight: conv.unread > 0 ? 800 : 700, fontSize: '0.85rem', color: '#111a14', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '140px' }}>
                           {getDisplayName(conv)}
                         </span>
+                        )}
                         <span style={{ fontSize: '0.68rem', color: '#9ca3af', flexShrink: 0 }}>{formatTime(conv.last_date)}</span>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

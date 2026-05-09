@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'next/navigation'
+import Link from 'next/link'
+import { useParams, useRouter } from 'next/navigation'
 import FavoriteButton from '@/components/FavoriteButton'
 import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
@@ -35,6 +36,7 @@ const catLabel: Record<string, string> = {
 
 export default function PublicProfile() {
   const { username } = useParams()
+  const router = useRouter()
   const [profile, setProfile] = useState<any>(null)
   const [ads, setAds] = useState<any[]>([])
   const [reviews, setReviews] = useState<any[]>([])
@@ -69,7 +71,7 @@ export default function PublicProfile() {
 
     const { data: rawReviews, error } = await supabase
       .from('reviews')
-      .select('*')
+      .select('id, reviewer_id, seller_id, rating, comment, created_at')
       .eq('seller_id', sellerId)
       .order('created_at', { ascending: false })
 
@@ -95,11 +97,22 @@ export default function PublicProfile() {
       const { data: { user } } = await getCurrentUser()
       setCurrentUser(user)
 
-      const { data: userData } = await supabase
+      const publicUserFields = 'id, username, full_name, is_verified, created_at, bio, banner_url, location'
+      const usernameValue = String(username || '')
+      const { data: usernameMatch } = await supabase
         .from('users')
-        .select('*')
-        .eq('username', username)
+        .select(publicUserFields)
+        .eq('username', usernameValue)
         .single()
+      const isUuidParam = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(usernameValue)
+      const { data: idMatch } = !usernameMatch && isUuidParam
+        ? await supabase
+          .from('users')
+          .select(publicUserFields)
+          .eq('id', usernameValue)
+          .single()
+        : { data: null }
+      const userData = usernameMatch || idMatch
 
       if (!userData) {
         setLoading(false)
@@ -112,7 +125,7 @@ export default function PublicProfile() {
       const [{ data: adsData }, reviewsData] = await Promise.all([
         supabase
           .from('ads')
-          .select('*')
+          .select('id, title, price, images, province, category, created_at, is_sold, is_boosted')
           .eq('user_id', userData.id)
           .eq('is_active', true)
           .order('created_at', { ascending: false }),
@@ -245,7 +258,7 @@ export default function PublicProfile() {
         url: window.location.pathname,
         state: {}
       }))
-      window.location.href = '/auth?mode=login'
+      router.push('/auth?mode=login')
       return
     }
     if (isOwner) {
@@ -270,13 +283,13 @@ export default function PublicProfile() {
         .update(reviewPayload)
         .eq('id', currentUserReview.id)
         .eq('reviewer_id', currentUser.id)
-        .select('*')
+        .select('id, reviewer_id, seller_id, rating, comment, created_at')
         .single()
       : supabase.from('reviews').insert([{
         reviewer_id: currentUser.id,
         seller_id: profile.id,
         ...reviewPayload,
-      }]).select('*').single()
+      }]).select('id, reviewer_id, seller_id, rating, comment, created_at').single()
 
     const { data: savedReview, error } = await reviewRequest
     setSubmittingReview(false)
@@ -296,7 +309,7 @@ export default function PublicProfile() {
       const hydratedReview = {
         ...savedReview,
         reviewer: {
-          username: currentUser.user_metadata?.username || currentUser.email?.split('@')[0] || 'Utilisateur',
+          username: currentUser.user_metadata?.username || 'Utilisateur',
           full_name: currentUser.user_metadata?.full_name || '',
         },
       }
@@ -319,7 +332,7 @@ export default function PublicProfile() {
         url: window.location.pathname,
         state: {}
       }))
-      window.location.href = '/auth?mode=login'
+      router.push('/auth?mode=login')
       return
     }
     if (isOwner) {
@@ -1184,17 +1197,17 @@ export default function PublicProfile() {
 
       <header className="topbar">
         <div className="topbar-inner">
-          <a href="/" className="brand">
+          <Link href="/" className="brand">
             <span className="brand-mark">SD</span>
             Soko<span style={{ color: '#1a7a4a' }}>Deal</span>
-          </a>
+          </Link>
           <div className="topbar-actions">
             {currentUser ? (
-              <button className="btn btn-soft" onClick={() => window.location.href = '/profil'}>Mon compte</button>
+              <button className="btn btn-soft" onClick={() => router.push('/profil')}>Mon compte</button>
             ) : (
-              <button className="btn btn-soft" onClick={() => window.location.href = '/auth?mode=login'}>Connexion</button>
+              <button className="btn btn-soft" onClick={() => router.push('/auth?mode=login')}>Connexion</button>
             )}
-            <button className="btn btn-gold" onClick={() => window.location.href = '/publier'}>Deposer</button>
+            <button className="btn btn-gold" onClick={() => router.push('/publier')}>Deposer</button>
           </div>
         </div>
       </header>
@@ -1257,7 +1270,7 @@ export default function PublicProfile() {
                   <button className="btn btn-primary" onClick={() => setEditMode(!editMode)}>
                     {editMode ? 'Fermer' : 'Modifier'}
                   </button>
-                  <button className="btn btn-soft" onClick={() => window.location.href = '/profil'}>
+                  <button className="btn btn-soft" onClick={() => router.push('/profil')}>
                     Tableau de bord
                   </button>
                 </>
@@ -1269,10 +1282,10 @@ export default function PublicProfile() {
                         url: window.location.pathname,
                         state: {}
                       }))
-                      window.location.href = '/auth?mode=login'
+                      router.push('/auth?mode=login')
                       return
                     }
-                    window.location.href = '/messages?user=' + profile.id
+                    router.push('/messages?user=' + profile.id)
                   }}>
                     Contacter
                   </button>
@@ -1343,17 +1356,17 @@ export default function PublicProfile() {
           {bestAds.length > 0 && (
             <div className="feature-strip">
               {bestAds.map((ad: any) => (
-                <div key={ad.id} className="feature-card" onClick={() => window.location.href = '/annonce/' + generateSlug(ad)}>
+                <Link key={ad.id} href={`/annonce/${generateSlug(ad)}`} className="feature-card" style={{textDecoration:'none', color:'inherit', display:'block'}}>
                   {ad.images?.[0] ? (
                     <img src={ad.images[0]} alt={ad.title} />
                   ) : (
                     <div className="ad-placeholder">{catLabel[ad.category] || 'Annonce'}</div>
                   )}
                   <div className="feature-card-info">
-                    <strong>{ad.title}</strong>
-                    <span>{Number(ad.price || 0).toLocaleString()} RWF</span>
+                    <strong style={{fontFamily:'Syne,sans-serif', fontWeight:700, color:'white'}}>{ad.title}</strong>
+                    <span style={{fontFamily:'DM Sans,sans-serif', fontWeight:800, color:'white'}}>{Number(ad.price || 0).toLocaleString()} RWF</span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
@@ -1385,7 +1398,7 @@ export default function PublicProfile() {
           ) : (
             <div className="ads-grid">
               {ads.map((ad: any) => (
-                <article key={ad.id} className="ad-card" onClick={() => window.location.href = '/annonce/' + generateSlug(ad)}>
+                <Link key={ad.id} href={`/annonce/${generateSlug(ad)}`} className="ad-card" style={{textDecoration:'none', color:'inherit', display:'block'}}>
                   <div className="ad-media">
                     {ad.images?.[0] ? (
                       <img src={ad.images[0]} alt={ad.title} />
@@ -1394,16 +1407,16 @@ export default function PublicProfile() {
                     )}
                     {FEATURE_FLAGS.boostedListings && ad.is_boosted && <span className="boost-badge">Mis en avant</span>}
                     <div className="favorite-wrap" onClick={(e) => e.stopPropagation()}>
-                      <FavoriteButton adId={ad.id} onLogin={() => window.location.href = '/auth?mode=login'} />
+                      <FavoriteButton adId={ad.id} onLogin={() => router.push('/auth?mode=login')} />
                     </div>
                   </div>
                   <div className="ad-body">
                     <div className="ad-category">{catLabel[ad.category] || ad.category}</div>
-                    <div className="ad-title">{ad.title}</div>
-                    <div className="ad-price">{Number(ad.price || 0).toLocaleString()} RWF</div>
-                    {ad.province && <div className="ad-city">{ad.province}</div>}
+                    <div className="ad-title" style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'#111a14'}}>{ad.title}</div>
+                    <div className="ad-price" style={{fontFamily:'DM Sans,sans-serif', fontWeight:800, fontSize:'0.95rem', color:'#1a7a4a'}}>{Number(ad.price || 0).toLocaleString()} RWF</div>
+                    {ad.province && <div className="ad-city" style={{fontSize:'0.7rem', color:'#6b7c6e'}}>{ad.province}</div>}
                   </div>
-                </article>
+                </Link>
               ))}
             </div>
           )}
