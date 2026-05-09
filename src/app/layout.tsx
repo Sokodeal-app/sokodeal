@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script"; // On ajoute cet outil spécial
 import "./globals.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -47,17 +46,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body style={{margin:0, padding:0, paddingBottom:'env(safe-area-inset-bottom)', background:'#f5f7f5', overflowX:'hidden', maxWidth:'100vw'}}>
         {children}
-        
-        {/* On a déplacé le script ici avec le bon outil de Next.js */}
-        <Script id="register-sw" strategy="afterInteractive">
-          {`
-            if ('serviceWorker' in navigator) {
-              window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js');
-              });
-            }
-          `}
-        </Script>
       </body>
     </html>
   )
