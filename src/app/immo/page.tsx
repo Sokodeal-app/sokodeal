@@ -42,29 +42,42 @@ export default function ImmoPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await getCurrentUser()
-      setUser(user)
+      try {
+        const { data: { user } } = await getCurrentUser()
+        setUser(user)
 
-      const { data } = await supabase
-        .from('ads')
-        .select('*')
-        .eq('is_active', true)
-        .in('category', ['immo-vente', 'immo-location', 'immo-terrain'])
-        .order('created_at', { ascending: false })
+        const { data } = await supabase
+          .from('ads')
+          .select('*')
+          .eq('is_active', true)
+          .in('category', ['immo-vente', 'immo-location', 'immo-terrain'])
+          .order('created_at', { ascending: false })
 
-      if (data) {
-        const adsWithCoords = data.map(ad => ({
-          ...ad,
-          lng: 30.0619 + (Math.random() - 0.5) * 0.08,
-          lat: -1.9441 + (Math.random() - 0.5) * 0.08,
-        }))
-        setAds(adsWithCoords)
-        setFiltered(adsWithCoords)
+        if (data) {
+          const adsWithCoords = data.map(ad => ({
+            ...ad,
+            lng: 30.0619 + (Math.random() - 0.5) * 0.08,
+            lat: -1.9441 + (Math.random() - 0.5) * 0.08,
+          }))
+          setAds(adsWithCoords)
+          setFiltered(adsWithCoords)
+        }
+      } catch (err) {
+        console.error('immo init error:', err)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     init()
   }, [])
+
+  useEffect(() => {
+    if (!loading) return
+    const timeout = setTimeout(() => {
+      setLoading(false)
+    }, 8000)
+    return () => clearTimeout(timeout)
+  }, [loading])
 
   useEffect(() => {
     if (!mapContainer.current || map.current || !showMap) return

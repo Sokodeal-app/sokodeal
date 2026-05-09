@@ -1,31 +1,16 @@
-const CACHE_NAME = 'sokodeal-v1'
-const urlsToCache = ['/', '/auth', '/publier', '/messages', '/profil']
-
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
-  )
-})
-
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(response => response || fetch(event.request))
-  )
-})
-
-self.addEventListener('push', event => {
-  const data = event.data ? event.data.json() : {}
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'SokoDeal', {
-      body: data.body || 'Vous avez un nouveau message !',
-      icon: '/favicon.ico',
-      badge: '/favicon.ico',
-      data: { url: data.url || '/' }
-    })
-  )
-})
-
-self.addEventListener('notificationclick', event => {
-  event.notification.close()
-  event.waitUntil(clients.openWindow(event.notification.data.url))
-})
+{
+  "name": "SokoDeal",
+  "short_name": "SokoDeal",
+  "description": "Marketplace pour acheter et vendre au Rwanda.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf9f7",
+  "theme_color": "#1a7a4a",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

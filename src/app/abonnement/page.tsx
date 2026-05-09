@@ -95,34 +95,48 @@ export default function AbonnementPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await getCurrentUser()
-      if (!user) {
-        sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
-          url: window.location.pathname,
-          state: {}
-        }))
-        window.location.href = '/auth?mode=login'
-        return
+      let shouldRedirect = false
+      try {
+        const { data: { user } } = await getCurrentUser()
+        if (!user) {
+          sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
+            url: window.location.pathname,
+            state: {}
+          }))
+          shouldRedirect = true
+          window.location.href = '/auth?mode=login'
+          return
+        }
+        setUser(user)
+
+        const { data: userData } = await supabase.from('users').select('*').eq('id', user.id).single()
+        setProfile(userData)
+
+        const { data: adsData } = await supabase.from('ads').select('*').eq('user_id', user.id).eq('is_active', true).order('created_at', { ascending: false })
+        setAds(adsData || [])
+
+        const now = new Date().toISOString()
+        const { data: boostsData } = await supabase.from('boosts').select('*, ad:ad_id(title, images)').eq('user_id', user.id).eq('is_active', true).gt('ends_at', now)
+        setActiveBoosts(boostsData || [])
+
+        const { data: paymentsData } = await supabase.from('payments').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20)
+        setPayments(paymentsData || [])
+      } catch (err) {
+        console.error('abonnement init error:', err)
+      } finally {
+        if (!shouldRedirect) setLoading(false)
       }
-      setUser(user)
-
-      const { data: userData } = await supabase.from('users').select('*').eq('id', user.id).single()
-      setProfile(userData)
-
-      const { data: adsData } = await supabase.from('ads').select('*').eq('user_id', user.id).eq('is_active', true).order('created_at', { ascending: false })
-      setAds(adsData || [])
-
-      const now = new Date().toISOString()
-      const { data: boostsData } = await supabase.from('boosts').select('*, ad:ad_id(title, images)').eq('user_id', user.id).eq('is_active', true).gt('ends_at', now)
-      setActiveBoosts(boostsData || [])
-
-      const { data: paymentsData } = await supabase.from('payments').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(20)
-      setPayments(paymentsData || [])
-
-      setLoading(false)
     }
     init()
   }, [])
+
+  useEffect(() => {
+    if (!loading) return
+    const timeout = setTimeout(() => {
+      setLoading(false)
+    }, 8000)
+    return () => clearTimeout(timeout)
+  }, [loading])
 
   // Polling pour vérifier le paiement MoMo
   const startPolling = (paymentId: string) => {

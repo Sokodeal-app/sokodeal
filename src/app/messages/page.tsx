@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
@@ -13,21 +13,24 @@ export default function MessagesPage() {
   const [newMessage, setNewMessage] = useState('')
   const [sending, setSending] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const bottomRef = useRef<any>(null)
   const readConvsRef = useRef<Set<string>>(new Set())
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await getCurrentUser()
-      if (!user) {
-        sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
-          url: window.location.pathname + window.location.search,
-          state: {}
-        }))
-        window.location.href = '/auth?mode=login'
-        return
-      }
-      setUser(user)
+      try {
+        setLoadError('')
+        const { data: { user } } = await getCurrentUser()
+        if (!user) {
+          sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
+            url: window.location.pathname + window.location.search,
+            state: {}
+          }))
+          window.location.href = '/auth?mode=login'
+          return
+        }
+        setUser(user)
 
       const convList = await loadConversations(user) || []
 
@@ -61,10 +64,26 @@ export default function MessagesPage() {
         }
       }
 
-      setLoading(false)
+      } catch (err) {
+        console.error('messages init error:', err)
+        setLoadError('Impossible de charger les messages pour le moment.')
+        setConversations([])
+        setMessages([])
+      } finally {
+        setLoading(false)
+      }
     }
     init()
   }, [])
+
+  useEffect(() => {
+    if (!loading) return
+    const timeout = setTimeout(() => {
+      setLoadError('Impossible de charger les messages pour le moment.')
+      setLoading(false)
+    }, 8000)
+    return () => clearTimeout(timeout)
+  }, [loading])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -310,6 +329,15 @@ export default function MessagesPage() {
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f7f5' }}>
       <p style={{ fontFamily: 'Syne,sans-serif', color: '#1a7a4a', fontWeight: 700 }}>⏳ Chargement...</p>
+    </div>
+  )
+
+  if (loadError) return (
+    <div style={{ minHeight: '100vh', background: '#f5f7f5', display: 'flex', flexDirection: 'column' }}>
+      <Header />
+      <div style={{ maxWidth: '520px', width: '100%', margin: '80px auto', padding: '0 5%', textAlign: 'center' }}>
+        <p style={{ fontFamily: 'Syne,sans-serif', color: '#1a7a4a', fontWeight: 700 }}>{loadError}</p>
+      </div>
     </div>
   )
 

@@ -61,14 +61,6 @@ export default function PublicProfile() {
   const [currentUserReview, setCurrentUserReview] = useState<any>(null)
 
   const loadSellerReviews = async (sellerId: string) => {
-    const { data: reviewsWithReviewer, error: relationError } = await supabase
-      .from('reviews')
-      .select('*, reviewer:reviewer_id(username, full_name)')
-      .eq('seller_id', sellerId)
-      .order('created_at', { ascending: false })
-
-    if (!relationError && reviewsWithReviewer) return reviewsWithReviewer
-
     const { data: rawReviews, error } = await supabase
       .from('reviews')
       .select('id, reviewer_id, seller_id, rating, comment, created_at')
@@ -94,57 +86,66 @@ export default function PublicProfile() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await getCurrentUser()
-      setCurrentUser(user)
+      try {
+        const { data: { user } } = await getCurrentUser()
+        setCurrentUser(user)
 
-      const publicUserFields = 'id, username, full_name, is_verified, created_at, bio, banner_url, location'
-      const usernameValue = String(username || '')
-      const { data: usernameMatch } = await supabase
-        .from('users')
-        .select(publicUserFields)
-        .eq('username', usernameValue)
-        .single()
-      const isUuidParam = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(usernameValue)
-      const { data: idMatch } = !usernameMatch && isUuidParam
-        ? await supabase
+        const publicUserFields = 'id, username, full_name, is_verified, created_at, bio, banner_url, location'
+        const usernameValue = String(username || '')
+        const { data: usernameMatch } = await supabase
           .from('users')
           .select(publicUserFields)
-          .eq('id', usernameValue)
+          .eq('username', usernameValue)
           .single()
-        : { data: null }
-      const userData = usernameMatch || idMatch
+        const isUuidParam = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(usernameValue)
+        const { data: idMatch } = !usernameMatch && isUuidParam
+          ? await supabase
+            .from('users')
+            .select(publicUserFields)
+            .eq('id', usernameValue)
+            .single()
+          : { data: null }
+        const userData = usernameMatch || idMatch
 
-      if (!userData) {
+        if (!userData) return
+
+        setProfile(userData)
+        setEditForm({ bio: userData.bio || '', location: userData.location || '' })
+        setIsOwner(!!user && user.id === userData.id)
+        const [{ data: adsData }, reviewsData] = await Promise.all([
+          supabase
+            .from('ads')
+            .select('id, title, price, images, province, category, created_at, is_sold, is_boosted')
+            .eq('user_id', userData.id)
+            .eq('is_active', true)
+            .order('created_at', { ascending: false }),
+          loadSellerReviews(userData.id),
+        ])
+
+        if (adsData) setAds(adsData)
+        if (reviewsData) {
+          setReviews(reviewsData)
+          const userReview = user ? reviewsData.find((r: any) => r.reviewer_id === user.id) : null
+          setAlreadyReviewed(!!userReview)
+          setCurrentUserReview(userReview || null)
+        }
+      } catch (err) {
+        console.error('public profile init error:', err)
+      } finally {
         setLoading(false)
-        return
       }
-
-      setProfile(userData)
-      setEditForm({ bio: userData.bio || '', location: userData.location || '' })
-      setIsOwner(!!user && user.id === userData.id)
-      const [{ data: adsData }, reviewsData] = await Promise.all([
-        supabase
-          .from('ads')
-          .select('id, title, price, images, province, category, created_at, is_sold, is_boosted')
-          .eq('user_id', userData.id)
-          .eq('is_active', true)
-          .order('created_at', { ascending: false }),
-        loadSellerReviews(userData.id),
-      ])
-
-      if (adsData) setAds(adsData)
-      if (reviewsData) {
-        setReviews(reviewsData)
-        const userReview = user ? reviewsData.find((r: any) => r.reviewer_id === user.id) : null
-        setAlreadyReviewed(!!userReview)
-        setCurrentUserReview(userReview || null)
-      }
-
-      setLoading(false)
     }
 
     init()
   }, [username])
+
+  useEffect(() => {
+    if (!loading) return
+    const timeout = setTimeout(() => {
+      setLoading(false)
+    }, 8000)
+    return () => clearTimeout(timeout)
+  }, [loading])
 
   const avgRating = useMemo(() => {
     if (reviews.length === 0) return null

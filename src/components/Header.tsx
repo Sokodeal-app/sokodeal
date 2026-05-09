@@ -1,26 +1,37 @@
-'use client'
-import { useState, useEffect } from 'react'
+﻿'use client'
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
 import { useUnreadCount } from '@/hooks/useUnreadCount'
 
 export default function Header() {
+  const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const [logoutLoading, setLogoutLoading] = useState(false)
   const [logoutError, setLogoutError] = useState('')
   const { unreadCount } = useUnreadCount()
 
+  const refreshUser = useCallback(async () => {
+    const { data: { user } } = await getCurrentUser()
+    setUser(user)
+  }, [])
+
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await getCurrentUser()
-      setUser(user)
-    }
-    getUser()
+    refreshUser()
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
     return () => subscription.unsubscribe()
-  }, [])
+  }, [refreshUser])
+
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) refreshUser()
+    }
+    window.addEventListener('pageshow', handlePageShow)
+    return () => window.removeEventListener('pageshow', handlePageShow)
+  }, [refreshUser])
 
   const handleLogout = async () => {
     setLogoutLoading(true)
@@ -64,7 +75,7 @@ export default function Header() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0, position: 'relative' }}>
             {user ? (
               <>
-                <button onClick={() => window.location.href = '/messages'} style={{ position: 'relative', width: '38px', height: '38px', background: '#f5f7f5', border: '1px solid #e8ede9', borderRadius: '9px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <button onClick={() => router.push('/messages')} style={{ position: 'relative', width: '38px', height: '38px', background: '#f5f7f5', border: '1px solid #e8ede9', borderRadius: '9px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   💬
                   {unreadCount > 0 && (
                     <div style={{ position: 'absolute', top: '-4px', right: '-4px', width: '16px', height: '16px', background: '#e74c3c', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.58rem', fontWeight: 800, color: 'white' }}>
@@ -72,7 +83,7 @@ export default function Header() {
                     </div>
                   )}
                 </button>
-                <button onClick={() => window.location.href = '/profil'} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', background: '#f5f7f5', border: '1px solid #e8ede9', borderRadius: '9px', color: '#111a14', fontFamily: 'DM Sans,sans-serif', fontSize: '0.85rem', cursor: 'pointer' }}>
+                <button onClick={() => router.push('/profil')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', background: '#f5f7f5', border: '1px solid #e8ede9', borderRadius: '9px', color: '#111a14', fontFamily: 'DM Sans,sans-serif', fontSize: '0.85rem', cursor: 'pointer' }}>
                   <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#f5a623', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.78rem', color: '#111a14', flexShrink: 0 }}>
                     {(user.user_metadata?.full_name || user.email || 'U')[0].toUpperCase()}
                   </div>
@@ -90,12 +101,12 @@ export default function Header() {
               </>
             ) : (
               <>
-                <button onClick={() => window.location.href = '/auth?mode=login'} style={{ padding: '7px 12px', border: '1px solid #e8ede9', borderRadius: '9px', color: '#111a14', background: 'white', fontFamily: 'DM Sans,sans-serif', fontSize: '0.82rem', cursor: 'pointer' }}>
+                <button onClick={() => router.push('/auth?mode=login')} style={{ padding: '7px 12px', border: '1px solid #e8ede9', borderRadius: '9px', color: '#111a14', background: 'white', fontFamily: 'DM Sans,sans-serif', fontSize: '0.82rem', cursor: 'pointer' }}>
                   Connexion
                 </button>
               </>
             )}
-            <button onClick={() => window.location.href = '/publier'} style={{ padding: '7px 12px', background: '#f5a623', border: 'none', borderRadius: '9px', fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: '0.82rem', color: '#111a14', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            <button onClick={() => router.push('/publier')} style={{ padding: '7px 12px', background: '#f5a623', border: 'none', borderRadius: '9px', fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: '0.82rem', color: '#111a14', cursor: 'pointer', whiteSpace: 'nowrap' }}>
               +<span className="deposer-text"> Publier</span>
             </button>
           </div>

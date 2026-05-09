@@ -58,16 +58,31 @@ export default function VerificationPage() {
 
   useEffect(() => {
     const init = async () => {
-      setHasPublishDraft(!!window.localStorage.getItem(PUBLISH_DRAFT_KEY))
-      const { data: { user } } = await getCurrentUser()
-      if (user) {
-        window.location.href = window.localStorage.getItem(PUBLISH_DRAFT_KEY) ? '/publier' : '/'
-        return
+      let shouldRedirect = false
+      try {
+        setHasPublishDraft(!!window.localStorage.getItem(PUBLISH_DRAFT_KEY))
+        const { data: { user } } = await getCurrentUser()
+        if (user) {
+          shouldRedirect = true
+          window.location.href = window.localStorage.getItem(PUBLISH_DRAFT_KEY) ? '/publier' : '/'
+          return
+        }
+      } catch (err) {
+        console.error('verification init error:', err)
+      } finally {
+        if (!shouldRedirect) setLoading(false)
       }
-      setLoading(false)
     }
     init()
   }, [])
+
+  useEffect(() => {
+    if (!loading) return
+    const timeout = setTimeout(() => {
+      setLoading(false)
+    }, 8000)
+    return () => clearTimeout(timeout)
+  }, [loading])
 
   useEffect(() => {
     if (!username || username.length < 3) {

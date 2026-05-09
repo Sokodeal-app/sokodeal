@@ -19,8 +19,10 @@ export default function AdminPage() {
 
   useEffect(() => {
     const init = async () => {
+      let shouldRedirect = false
+      try {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { window.location.href = '/'; return }
+      if (!user) { shouldRedirect = true; window.location.href = '/'; return }
 
       const { data: userData } = await supabase
         .from('users')
@@ -28,15 +30,27 @@ export default function AdminPage() {
         .eq('id', user.id)
         .single()
 
-      if (!userData?.is_admin) { window.location.href = '/'; return }
+      if (!userData?.is_admin) { shouldRedirect = true; window.location.href = '/'; return }
 
       setUser(user)
       setIsAdmin(true)
       await loadData()
-      setLoading(false)
+      } catch (err) {
+        console.error('admin init error:', err)
+      } finally {
+        if (!shouldRedirect) setLoading(false)
+      }
     }
     init()
   }, [])
+
+  useEffect(() => {
+    if (!loading) return
+    const timeout = setTimeout(() => {
+      setLoading(false)
+    }, 8000)
+    return () => clearTimeout(timeout)
+  }, [loading])
 
   const loadData = async () => {
     const { data: adsData } = await supabase.from('ads').select('*').order('created_at', { ascending: false })
@@ -102,9 +116,15 @@ export default function AdminPage() {
     { id:'messages', label:'💬 Messages', count: stats.messages },
   ]
 
-  if (!isAdmin || loading) return (
+  if (loading) return (
     <div style={{minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'#111a14'}}>
       <p style={{fontFamily:'Syne,sans-serif', color:'#f5a623', fontWeight:700}}>Vérification...</p>
+    </div>
+  )
+
+  if (!isAdmin) return (
+    <div style={{minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'#111a14'}}>
+      <p style={{fontFamily:'Syne,sans-serif', color:'#f5a623', fontWeight:700}}>Acces admin indisponible.</p>
     </div>
   )
 

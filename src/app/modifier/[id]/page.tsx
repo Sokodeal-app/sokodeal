@@ -68,20 +68,23 @@ export default function ModifierAnnoncePage() {
 
   useEffect(() => {
     const init = async () => {
+      let shouldRedirect = false
+      try {
       const { data: { user } } = await getCurrentUser()
       if (!user) {
         sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
           url: window.location.pathname,
           state: {}
         }))
+        shouldRedirect = true
         window.location.href = '/auth?mode=login'
         return
       }
       setUser(user)
 
       const { data: ad } = await supabase.from('ads').select('*').eq('id', id).single()
-      if (!ad) { window.location.href = '/profil'; return }
-      if (ad.user_id !== user.id) { window.location.href = '/profil'; return }
+      if (!ad) { shouldRedirect = true; window.location.href = '/profil'; return }
+      if (ad.user_id !== user.id) { shouldRedirect = true; window.location.href = '/profil'; return }
 
       // Extraire indicatif et numéro du téléphone stocké
       const parsePhone = (full: string) => {
@@ -108,10 +111,22 @@ export default function ModifierAnnoncePage() {
         hide_phone: ad.hide_phone || false,
       })
       setImages(ad.images || [])
-      setLoading(false)
+      } catch (err) {
+        console.error('modifier init error:', err)
+      } finally {
+        if (!shouldRedirect) setLoading(false)
+      }
     }
     init()
   }, [id])
+
+  useEffect(() => {
+    if (!loading) return
+    const timeout = setTimeout(() => {
+      setLoading(false)
+    }, 8000)
+    return () => clearTimeout(timeout)
+  }, [loading])
 
   const uploadImageFile = async (file: File) => {
     setUploadingImg(true)

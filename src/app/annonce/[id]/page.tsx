@@ -102,6 +102,7 @@ export default function AnnonceDetail() {
 
   useEffect(() => {
     const init = async () => {
+      try {
       const rawId = Array.isArray(id) ? id[0] : String(id || '')
       let data: any = null
 
@@ -116,30 +117,14 @@ export default function AnnonceDetail() {
         const parts = rawId.split('-')
         const shortId = parts[parts.length - 1] || extractIdFromSlug(rawId)
 
-        if (process.env.NODE_ENV === 'development') {
-          console.log('rawId:', rawId)
-          console.log('shortId:', shortId)
-        }
-
-        const { data: slugData, error: slugError } = await supabase
+        const { data: fallbackData } = await supabase
           .from('ads')
           .select('*')
-          .ilike('id', shortId + '%')
-          .limit(1)
-          .single()
+          .limit(1000)
 
-        if (!slugError && slugData) {
-          data = slugData
-        } else {
-          const { data: fallbackData } = await supabase
-            .from('ads')
-            .select('*')
-            .limit(1000)
-
-          data = fallbackData?.find((item: any) =>
-            String(item.id || '').replace(/-/g, '').startsWith(shortId)
-          ) || null
-        }
+        data = fallbackData?.find((item: any) =>
+          String(item.id || '').replace(/-/g, '').startsWith(shortId)
+        ) || null
       }
 
       if (data) {
@@ -154,7 +139,6 @@ export default function AnnonceDetail() {
           setSeller(sellerData)
         }
       } else {
-        setLoading(false)
         return
       }
       const { data: authData } = await getCurrentUser()
@@ -181,10 +165,22 @@ export default function AnnonceDetail() {
         }])
       }
 
-      setLoading(false)
+      } catch (err) {
+        console.error('annonce init error:', err)
+      } finally {
+        setLoading(false)
+      }
     }
     init()
   }, [id])
+
+  useEffect(() => {
+    if (!loading) return
+    const timeout = setTimeout(() => {
+      setLoading(false)
+    }, 8000)
+    return () => clearTimeout(timeout)
+  }, [loading])
 
   useEffect(() => {
     if (!showShareMenu) return

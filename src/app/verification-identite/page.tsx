@@ -17,33 +17,49 @@ export default function VerificationIdentitePage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await getCurrentUser()
-      if (!user) {
-        sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
-          url: window.location.pathname,
-          state: {}
-        }))
-        window.location.href = '/auth?mode=login'
-        return
+      let shouldRedirect = false
+      try {
+        const { data: { user } } = await getCurrentUser()
+        if (!user) {
+          sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
+            url: window.location.pathname,
+            state: {}
+          }))
+          shouldRedirect = true
+          window.location.href = '/auth?mode=login'
+          return
+        }
+
+        const { data: userData } = await supabase
+          .from('users')
+          .select('is_verified')
+          .eq('id', user.id)
+          .single()
+
+        if (userData?.is_verified) {
+          shouldRedirect = true
+          window.location.href = window.localStorage.getItem(PUBLISH_DRAFT_KEY) ? '/publier?verified=1' : '/profil'
+          return
+        }
+
+        setUser(user)
+      } catch (err) {
+        console.error('verification identite init error:', err)
+      } finally {
+        if (!shouldRedirect) setLoading(false)
       }
-
-      const { data: userData } = await supabase
-        .from('users')
-        .select('is_verified')
-        .eq('id', user.id)
-        .single()
-
-      if (userData?.is_verified) {
-        window.location.href = window.localStorage.getItem(PUBLISH_DRAFT_KEY) ? '/publier?verified=1' : '/profil'
-        return
-      }
-
-      setUser(user)
-      setLoading(false)
     }
 
     init()
   }, [])
+
+  useEffect(() => {
+    if (!loading) return
+    const timeout = setTimeout(() => {
+      setLoading(false)
+    }, 8000)
+    return () => clearTimeout(timeout)
+  }, [loading])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

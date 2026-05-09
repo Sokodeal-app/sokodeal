@@ -1,5 +1,5 @@
-'use client'
-import { Fragment, useState, useEffect, useRef } from 'react'
+﻿'use client'
+import { Fragment, useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
@@ -18,8 +18,8 @@ export default function Home() {
   const router = useRouter()
   const [activeSection, setActiveSection] = useState('main')
   const [ads, setAds] = useState<any[]>([])
-  const [filtered, setFiltered] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [hasLoadedAds, setHasLoadedAds] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [isUserAdmin, setIsUserAdmin] = useState(false)
   const [search, setSearch] = useState('')
@@ -69,19 +69,29 @@ export default function Home() {
     setFilterSubcat('')
     setFilterChambres('')
     setFilterType('')
+    setFilterVille('')
+    setFilterPriceMin('')
+    setFilterPriceMax('')
+    setSortBy('recent')
+    setSearch('')
     setActiveSection('main')
     setSelectedImmoAd(null)
   }
 
-  // ── Chargement des annonces ──
-  useEffect(() => {
-    const fetchAds = async () => {
-      const { data } = await supabase
+  const fetchAds = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
         .from('ads')
         .select('*')
         .eq('is_active', true)
         .is('deleted_at', null)
         .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('fetchAds error:', error)
+        return
+      }
+
       if (data) {
         if (!FEATURE_FLAGS.boostedListings) {
           const regularAds = data.map(ad => ({
@@ -89,8 +99,7 @@ export default function Home() {
             is_boosted: false,
             _coords: getApproxCoords(ad.province, ad.district, ad.id),
           }))
-          setAds(regularAds); setFiltered(regularAds)
-          setLoading(false)
+          setAds(regularAds)
           return
         }
         const now = new Date().toISOString()
@@ -102,10 +111,18 @@ export default function Home() {
           _coords: getApproxCoords(ad.province, ad.district, ad.id),
         }))
         const sorted = [...adsWithBoost.filter(a => a.is_boosted), ...adsWithBoost.filter(a => !a.is_boosted)]
-        setAds(sorted); setFiltered(sorted)
+        setAds(sorted)
       }
+    } catch (err) {
+      console.error('fetchAds catch:', err)
+    } finally {
+      setHasLoadedAds(true)
       setLoading(false)
     }
+  }, [])
+
+  // ── Chargement des annonces ──
+  useEffect(() => {
     fetchAds()
 
     const getUser = async () => {
@@ -144,7 +161,62 @@ export default function Home() {
       setIsUserAdmin(!!userData?.is_admin)
     })
     return () => subscription.unsubscribe()
+  }, [fetchAds])
+
+  useEffect(() => {
+    const handlePageShow = () => {
+      if (!hasLoadedAds || ads.length === 0) {
+        fetchAds()
+      } else {
+        setLoading(false)
+      }
+    }
+
+    window.addEventListener('pageshow', handlePageShow)
+    return () => window.removeEventListener('pageshow', handlePageShow)
+  }, [fetchAds, hasLoadedAds, ads.length])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setLoading(false)
+    }, 8000)
+
+    return () => clearTimeout(timeout)
   }, [])
+
+  const filteredAds = useMemo(() => {
+    let result = [...ads]
+
+    if (search.trim() && !search.startsWith('@')) {
+      const q = search.toLowerCase()
+      result = result.filter(ad =>
+        ad.title?.toLowerCase().includes(q) ||
+        ad.description?.toLowerCase().includes(q) ||
+        ad.category?.toLowerCase().includes(q)
+      )
+    }
+
+    if (filterCat) {
+      result = result.filter(ad =>
+        filterSubcat
+          ? ad.category === filterSubcat
+          : matchesCategoryGroup(filterCat, ad.category)
+      )
+    }
+
+    if (filterVille) result = result.filter(ad => ad.province?.toLowerCase().includes(filterVille.toLowerCase()))
+    if (filterPriceMin) result = result.filter(ad => ad.price >= parseInt(filterPriceMin))
+    if (filterPriceMax) result = result.filter(ad => ad.price <= parseInt(filterPriceMax))
+    if (filterChambres) result = result.filter(ad => ad.chambres === filterChambres)
+    if (filterType) result = result.filter(ad => ad.immo_type === filterType)
+
+    if (sortBy === 'recent') result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    else if (sortBy === 'ancien') result.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+    else if (sortBy === 'moins-cher') result.sort((a, b) => a.price - b.price)
+    else if (sortBy === 'plus-cher') result.sort((a, b) => b.price - a.price)
+
+    return result
+  }, [ads, search, filterCat, filterSubcat, filterVille, filterPriceMin, filterPriceMax, filterChambres, filterType, sortBy])
 
   // ── Notifications ──
   useEffect(() => {
@@ -223,7 +295,7 @@ export default function Home() {
       const mapboxgl = (await import('mapbox-gl')).default
 
       // Filtrer les annonces immo
-      const immoAds = filtered.filter(ad =>
+      const immoAds = filteredAds.filter(ad =>
         ['immo-vente', 'immo-location', 'immo-terrain'].includes(ad.category)
       )
 
@@ -262,7 +334,7 @@ export default function Home() {
     }
 
     updateMarkers()
-  }, [filtered.length, isImmoMode, selectedImmoAd?.id, mapReady])
+  }, [filteredAds, isImmoMode, selectedImmoAd?.id, mapReady])
 
   // ── Filtrage ──
   const saveToHistory = async (q: string, cat: string, ville: string) => {
@@ -308,30 +380,9 @@ export default function Home() {
     }
 
     setProfileResults([])
-    let result = [...ads]
+  }, [search])
 
-    if (search.trim()) {
-      const q = search.toLowerCase()
-      result = result.filter(ad => ad.title?.toLowerCase().includes(q) || ad.description?.toLowerCase().includes(q) || ad.category?.toLowerCase().includes(q))
-    }
-
-    if (filterCat) {
-      result = result.filter(ad => filterSubcat ? ad.category === filterSubcat : matchesCategoryGroup(filterCat, ad.category))
-    }
-
-    if (filterVille) result = result.filter(ad => ad.province?.toLowerCase().includes(filterVille.toLowerCase()))
-    if (filterPriceMin) result = result.filter(ad => ad.price >= parseInt(filterPriceMin))
-    if (filterPriceMax) result = result.filter(ad => ad.price <= parseInt(filterPriceMax))
-    if (filterChambres) result = result.filter(ad => ad.chambres === filterChambres)
-    if (filterType) result = result.filter(ad => ad.immo_type === filterType)
-
-    if (sortBy === 'recent') result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    else if (sortBy === 'ancien') result.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-    else if (sortBy === 'moins-cher') result.sort((a, b) => a.price - b.price)
-    else if (sortBy === 'plus-cher') result.sort((a, b) => b.price - a.price)
-
-    setFiltered(result)
-
+  useEffect(() => {
     const timer = setTimeout(() => {
       const cleanSearch = search.trim()
 
@@ -348,7 +399,7 @@ export default function Home() {
       if (cleanSearch || filterCat || filterVille) saveToHistory(cleanSearch, filterCat, filterVille)
     }, 1500)
     return () => clearTimeout(timer)
-  }, [search, filterCat, filterSubcat, filterVille, filterPriceMin, filterPriceMax, filterChambres, filterType, sortBy, ads])
+  }, [search, filterCat, filterVille])
 
   const resetFilters = () => {
     setSearch(''); setFilterCat(''); setFilterSubcat(''); setFilterVille('')
@@ -360,16 +411,7 @@ export default function Home() {
 
   const hasFilters = search || filterCat || filterVille || filterPriceMin || filterPriceMax || sortBy !== 'recent'
 
-  const mockAds = [
-    {id:'m1', category:'immo-vente', title:'Villa 4 chambres Kigali Niboye', price:185000000, images:[], province:'Kigali', is_boosted:true, surface:280, chambres:'4'},
-    {id:'m2', category:'voiture', title:'Toyota RAV4 2019 45 000 km', price:26500000, images:[], province:'Kigali', is_boosted:false},
-    {id:'m3', category:'electronique', title:'Samsung Galaxy S24 Ultra Neuf', price:980000, images:[], province:'Musanze', is_boosted:false},
-    {id:'m4', category:'immo-location', title:'Appartement 3 pieces meuble', price:450000, images:[], province:'Butare', is_boosted:false, surface:85, chambres:'3'},
-    {id:'m5', category:'moto', title:'Honda CB125 2022 18 000 km', price:3200000, images:[], province:'Gisenyi', is_boosted:false},
-    {id:'m6', category:'animaux', title:'Vache laitiere Ankole 2 ans', price:1800000, images:[], province:'Rwamagana', is_boosted:false},
-  ]
-
-  const displayAds = ads.length > 0 ? filtered : mockAds
+  const displayAds = ads.length > 0 ? filteredAds : []
   const immoAds = displayAds.filter(ad => ['immo-vente','immo-location','immo-terrain'].includes(ad.category))
 
   return (
@@ -496,7 +538,7 @@ export default function Home() {
           <div style={{display:'flex', alignItems:'center', gap:'8px', flexShrink:0}}>
             {user ? (
               <>
-                <button onClick={() => window.location.href='/messages'} style={{position:'relative', width:'38px', height:'38px', background:'white', border:'1px solid #e8e4de', borderRadius:'9px', cursor:'pointer', fontSize:'1rem', display:'flex', alignItems:'center', justifyContent:'center'}}>
+                <button onClick={() => router.push('/messages')} style={{position:'relative', width:'38px', height:'38px', background:'white', border:'1px solid #e8e4de', borderRadius:'9px', cursor:'pointer', fontSize:'1rem', display:'flex', alignItems:'center', justifyContent:'center'}}>
                   💬
                   {unreadCount > 0 && (
                     <div style={{position:'absolute', top:'-4px', right:'-4px', width:'16px', height:'16px', background:'#e74c3c', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'0.58rem', fontWeight:800, color:'white'}}>
@@ -504,7 +546,7 @@ export default function Home() {
                     </div>
                   )}
                 </button>
-                <button onClick={() => window.location.href='/profil'} style={{display:'flex', alignItems:'center', gap:'7px', padding:'7px 14px', background:'white', border:'1px solid #e8e4de', borderRadius:'9px', color:'#111a14', fontFamily:'DM Sans,sans-serif', fontSize:'0.85rem', cursor:'pointer'}}>
+                <button onClick={() => router.push('/profil')} style={{display:'flex', alignItems:'center', gap:'7px', padding:'7px 14px', background:'white', border:'1px solid #e8e4de', borderRadius:'9px', color:'#111a14', fontFamily:'DM Sans,sans-serif', fontSize:'0.85rem', cursor:'pointer'}}>
                   <div style={{width:'24px', height:'24px', borderRadius:'50%', background:'#1a7a4a', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:'0.78rem', color:'white'}}>
                     {(user.user_metadata?.full_name || user.email || 'U')[0].toUpperCase()}
                   </div>
@@ -513,11 +555,11 @@ export default function Home() {
               </>
             ) : (
               <>
-                <button onClick={() => window.location.href='/auth?mode=login'} style={{padding:'8px 16px', border:'1px solid #1a7a4a', borderRadius:'9px', color:'#1a7a4a', background:'white', fontFamily:'DM Sans,sans-serif', fontSize:'0.85rem', cursor:'pointer'}}>Connexion</button>
-                <button className="btn-signup" onClick={() => window.location.href='/auth?mode=signup'} style={{padding:'8px 16px', border:'none', borderRadius:'9px', color:'white', background:'#1a7a4a', fontFamily:'DM Sans,sans-serif', fontWeight:700, fontSize:'0.85rem', cursor:'pointer'}}>S’inscrire</button>
+                <button onClick={() => router.push('/auth?mode=login')} style={{padding:'8px 16px', border:'1px solid #1a7a4a', borderRadius:'9px', color:'#1a7a4a', background:'white', fontFamily:'DM Sans,sans-serif', fontSize:'0.85rem', cursor:'pointer'}}>Connexion</button>
+                <button className="btn-signup" onClick={() => router.push('/auth?mode=signup')} style={{padding:'8px 16px', border:'none', borderRadius:'9px', color:'white', background:'#1a7a4a', fontFamily:'DM Sans,sans-serif', fontWeight:700, fontSize:'0.85rem', cursor:'pointer'}}>S’inscrire</button>
               </>
             )}
-            <button className="deposer-btn" onClick={() => window.location.href='/publier'} style={{padding:'8px 18px', background:'#1a7a4a', border:'none', borderRadius:'9px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'white', cursor:'pointer', whiteSpace:'nowrap'}}>
+            <button className="deposer-btn" onClick={() => router.push('/publier')} style={{padding:'8px 18px', background:'#1a7a4a', border:'none', borderRadius:'9px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'white', cursor:'pointer', whiteSpace:'nowrap'}}>
               +<span className="deposer-text"> Publier</span>
             </button>
           </div>
@@ -742,7 +784,7 @@ export default function Home() {
               {showMap ? 'Voir la liste' : 'Voir la carte'}
             </button>
 
-            {loading ? (
+            {loading && !hasLoadedAds && ads.length === 0 ? (
               <div style={{textAlign:'center', padding:'60px', color:'#6b7c6e'}}>Chargement...</div>
             ) : immoAds.length === 0 ? (
               <div style={{background:'white', borderRadius:'14px', padding:'40px', textAlign:'center', border:'1px solid #e8e4de'}}>
@@ -755,7 +797,7 @@ export default function Home() {
               </div>
             ) : immoAds.map((ad: any) => (
               <div key={ad.id} className="immo-card"
-                onClick={() => { setSelectedImmoAd(ad); window.location.href='/annonce/' + generateSlug(ad) }}
+                onClick={() => { setSelectedImmoAd(ad); router.push('/annonce/' + generateSlug(ad)) }}
                 style={{background:'white', borderRadius:'14px', overflow:'hidden', cursor:'pointer', border: selectedImmoAd?.id === ad.id ? '2px solid #1a7a4a' : (FEATURE_FLAGS.boostedListings && ad.is_boosted ? '1.5px solid #1a7a4a' : '1px solid #e8e4de'), boxShadow: selectedImmoAd?.id === ad.id ? '0 4px 20px rgba(26,122,74,0.15)' : '0 1px 4px rgba(0,0,0,0.06)', display:'grid', gridTemplateColumns:'140px 1fr'}}>
 
                 <div style={{height:'130px', background:'#faf9f7', overflow:'hidden', position:'relative', flexShrink:0}}>
@@ -802,7 +844,7 @@ export default function Home() {
                       {formatRelativeTime(ad.created_at) && <span> · {formatRelativeTime(ad.created_at)}</span>}
                     </span>
                     <div onClick={e => e.stopPropagation()}>
-                      <FavoriteButton adId={ad.id} onLogin={() => window.location.href='/auth?mode=login'} />
+                      <FavoriteButton adId={ad.id} onLogin={() => router.push('/auth?mode=login')} />
                     </div>
                   </div>
                 </div>
@@ -846,7 +888,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div style={{display:'flex', flexDirection:'column', gap:'5px', flexShrink:0}}>
-                  <button onClick={() => window.location.href='/annonce/' + generateSlug(selectedImmoAd)}
+                  <button onClick={() => router.push('/annonce/' + generateSlug(selectedImmoAd))}
                     style={{padding:'6px 10px', background:'#1a7a4a', border:'none', borderRadius:'7px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.72rem', color:'white', cursor:'pointer'}}>
                     Voir
                   </button>
@@ -965,7 +1007,7 @@ export default function Home() {
                   <option value="plus-cher">Plus cher</option>
                 </select>
                 <span style={{fontSize:'0.8rem', color:'#6b7c6e', whiteSpace:'nowrap'}}>
-                  {ads.length > 0 ? filtered.length + ' annonce(s)' : '6 annonces'}
+                  {displayAds.length + ' annonce(s)'}
                 </span>
               </div>
             </div>
@@ -999,7 +1041,7 @@ export default function Home() {
             )}
           </div>
 
-          {loading ? (
+          {loading && !hasLoadedAds && ads.length === 0 ? (
             <div style={{textAlign:'center', padding:'60px', color:'#6b7c6e'}}>Chargement...</div>
           ) : displayAds.length === 0 ? (
             <div style={{background:'white', borderRadius:'14px', padding:'56px', textAlign:'center', border:'1px solid #e8e4de'}}>
@@ -1013,7 +1055,7 @@ export default function Home() {
           ) : (
             <div className="ads-grid" style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'14px'}}>
               {displayAds.map((ad: any) => (
-                <div key={ad.id} className="ad-card" onClick={() => window.location.href='/annonce/' + generateSlug(ad)}
+                <div key={ad.id} className="ad-card" onClick={() => router.push('/annonce/' + generateSlug(ad))}
                   style={{background:'white', borderRadius:'16px', overflow:'hidden', cursor:'pointer', border: FEATURE_FLAGS.boostedListings && ad.is_boosted ? '1.5px solid #1a7a4a' : '1px solid #e8e4de', boxShadow:'0 2px 8px rgba(0,0,0,0.06)'}}>
                   <div style={{height:'180px', background:'#faf9f7', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'3.5rem', overflow:'hidden', position:'relative'}}>
                     {ad.images && ad.images.length > 0 ? (
@@ -1042,7 +1084,7 @@ export default function Home() {
                       </div>
                     )}
                     <div style={{position:'absolute', top:'10px', right:'10px'}} onClick={e => e.stopPropagation()}>
-                      <FavoriteButton adId={ad.id} onLogin={() => window.location.href='/auth?mode=login'} />
+                      <FavoriteButton adId={ad.id} onLogin={() => router.push('/auth?mode=login')} />
                     </div>
                   </div>
                   <div style={{padding:'14px'}}>
@@ -1056,7 +1098,7 @@ export default function Home() {
                     <div style={{fontSize:'0.72rem', color:'#6b7c6e', marginBottom:'10px', height:'18px', overflow:'hidden', fontFamily:"'DM Sans', sans-serif"}}>
                       {ad.province && <>📍 {ad.province}</>}{formatRelativeTime(ad.created_at) && <span> · {formatRelativeTime(ad.created_at)}</span>}
                     </div>
-                    <button onClick={e => { e.stopPropagation(); window.location.href='/annonce/' + generateSlug(ad) }} style={{width:'100%', padding:'8px', background:'#f0f7f3', color:'#1a7a4a', border:'1px solid #d4e6da', borderRadius:'8px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.8rem', cursor:'pointer'}}>
+                    <button onClick={e => { e.stopPropagation(); router.push('/annonce/' + generateSlug(ad)) }} style={{width:'100%', padding:'8px', background:'#f0f7f3', color:'#1a7a4a', border:'1px solid #d4e6da', borderRadius:'8px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.8rem', cursor:'pointer'}}>
                       Voir l’annonce
                     </button>
                   </div>
@@ -1085,7 +1127,7 @@ export default function Home() {
               </div>
               <div style={{textAlign:'right', flexShrink:0}}>
                 <div style={{fontFamily:"'DM Sans', sans-serif", fontWeight:700, color:'#111a14', fontSize:'0.82rem', marginBottom:'6px', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0'}}>{job.salary}</div>
-                <button onClick={() => window.location.href='/auth'} style={{padding:'6px 14px', background:'#0f5233', color:'white', border:'none', borderRadius:'8px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.78rem', cursor:'pointer'}}>Postuler</button>
+                <button onClick={() => router.push('/auth')} style={{padding:'6px 14px', background:'#0f5233', color:'white', border:'none', borderRadius:'8px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.78rem', cursor:'pointer'}}>Postuler</button>
               </div>
             </div>
           ))}

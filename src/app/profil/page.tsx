@@ -1,5 +1,6 @@
-'use client'
+﻿'use client'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
 import { useFavorites } from '@/hooks/useFavorites'
@@ -40,25 +41,38 @@ function AlertesTab({ userId }: { userId: string }) {
 
   useEffect(() => {
     const load = async () => {
-      const [{ data: alertsData }, { data: histData }] = await Promise.all([
-        supabase.from('saved_searches').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
-        supabase.from('search_history').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(30)
-      ])
-      if (alertsData) setSearches(alertsData)
-      if (histData) {
-        const seen = new Set()
-        const unique = histData.filter((h: any) => {
-          const key = (h.query || '') + (h.category || '') + (h.province || '')
-          if (seen.has(key)) return false
-          seen.add(key)
-          return true
-        })
-        setHistory(unique)
+      try {
+        const [{ data: alertsData }, { data: histData }] = await Promise.all([
+          supabase.from('saved_searches').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+          supabase.from('search_history').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(30)
+        ])
+        if (alertsData) setSearches(alertsData)
+        if (histData) {
+          const seen = new Set()
+          const unique = histData.filter((h: any) => {
+            const key = (h.query || '') + (h.category || '') + (h.province || '')
+            if (seen.has(key)) return false
+            seen.add(key)
+            return true
+          })
+          setHistory(unique)
+        }
+      } catch (err) {
+        console.error('alertes load error:', err)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     load()
   }, [userId])
+
+  useEffect(() => {
+    if (!loading) return
+    const timeout = setTimeout(() => {
+      setLoading(false)
+    }, 8000)
+    return () => clearTimeout(timeout)
+  }, [loading])
 
   const handleCreateAlert = async () => {
     if (!alertForm.query && !alertForm.category && !alertForm.province) return
@@ -316,34 +330,46 @@ function StatsTab({ userId, ads }: { userId: string, ads: any[] }) {
     const loadStats = async () => {
       setLoading(true)
       setError('')
+      try {
+        const visibleAds = ads.filter(ad => !ad.deleted_at)
+        const adIds = visibleAds.map(ad => ad.id).filter(Boolean)
+        if (adIds.length === 0) {
+          setViews([])
+          return
+        }
 
-      const visibleAds = ads.filter(ad => !ad.deleted_at)
-      const adIds = visibleAds.map(ad => ad.id).filter(Boolean)
-      if (adIds.length === 0) {
-        setViews([])
-        setLoading(false)
-        return
-      }
+        const { data, error } = await supabase
+          .from('ad_views')
+          .select('*')
+          .in('ad_id', adIds)
+          .order('created_at', { ascending: false })
 
-      const { data, error } = await supabase
-        .from('ad_views')
-        .select('*')
-        .in('ad_id', adIds)
-        .order('created_at', { ascending: false })
+        if (error) {
+          setError('Les statistiques de vues ne sont pas encore disponibles.')
+          setViews([])
+          return
+        }
 
-      if (error) {
+        setViews(data || [])
+      } catch (err) {
+        console.error('stats load error:', err)
         setError('Les statistiques de vues ne sont pas encore disponibles.')
         setViews([])
+      } finally {
         setLoading(false)
-        return
       }
-
-      setViews(data || [])
-      setLoading(false)
     }
 
     loadStats()
   }, [userId, ads])
+
+  useEffect(() => {
+    if (!loading) return
+    const timeout = setTimeout(() => {
+      setLoading(false)
+    }, 8000)
+    return () => clearTimeout(timeout)
+  }, [loading])
 
   const visibleAds = ads.filter(ad => !ad.deleted_at)
   const soldAds = visibleAds.filter(ad => ad.is_sold)
@@ -458,6 +484,7 @@ function StatsTab({ userId, ads }: { userId: string, ads: any[] }) {
 }
 
 export default function ProfilPage() {
+  const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const [ads, setAds] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -487,37 +514,52 @@ export default function ProfilPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await getCurrentUser()
-      if (!user) {
-        sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
-          url: window.location.pathname,
-          state: {}
-        }))
-        window.location.href = '/auth?mode=login'
-        return
+      let shouldRedirect = false
+      try {
+        const { data: { user } } = await getCurrentUser()
+        if (!user) {
+          sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
+            url: window.location.pathname,
+            state: {}
+          }))
+          shouldRedirect = true
+          router.push('/auth?mode=login')
+          return
+        }
+        setUser(user)
+
+        const { data: userData } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+
+        setProfileForm({
+          full_name: userData?.full_name || user.user_metadata?.full_name || '',
+          phone: userData?.phone || user.user_metadata?.phone || '',
+          location: user.user_metadata?.location || '',
+          username: userData?.username || '',
+        })
+        setHideReadReceipts(!!userData?.hide_read_receipts)
+
+        const { data } = await supabase.from('ads').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
+        if (data) setAds(data)
+      } catch (err) {
+        console.error('profil init error:', err)
+      } finally {
+        if (!shouldRedirect) setLoading(false)
       }
-      setUser(user)
-
-      const { data: userData } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-
-      setProfileForm({
-        full_name: userData?.full_name || user.user_metadata?.full_name || '',
-        phone: userData?.phone || user.user_metadata?.phone || '',
-        location: user.user_metadata?.location || '',
-        username: userData?.username || '',
-      })
-      setHideReadReceipts(!!userData?.hide_read_receipts)
-
-      const { data } = await supabase.from('ads').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
-      if (data) setAds(data)
-      setLoading(false)
     }
     init()
-  }, [])
+  }, [router])
+
+  useEffect(() => {
+    if (!loading) return
+    const timeout = setTimeout(() => {
+      setLoading(false)
+    }, 8000)
+    return () => clearTimeout(timeout)
+  }, [loading])
 
   useEffect(() => {
     if (activeTab !== 'favoris' || favorites.length === 0) {
@@ -525,13 +567,26 @@ export default function ProfilPage() {
       return
     }
     const fetchFavAds = async () => {
-      setFavLoading(true)
-      const { data } = await supabase.from('ads').select('*').in('id', favorites).eq('is_active', true).is('deleted_at', null)
-      if (data) setFavoriteAds(data)
-      setFavLoading(false)
+      try {
+        setFavLoading(true)
+        const { data } = await supabase.from('ads').select('*').in('id', favorites).eq('is_active', true).is('deleted_at', null)
+        if (data) setFavoriteAds(data)
+      } catch (err) {
+        console.error('favorites fetch error:', err)
+      } finally {
+        setFavLoading(false)
+      }
     }
     fetchFavAds()
   }, [activeTab, favorites])
+
+  useEffect(() => {
+    if (!favLoading) return
+    const timeout = setTimeout(() => {
+      setFavLoading(false)
+    }, 8000)
+    return () => clearTimeout(timeout)
+  }, [favLoading])
 
   const handleLogout = async () => {
     setLogoutLoading(true)
@@ -794,7 +849,7 @@ export default function ProfilPage() {
           </div>
 
           <div style={{display:'flex', alignItems:'center', gap:'6px', flexShrink:0}}>
-            <button onClick={() => window.location.href='/profil'} style={{display:'flex', alignItems:'center', gap:'7px', padding:'7px 14px', background:'white', border:'1px solid #e8e4de', borderRadius:'9px', color:'#111a14', fontFamily:'DM Sans,sans-serif', fontSize:'0.85rem', cursor:'pointer'}}>
+            <button onClick={() => router.push('/profil')} style={{display:'flex', alignItems:'center', gap:'7px', padding:'7px 14px', background:'white', border:'1px solid #e8e4de', borderRadius:'9px', color:'#111a14', fontFamily:'DM Sans,sans-serif', fontSize:'0.85rem', cursor:'pointer'}}>
               <div style={{width:'24px', height:'24px', borderRadius:'50%', background:'#EAB308', border:'1px solid rgba(17,26,20,0.10)', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:'0.78rem', color:'#111a14'}}>
                 {(profileForm.full_name || user?.email || 'U')[0].toUpperCase()}
               </div>
@@ -803,7 +858,7 @@ export default function ProfilPage() {
             <button onClick={handleLogout} disabled={logoutLoading} style={{padding:'7px 12px', background:'white', border:'1px solid #e8e4de', borderRadius:'9px', color:'#6b7c6e', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:'0.82rem', cursor: logoutLoading ? 'not-allowed' : 'pointer', whiteSpace:'nowrap'}}>
               {logoutLoading ? 'Sortie...' : 'Se déconnecter'}
             </button>
-            <button className="deposer-btn" onClick={() => window.location.href='/publier'} style={{padding:'8px 18px', background:'#1a7a4a', border:'none', borderRadius:'9px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'white', cursor:'pointer', whiteSpace:'nowrap'}}>
+            <button className="deposer-btn" onClick={() => router.push('/publier')} style={{padding:'8px 18px', background:'#1a7a4a', border:'none', borderRadius:'9px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'white', cursor:'pointer', whiteSpace:'nowrap'}}>
               +<span className="deposer-text"> Publier</span>
             </button>
           </div>
@@ -902,7 +957,7 @@ export default function ProfilPage() {
               </button>
             ))}
           </div>
-          <button onClick={() => window.location.href='/publier'} style={{padding:'8px 15px', background:'#1a7a4a', color:'white', border:'none', borderRadius:'10px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.84rem', cursor:'pointer', whiteSpace:'nowrap', transition:'all 0.18s ease'}}>
+          <button onClick={() => router.push('/publier')} style={{padding:'8px 15px', background:'#1a7a4a', color:'white', border:'none', borderRadius:'10px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.84rem', cursor:'pointer', whiteSpace:'nowrap', transition:'all 0.18s ease'}}>
             + Nouvelle annonce
           </button>
         </div>
@@ -914,14 +969,14 @@ export default function ProfilPage() {
                 <div style={{fontSize:'2.5rem', marginBottom:'12px'}}></div>
                 <h3 style={{fontFamily:'Syne, sans-serif', fontWeight:800, marginBottom:'8px', color:'#111a14'}}>Aucune annonce</h3>
                 <p style={{color:'#6b7c6e', marginBottom:'20px', fontSize:'0.88rem', fontFamily:'DM Sans, sans-serif'}}>Publiez votre premiere annonce gratuitement</p>
-                <button onClick={() => window.location.href='/publier'} style={{padding:'10px 20px', background:'#1a7a4a', color:'white', border:'none', borderRadius:'10px', fontFamily:'Syne, sans-serif', fontWeight:700, cursor:'pointer'}}>
+                <button onClick={() => router.push('/publier')} style={{padding:'10px 20px', background:'#1a7a4a', color:'white', border:'none', borderRadius:'10px', fontFamily:'Syne, sans-serif', fontWeight:700, cursor:'pointer'}}>
                   + Publier
                 </button>
               </div>
             ) : (
               <div className="ads-grid-3" style={{display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:'12px'}}>
                 {mesAnnonces.map((ad: any) => (
-                  <div key={ad.id} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.08)' }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)' }} style={{background:'white', borderRadius:'16px', overflow:'visible', cursor:'pointer', border:'1px solid #e8e4de', boxShadow:'0 2px 8px rgba(0,0,0,0.06)', transition:'all 0.18s ease'}} onClick={() => window.location.href='/annonce/' + generateSlug(ad)}>
+                  <div key={ad.id} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.08)' }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)' }} style={{background:'white', borderRadius:'16px', overflow:'visible', cursor:'pointer', border:'1px solid #e8e4de', boxShadow:'0 2px 8px rgba(0,0,0,0.06)', transition:'all 0.18s ease'}} onClick={() => router.push('/annonce/' + generateSlug(ad))}>
                     <div style={{height:'140px', background:'#faf9f7', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2.45rem', overflow:'hidden', position:'relative', borderRadius:'16px 16px 0 0'}}>
                       {ad.images && ad.images.length > 0 ? (
                         <img src={ad.images[0]} alt={ad.title} style={{width:'100%', height:'100%', objectFit:'cover'}}/>
@@ -944,13 +999,13 @@ export default function ProfilPage() {
                         <span style={{fontSize:'0.68rem', color:'#6b7c6e', fontWeight:600}}>💬 0</span>
                       </div>
                       <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
-                        <button onClick={e => { e.stopPropagation(); window.location.href='/modifier/' + ad.id }} style={{flex:1, height:'32px', padding:'0 10px', background:'#f0f7f3', color:'#1a7a4a', border:'1px solid #d4e6da', borderRadius:'8px', fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:'0.78rem', cursor:'pointer'}}>
+                        <button onClick={e => { e.stopPropagation(); router.push('/modifier/' + ad.id) }} style={{flex:1, height:'32px', padding:'0 10px', background:'#f0f7f3', color:'#1a7a4a', border:'1px solid #d4e6da', borderRadius:'8px', fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:'0.78rem', cursor:'pointer'}}>
                           Modifier
                         </button>
                         <details onClick={e => e.stopPropagation()} style={{position:'relative'}}>
                           <summary style={{listStyle:'none', cursor:'pointer', width:'32px', height:'32px', borderRadius:'8px', border:'1px solid #e8e4de', background:'white', color:'#6b7c6e', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800}}>...</summary>
                           <div style={{position:'absolute', right:0, top:'34px', background:'white', border:'1px solid #e8e4de', borderRadius:'10px', boxShadow:'0 8px 24px rgba(0,0,0,0.10)', padding:'6px', zIndex:10, minWidth:'140px'}}>
-                            <button onClick={() => window.location.href='/annonce/' + generateSlug(ad)} style={{width:'100%', padding:'7px 9px', background:'transparent', border:'none', textAlign:'left', fontFamily:'DM Sans, sans-serif', fontSize:'0.78rem', color:'#111a14', cursor:'pointer'}}>Voir</button>
+                            <button onClick={() => router.push('/annonce/' + generateSlug(ad))} style={{width:'100%', padding:'7px 9px', background:'transparent', border:'none', textAlign:'left', fontFamily:'DM Sans, sans-serif', fontSize:'0.78rem', color:'#111a14', cursor:'pointer'}}>Voir</button>
                             {!ad.is_sold && (
                               <button onClick={() => handleMarkSold(ad.id)} style={{width:'100%', padding:'7px 9px', background:'transparent', border:'none', textAlign:'left', fontFamily:'DM Sans, sans-serif', fontSize:'0.78rem', color:'#78350f', cursor:'pointer'}}>Marquer vendu</button>
                             )}
@@ -1013,14 +1068,14 @@ export default function ProfilPage() {
                 <div style={{fontSize:'2.5rem', marginBottom:'12px'}}></div>
                 <h3 style={{fontFamily:'DM Sans, sans-serif', fontWeight:800, marginBottom:'8px', color:'#111a14'}}>Aucun favori</h3>
                 <p style={{color:'#6b7c6e', marginBottom:'20px', fontSize:'0.88rem'}}>Cliquez sur le coeur d une annonce pour la sauvegarder</p>
-                <button onClick={() => window.location.href='/'} style={{padding:'10px 24px', background:'#1a7a4a', color:'white', border:'none', borderRadius:'10px', fontFamily:'DM Sans, sans-serif', fontWeight:700, cursor:'pointer'}}>
+                <button onClick={() => router.push('/')} style={{padding:'10px 24px', background:'#1a7a4a', color:'white', border:'none', borderRadius:'10px', fontFamily:'DM Sans, sans-serif', fontWeight:700, cursor:'pointer'}}>
                   Parcourir les annonces
                 </button>
               </div>
             ) : (
               <div className="fav-grid" style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'12px'}}>
                 {favoriteAds.map((ad: any) => (
-                  <div key={ad.id} style={{background:'white', borderRadius:'12px', overflow:'hidden', border:'1px solid #e8e4de', cursor:'pointer'}} onClick={() => window.location.href='/annonce/' + generateSlug(ad)}>
+                  <div key={ad.id} style={{background:'white', borderRadius:'12px', overflow:'hidden', border:'1px solid #e8e4de', cursor:'pointer'}} onClick={() => router.push('/annonce/' + generateSlug(ad))}>
                     <div style={{height:'140px', background:'#f5f7f5', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2.5rem', position:'relative', overflow:'hidden'}}>
                       {ad.images && ad.images.length > 0 ? (
                         <img src={ad.images[0]} alt={ad.title} style={{width:'100%', height:'100%', objectFit:'cover'}}/>
