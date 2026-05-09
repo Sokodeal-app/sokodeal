@@ -1,13 +1,11 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { getCurrentUser } from '@/lib/auth'
 import { generateSlug } from '@/lib/slug'
-
-const ADMIN_EMAIL = 'nmommozine@gmail.com' // ← mets ton email ici
 
 export default function AdminPage() {
   const [user, setUser] = useState<any>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [activeTab, setActiveTab] = useState('dashboard')
   const [ads, setAds] = useState<any[]>([])
   const [boosts, setBoosts] = useState<any[]>([])
@@ -21,9 +19,19 @@ export default function AdminPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await getCurrentUser()
-      if (!user || user.email !== ADMIN_EMAIL) { window.location.href = '/'; return }
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { window.location.href = '/'; return }
+
+      const { data: userData } = await supabase
+        .from('users')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single()
+
+      if (!userData?.is_admin) { window.location.href = '/'; return }
+
       setUser(user)
+      setIsAdmin(true)
       await loadData()
       setLoading(false)
     }
@@ -94,9 +102,9 @@ export default function AdminPage() {
     { id:'messages', label:'💬 Messages', count: stats.messages },
   ]
 
-  if (loading) return (
+  if (!isAdmin || loading) return (
     <div style={{minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'#111a14'}}>
-      <p style={{fontFamily:'Syne,sans-serif', color:'#f5a623', fontWeight:700}}>⏳ Chargement admin...</p>
+      <p style={{fontFamily:'Syne,sans-serif', color:'#f5a623', fontWeight:700}}>Vérification...</p>
     </div>
   )
 

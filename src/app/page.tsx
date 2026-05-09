@@ -21,6 +21,7 @@ export default function Home() {
   const [filtered, setFiltered] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [isUserAdmin, setIsUserAdmin] = useState(false)
   const [search, setSearch] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [localHistory, setLocalHistory] = useState<string[]>([])
@@ -110,6 +111,16 @@ export default function Home() {
     const getUser = async () => {
       const { data: { user } } = await getCurrentUser()
       setUser(user)
+      if (!user) {
+        setIsUserAdmin(false)
+        return
+      }
+      const { data: userData } = await supabase
+        .from('users')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single()
+      setIsUserAdmin(!!userData?.is_admin)
     }
     getUser()
 
@@ -118,8 +129,19 @@ export default function Home() {
       try { setLocalHistory(JSON.parse(stored).slice(0, 10)) } catch {}
     }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const nextUser = session?.user ?? null
+      setUser(nextUser)
+      if (!nextUser) {
+        setIsUserAdmin(false)
+        return
+      }
+      const { data: userData } = await supabase
+        .from('users')
+        .select('is_admin')
+        .eq('id', nextUser.id)
+        .single()
+      setIsUserAdmin(!!userData?.is_admin)
     })
     return () => subscription.unsubscribe()
   }, [])
@@ -1079,7 +1101,9 @@ export default function Home() {
               <p style={{fontSize:'0.8rem', color:'rgba(255,255,255,0.5)', maxWidth:'240px', lineHeight:1.6}}>La première plateforme d’annonces d’Afrique.</p>
             </div>
             <div style={{display:'flex', gap:'20px', fontSize:'0.8rem', alignItems:'center'}}>
-              <a href="/admin" style={{color:'rgba(255,255,255,0.3)', textDecoration:'none'}}>Admin</a>
+              {user && isUserAdmin && (
+                <a href="/admin" style={{color:'rgba(255,255,255,0.3)', textDecoration:'none'}}>Admin</a>
+              )}
               <a href="/cgu" style={{color:'rgba(255,255,255,0.3)', textDecoration:'none'}}>CGU</a>
               <span style={{color:'rgba(255,255,255,0.4)'}}>2025 SokoDeal · Made in Africa</span>
             </div>
