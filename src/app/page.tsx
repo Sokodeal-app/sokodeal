@@ -414,7 +414,7 @@ export default function Home() {
       )}
 
       {/* ── HEADER ── */}
-      <header style={{background:'white', position:'sticky', top:0, zIndex:100, borderBottom:'1px solid #e8e4de', paddingTop:'env(safe-area-inset-top)'}}>
+      <header style={{background:'#faf9f7', position:'sticky', top:0, zIndex:100, borderBottom:'1px solid #e8e4de', paddingTop:'env(safe-area-inset-top)'}}>
         <div className="header-inner" style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 5%', height:'62px', gap:'14px', maxWidth:'1300px', margin:'0 auto'}}>
           <a href="/" style={{display:'flex', alignItems:'center', gap:'8px', textDecoration:'none', flexShrink:0}}>
             <div style={{width:'34px', height:'34px', background:'#1a7a4a', borderRadius:'9px', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'17px', color:'white'}}>S</div>
@@ -422,7 +422,7 @@ export default function Home() {
           </a>
 
           <div className="search-bar" style={{flex:1, maxWidth:'480px', position:'relative'}}>
-            <div style={{display:'flex', background:'#faf9f7', borderRadius:'9px', overflow:'hidden', border:'1px solid #e8e4de'}}>
+            <div style={{display:'flex', background:'white', borderRadius:'9px', overflow:'hidden', border:'1px solid #e8e4de'}}>
               <input type="text" placeholder="Rechercher... ou @username" value={search}
                 onChange={e => { setSearch(e.target.value); setActiveSection('main') }}
                 onFocus={() => setShowSuggestions(true)}
@@ -474,7 +474,7 @@ export default function Home() {
           <div style={{display:'flex', alignItems:'center', gap:'8px', flexShrink:0}}>
             {user ? (
               <>
-                <button onClick={() => window.location.href='/messages'} style={{position:'relative', width:'38px', height:'38px', background:'#faf9f7', border:'1px solid #e8e4de', borderRadius:'9px', cursor:'pointer', fontSize:'1rem', display:'flex', alignItems:'center', justifyContent:'center'}}>
+                <button onClick={() => window.location.href='/messages'} style={{position:'relative', width:'38px', height:'38px', background:'white', border:'1px solid #e8e4de', borderRadius:'9px', cursor:'pointer', fontSize:'1rem', display:'flex', alignItems:'center', justifyContent:'center'}}>
                   💬
                   {unreadCount > 0 && (
                     <div style={{position:'absolute', top:'-4px', right:'-4px', width:'16px', height:'16px', background:'#e74c3c', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'0.58rem', fontWeight:800, color:'white'}}>
@@ -482,7 +482,7 @@ export default function Home() {
                     </div>
                   )}
                 </button>
-                <button onClick={() => window.location.href='/profil'} style={{display:'flex', alignItems:'center', gap:'7px', padding:'7px 14px', background:'#faf9f7', border:'1px solid #e8e4de', borderRadius:'9px', color:'#111a14', fontFamily:'DM Sans,sans-serif', fontSize:'0.85rem', cursor:'pointer'}}>
+                <button onClick={() => window.location.href='/profil'} style={{display:'flex', alignItems:'center', gap:'7px', padding:'7px 14px', background:'white', border:'1px solid #e8e4de', borderRadius:'9px', color:'#111a14', fontFamily:'DM Sans,sans-serif', fontSize:'0.85rem', cursor:'pointer'}}>
                   <div style={{width:'24px', height:'24px', borderRadius:'50%', background:'#1a7a4a', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:'0.78rem', color:'white'}}>
                     {(user.user_metadata?.full_name || user.email || 'U')[0].toUpperCase()}
                   </div>
@@ -502,7 +502,7 @@ export default function Home() {
         </div>
 
         {/* Navbar catégories */}
-        <div style={{padding:'0 5%', display:'flex', justifyContent:'safe center', alignItems:'center', overflowX:'auto', scrollbarWidth:'none', maxWidth:'1300px', margin:'0 auto', background:'white'}}>
+        <div style={{padding:'0 5%', display:'flex', justifyContent:'safe center', alignItems:'center', overflowX:'auto', scrollbarWidth:'none', maxWidth:'1300px', margin:'0 auto', background:'#faf9f7'}}>
           <a href="#" className="nav-cat" onClick={e => { e.preventDefault(); handleNavCat('') }}
             style={{display:'flex', alignItems:'center', padding:'9px 14px', color: filterCat === '' ? '#1a7a4a' : '#6b7c6e', textDecoration:'none', fontSize:'0.82rem', fontWeight: filterCat === '' ? 700 : 500, whiteSpace:'nowrap', borderBottom: filterCat === '' ? '2px solid #1a7a4a' : '2px solid transparent'}}>
             Tout

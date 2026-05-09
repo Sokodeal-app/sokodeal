@@ -773,7 +773,7 @@ export default function ProfilPage() {
           </a>
 
           <div className="header-search" style={{flex:1, maxWidth:'480px', position:'relative'}}>
-            <div style={{display:'flex', background:'#faf9f7', borderRadius:'9px', overflow:'hidden', border:'1px solid #e8e4de'}}>
+            <div style={{display:'flex', background:'white', borderRadius:'9px', overflow:'hidden', border:'1px solid #e8e4de'}}>
               <input
                 type="text"
                 placeholder="Rechercher… ou @utilisateur"
@@ -794,13 +794,13 @@ export default function ProfilPage() {
           </div>
 
           <div style={{display:'flex', alignItems:'center', gap:'6px', flexShrink:0}}>
-            <button onClick={() => window.location.href='/profil'} style={{display:'flex', alignItems:'center', gap:'7px', padding:'7px 14px', background:'#faf9f7', border:'1px solid #e8e4de', borderRadius:'9px', color:'#111a14', fontFamily:'DM Sans,sans-serif', fontSize:'0.85rem', cursor:'pointer'}}>
-              <div style={{width:'24px', height:'24px', borderRadius:'50%', background:'#1a7a4a', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:'0.78rem', color:'white'}}>
+            <button onClick={() => window.location.href='/profil'} style={{display:'flex', alignItems:'center', gap:'7px', padding:'7px 14px', background:'white', border:'1px solid #e8e4de', borderRadius:'9px', color:'#111a14', fontFamily:'DM Sans,sans-serif', fontSize:'0.85rem', cursor:'pointer'}}>
+              <div style={{width:'24px', height:'24px', borderRadius:'50%', background:'#EAB308', border:'1px solid rgba(17,26,20,0.10)', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:'0.78rem', color:'#111a14'}}>
                 {(profileForm.full_name || user?.email || 'U')[0].toUpperCase()}
               </div>
               <span className="mon-compte-label">Mon compte</span>
             </button>
-            <button onClick={handleLogout} disabled={logoutLoading} style={{padding:'7px 12px', background: logoutLoading ? '#faf9f7' : 'white', border:'1px solid #e8e4de', borderRadius:'9px', color:'#6b7c6e', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:'0.82rem', cursor: logoutLoading ? 'not-allowed' : 'pointer', whiteSpace:'nowrap'}}>
+            <button onClick={handleLogout} disabled={logoutLoading} style={{padding:'7px 12px', background:'white', border:'1px solid #e8e4de', borderRadius:'9px', color:'#6b7c6e', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:'0.82rem', cursor: logoutLoading ? 'not-allowed' : 'pointer', whiteSpace:'nowrap'}}>
               {logoutLoading ? 'Sortie...' : 'Se déconnecter'}
             </button>
             <button className="deposer-btn" onClick={() => window.location.href='/publier'} style={{padding:'8px 18px', background:'#1a7a4a', border:'none', borderRadius:'9px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'white', cursor:'pointer', whiteSpace:'nowrap'}}>
@@ -833,20 +833,20 @@ export default function ProfilPage() {
                 Personnalisez votre profil et ce que les autres voient.
               </p>
               <div className="profile-hero-badges" style={{display:'flex', gap:'8px', flexWrap:'wrap', alignItems:'center'}}>
-                <button onClick={() => setActiveTab('profil')} style={{background:'rgba(255,255,255,0.14)', color:'white', padding:'8px 14px', borderRadius:'10px', fontSize:'0.78rem', fontWeight:800, border:'1px solid rgba(255,255,255,0.18)', cursor:'pointer', fontFamily:'DM Sans, sans-serif', boxShadow:'0 2px 8px rgba(0,0,0,0.08)', transition:'all 0.18s ease'}}>
+                <button onClick={() => setActiveTab('profil')} style={{background:'rgba(255,255,255,0.10)', color:'white', padding:'7px 12px', borderRadius:'10px', fontSize:'0.78rem', fontWeight:800, border:'1px solid rgba(255,255,255,0.16)', cursor:'pointer', fontFamily:'DM Sans, sans-serif', boxShadow:'0 2px 8px rgba(0,0,0,0.06)', transition:'all 0.18s ease'}}>
                   Modifier mon profil public
                 </button>
               </div>
             </div>
-            <div className="profile-hero-stats" style={{display:'grid', gridTemplateColumns:'repeat(3, 1fr)', alignItems:'center', justifyContent:'flex-end', minWidth:'330px'}}>
+            <div className="profile-hero-stats" style={{display:'grid', gridTemplateColumns:'repeat(3, 1fr)', alignItems:'stretch', justifyContent:'flex-end', width:'330px', minWidth:'330px'}}>
                 {[
                   { label:(<>Annonces<br />actives</>), value: mesAnnonces.length },
                   { label:'Vendus', value: soldCount },
                   { label:'Favoris', value: favorites.length },
                 ].map((item, index) => (
-                  <div key={index} style={{width:'100%', padding:'3px 18px', textAlign:'center', borderLeft: index === 0 ? 'none' : '1px solid rgba(255,255,255,0.14)'}}>
-                    <div style={{fontFamily:'Syne, sans-serif', fontWeight:800, fontSize:'1.16rem', color:'white', lineHeight:1}}>{item.value}</div>
-                    <div style={{fontSize:'0.58rem', color:'rgba(255,255,255,0.66)', marginTop:'4px', fontWeight:700, lineHeight:1.18, fontFamily:'DM Sans, sans-serif'}}>{item.label}</div>
+                  <div key={index} style={{width:'100%', minWidth:0, padding:'3px 18px', textAlign:'center', borderLeft: index === 0 ? 'none' : '1px solid rgba(255,255,255,0.14)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'flex-start'}}>
+                    <div style={{height:'26px', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne, sans-serif', fontWeight:800, fontSize:'1.22rem', color:'white', lineHeight:1, fontVariantNumeric:'lining-nums tabular-nums'}}>{item.value}</div>
+                    <div style={{minHeight:'24px', display:'flex', alignItems:'flex-start', justifyContent:'center', fontSize:'0.58rem', color:'rgba(255,255,255,0.66)', marginTop:'4px', fontWeight:700, lineHeight:1.12, fontFamily:'DM Sans, sans-serif'}}>{item.label}</div>
                   </div>
                 ))}
             </div>
@@ -868,10 +868,10 @@ export default function ProfilPage() {
             ].map(item => (
               <div key={item.label} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.08)' }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)' }} style={{background:'white', borderRadius:'16px', border:'1px solid #e8e4de', boxShadow:'0 2px 8px rgba(0,0,0,0.06)', padding:'12px', transition:'all 0.18s ease'}}>
                 <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'7px'}}>
-                  <div style={{width:'30px', height:'30px', borderRadius:'10px', background:'#f0f7f3', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'0.9rem'}}>
+                  <div style={{fontSize:'1rem', lineHeight:1, opacity:0.82}}>
                     {item.icon}
                   </div>
-                  <span style={{fontSize:'0.68rem', color:'#1a7a4a', background:'#e8f5ee', borderRadius:'999px', padding:'2px 7px', fontFamily:'DM Sans, sans-serif', fontWeight:700}}>+0%</span>
+                  <span style={{fontSize:'0.68rem', color:'#1a7a4a', fontFamily:'DM Sans, sans-serif', fontWeight:700}}>+0%</span>
                 </div>
                 <div style={{fontFamily:'Syne, sans-serif', fontWeight:800, fontSize:'1.12rem', color:'#111a14', lineHeight:1}}>{item.value}</div>
                 <div style={{fontSize:'0.76rem', color:'#111a14', fontWeight:700, marginTop:'3px', fontFamily:'DM Sans, sans-serif'}}>{item.label}</div>
@@ -895,8 +895,8 @@ export default function ProfilPage() {
               }}>
                 {tab.label}
                 {tab.count !== null && (
-                  <span style={{marginLeft:'5px', background: activeTab === tab.id ? 'rgba(255,255,255,0.22)' : '#f5f7f5', color: activeTab === tab.id ? 'white' : '#6b7c6e', borderRadius:'8px', padding:'1px 6px', fontSize:'0.72rem'}}>
-                    {tab.count}
+                  <span style={{marginLeft:'4px', color: activeTab === tab.id ? 'rgba(255,255,255,0.86)' : '#6b7c6e', fontSize:'0.72rem', fontWeight:700}}>
+                    ({tab.count})
                   </span>
                 )}
               </button>
@@ -922,7 +922,7 @@ export default function ProfilPage() {
               <div className="ads-grid-3" style={{display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:'12px'}}>
                 {mesAnnonces.map((ad: any) => (
                   <div key={ad.id} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.08)' }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)' }} style={{background:'white', borderRadius:'16px', overflow:'visible', cursor:'pointer', border:'1px solid #e8e4de', boxShadow:'0 2px 8px rgba(0,0,0,0.06)', transition:'all 0.18s ease'}} onClick={() => window.location.href='/annonce/' + generateSlug(ad)}>
-                    <div style={{height:'150px', background:'#faf9f7', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2.6rem', overflow:'hidden', position:'relative', borderRadius:'16px 16px 0 0'}}>
+                    <div style={{height:'140px', background:'#faf9f7', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2.45rem', overflow:'hidden', position:'relative', borderRadius:'16px 16px 0 0'}}>
                       {ad.images && ad.images.length > 0 ? (
                         <img src={ad.images[0]} alt={ad.title} style={{width:'100%', height:'100%', objectFit:'cover'}}/>
                       ) : (
@@ -932,20 +932,23 @@ export default function ProfilPage() {
                         {ad.is_sold ? 'VENDU' : 'Active'}
                       </span>
                     </div>
-                    <div style={{padding:'10px'}}>
-                      <div style={{fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:'0.9rem', color:'#111a14', marginBottom:'6px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
+                    <div style={{padding:'9px'}}>
+                      <div style={{fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:'0.88rem', color:'#111a14', marginBottom:'5px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
                         {ad.title}
                       </div>
-                      <div style={{fontFamily:'Syne, sans-serif', fontWeight:800, color:'#1a7a4a', fontSize:'0.95rem', marginBottom:'7px'}}>
+                      <div style={{fontFamily:"'DM Sans', sans-serif", fontWeight:800, fontSize:'1rem', color:'#0f5233', marginBottom:'6px', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0', letterSpacing:'-0.01em', lineHeight:1.15}}>
                         {Number(ad.price).toLocaleString()} RWF
                       </div>
-                      <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'10px', marginBottom:'8px'}}>
-                        <div style={{display:'flex', gap:'6px', flexWrap:'wrap'}}>
-                          <span style={{fontSize:'0.68rem', color:'#6b7c6e', background:'#f5f7f5', border:'1px solid #e8e4de', borderRadius:'999px', padding:'3px 8px', fontFamily:'DM Sans, sans-serif'}}>👁 0</span>
-                          <span style={{fontSize:'0.68rem', color:'#6b7c6e', background:'#f5f7f5', border:'1px solid #e8e4de', borderRadius:'999px', padding:'3px 8px', fontFamily:'DM Sans, sans-serif'}}>💬 0</span>
-                        </div>
+                      <div style={{display:'flex', gap:'10px', alignItems:'center', marginBottom:'8px', fontFamily:'DM Sans, sans-serif'}}>
+                        <span style={{fontSize:'0.68rem', color:'#6b7c6e', fontWeight:600}}>👁 0</span>
+                        <span style={{fontSize:'0.68rem', color:'#6b7c6e', fontWeight:600}}>💬 0</span>
+                      </div>
+                      <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                        <button onClick={e => { e.stopPropagation(); window.location.href='/modifier/' + ad.id }} style={{flex:1, height:'32px', padding:'0 10px', background:'#f0f7f3', color:'#1a7a4a', border:'1px solid #d4e6da', borderRadius:'8px', fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:'0.78rem', cursor:'pointer'}}>
+                          Modifier
+                        </button>
                         <details onClick={e => e.stopPropagation()} style={{position:'relative'}}>
-                          <summary style={{listStyle:'none', cursor:'pointer', width:'30px', height:'30px', borderRadius:'8px', border:'1px solid #e8e4de', background:'#f5f7f5', color:'#6b7c6e', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800}}>...</summary>
+                          <summary style={{listStyle:'none', cursor:'pointer', width:'32px', height:'32px', borderRadius:'8px', border:'1px solid #e8e4de', background:'white', color:'#6b7c6e', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800}}>...</summary>
                           <div style={{position:'absolute', right:0, top:'34px', background:'white', border:'1px solid #e8e4de', borderRadius:'10px', boxShadow:'0 8px 24px rgba(0,0,0,0.10)', padding:'6px', zIndex:10, minWidth:'140px'}}>
                             <button onClick={() => window.location.href='/annonce/' + generateSlug(ad)} style={{width:'100%', padding:'7px 9px', background:'transparent', border:'none', textAlign:'left', fontFamily:'DM Sans, sans-serif', fontSize:'0.78rem', color:'#111a14', cursor:'pointer'}}>Voir</button>
                             {!ad.is_sold && (
@@ -955,9 +958,6 @@ export default function ProfilPage() {
                           </div>
                         </details>
                       </div>
-                      <button onClick={e => { e.stopPropagation(); window.location.href='/modifier/' + ad.id }} style={{width:'100%', padding:'7px', background:'#f0f7f3', color:'#1a7a4a', border:'1px solid #d4e6da', borderRadius:'8px', fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:'0.78rem', cursor:'pointer'}}>
-                        Modifier
-                      </button>
                     </div>
                   </div>
                 ))}
