@@ -446,7 +446,7 @@ function StatsTab({ userId, ads }: { userId: string, ads: any[] }) {
                 <div key={ad.id} style={{display:'flex', alignItems:'center', gap:'12px', padding:'10px', borderRadius:'10px', background:'#f5f7f5', border:'1px solid #e8ede9'}}>
                   <div style={{width:'54px', height:'54px', borderRadius:'8px', overflow:'hidden', background:'white', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0}}>
                     {ad.images?.[0] ? (
-                      <img src={ad.images[0]} alt={ad.title} style={{width:'100%', height:'100%', objectFit:'cover'}} />
+                      <img src={ad.images[0]} alt={ad.title} width={260} height={140} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}} />
                     ) : (
                       <span style={{fontSize:'1.4rem'}}></span>
                     )}
@@ -979,7 +979,7 @@ export default function ProfilPage() {
                   <div key={ad.id} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.08)' }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)' }} style={{background:'white', borderRadius:'16px', overflow:'visible', cursor:'pointer', border:'1px solid #e8e4de', boxShadow:'0 2px 8px rgba(0,0,0,0.06)', transition:'all 0.18s ease'}} onClick={() => router.push('/annonce/' + generateSlug(ad))}>
                     <div style={{height:'140px', background:'#faf9f7', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2.45rem', overflow:'hidden', position:'relative', borderRadius:'16px 16px 0 0'}}>
                       {ad.images && ad.images.length > 0 ? (
-                        <img src={ad.images[0]} alt={ad.title} style={{width:'100%', height:'100%', objectFit:'cover'}}/>
+                        <img src={ad.images[0]} alt={ad.title} width={300} height={140} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
                       ) : (
                         <span style={{opacity:0.45}}>{catEmoji[ad.category] || ''}</span>
                       )}
@@ -1078,7 +1078,7 @@ export default function ProfilPage() {
                   <div key={ad.id} style={{background:'white', borderRadius:'12px', overflow:'hidden', border:'1px solid #e8e4de', cursor:'pointer'}} onClick={() => router.push('/annonce/' + generateSlug(ad))}>
                     <div style={{height:'140px', background:'#f5f7f5', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2.5rem', position:'relative', overflow:'hidden'}}>
                       {ad.images && ad.images.length > 0 ? (
-                        <img src={ad.images[0]} alt={ad.title} style={{width:'100%', height:'100%', objectFit:'cover'}}/>
+                        <img src={ad.images[0]} alt={ad.title} width={300} height={140} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
                       ) : (
                         <span style={{opacity:0.5}}>{catEmoji[ad.category] || ''}</span>
                       )}
@@ -1255,7 +1255,7 @@ export default function ProfilPage() {
                   <div key={ad.id} style={{background:'white', borderRadius:'12px', overflow:'hidden', border:'1px solid #e8e4de', opacity:0.8}}>
                     <div style={{height:'120px', background:'#f5f7f5', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2.5rem', position:'relative', overflow:'hidden'}}>
                       {ad.images && ad.images.length > 0 ? (
-                        <img src={ad.images[0]} alt={ad.title} style={{width:'100%', height:'100%', objectFit:'cover', filter:'grayscale(30%)'}}/>
+                        <img src={ad.images[0]} alt={ad.title} width={300} height={140} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover', filter:'grayscale(30%)'}}/>
                       ) : (
                         <span style={{opacity:0.5}}>{catEmoji[ad.category] || ''}</span>
                       )}

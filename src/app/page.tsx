@@ -82,7 +82,7 @@ export default function Home() {
     try {
       const { data, error } = await supabase
         .from('ads')
-        .select('*')
+        .select('id, title, price, images, province, district, category, subcategory, created_at, is_active, is_sold, is_boosted, sold_at, deleted_at, surface, chambres, salles_de_bain, immo_type, user_id, latitude, longitude')
         .eq('is_active', true)
         .is('deleted_at', null)
         .order('created_at', { ascending: false })
@@ -405,6 +405,7 @@ export default function Home() {
     setSearch(''); setFilterCat(''); setFilterSubcat(''); setFilterVille('')
     setFilterPriceMin(''); setFilterPriceMax(''); setSortBy('recent')
     setFilterChambres(''); setFilterType('')
+    setActiveSection('main')
     setProfileResults([])
     setSelectedImmoAd(null)
   }
@@ -413,6 +414,7 @@ export default function Home() {
 
   const displayAds = ads.length > 0 ? filteredAds : []
   const immoAds = displayAds.filter(ad => ['immo-vente','immo-location','immo-terrain'].includes(ad.category))
+  const cardSkeletons = Array.from({ length: 8 })
 
   return (
     <>
@@ -737,7 +739,7 @@ export default function Home() {
                 >
                   <div style={{height:'90px', background:'#f0f7f3', overflow:'hidden'}}>
                     {ad.images?.[0] ? (
-                      <img src={ad.images[0]} alt={ad.title} style={{width:'100%', height:'100%', objectFit:'cover'}}/>
+                      <img src={ad.images[0]} alt={ad.title} width={175} height={90} decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
                     ) : (
                       <div style={{width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.8rem', opacity:0.4}}>
                         {catEmoji[ad.category] || '📦'}
@@ -785,7 +787,18 @@ export default function Home() {
             </button>
 
             {loading && !hasLoadedAds && ads.length === 0 ? (
-              <div style={{textAlign:'center', padding:'60px', color:'#6b7c6e'}}>Chargement...</div>
+              <div style={{display:'grid', gap:'12px'}}>
+                {cardSkeletons.slice(0, 4).map((_, i) => (
+                  <div key={i} style={{background:'white', borderRadius:'14px', overflow:'hidden', border:'1px solid #e8e4de', boxShadow:'0 1px 4px rgba(0,0,0,0.06)', display:'grid', gridTemplateColumns:'140px 1fr'}}>
+                    <div style={{height:'130px', background:'#f1efeb'}} />
+                    <div style={{padding:'12px'}}>
+                      <div style={{height:'12px', width:'72%', background:'#f1efeb', borderRadius:'6px', marginBottom:'10px'}} />
+                      <div style={{height:'15px', width:'45%', background:'#e8e4de', borderRadius:'6px', marginBottom:'10px'}} />
+                      <div style={{height:'10px', width:'34%', background:'#f1efeb', borderRadius:'6px'}} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : immoAds.length === 0 ? (
               <div style={{background:'white', borderRadius:'14px', padding:'40px', textAlign:'center', border:'1px solid #e8e4de'}}>
                 <div style={{fontSize:'2.5rem', marginBottom:'12px'}}>Immo</div>
@@ -802,7 +815,7 @@ export default function Home() {
 
                 <div style={{height:'130px', background:'#faf9f7', overflow:'hidden', position:'relative', flexShrink:0}}>
                   {ad.images && ad.images.length > 0 ? (
-                    <img src={ad.images[0]} alt={ad.title} style={{width:'100%', height:'100%', objectFit:'cover'}}/>
+                    <img src={ad.images[0]} alt={ad.title} width={140} height={130} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
                   ) : (
                     <div style={{width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'0.8rem', opacity:0.55}}>Photo</div>
                   )}
@@ -871,7 +884,7 @@ export default function Home() {
               <div style={{background:'white', borderRadius:'12px', padding:'14px 16px', border:'1px solid #e8e4de', boxShadow:'0 4px 16px rgba(0,0,0,0.08)', display:'flex', gap:'12px', alignItems:'center'}}>
                 <div style={{width:'52px', height:'52px', borderRadius:'8px', overflow:'hidden', flexShrink:0}}>
                   {selectedImmoAd.images?.[0] ? (
-                    <img src={selectedImmoAd.images[0]} alt="" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
+                    <img src={selectedImmoAd.images[0]} alt="" width={52} height={52} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
                   ) : (
                     <div style={{width:'100%', height:'100%', background:'#faf9f7', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'0.7rem'}}>Photo</div>
                   )}
@@ -923,7 +936,7 @@ export default function Home() {
               <div key={ad.id} onClick={() => router.push('/annonce/' + generateSlug(ad))} style={{flexShrink:0, width:'200px', background:'white', borderRadius:'14px', overflow:'hidden', border:'1px solid #e8e4de', cursor:'pointer', boxShadow:'0 2px 8px rgba(0,0,0,0.06)'}}>
                 <div style={{height:'130px', background:'#f5f7f5', overflow:'hidden', position:'relative'}}>
                   {ad.images?.[0] ? (
-                    <img src={ad.images[0]} alt={ad.title} style={{width:'100%', height:'100%', objectFit:'cover'}}/>
+                    <img src={ad.images[0]} alt={ad.title} width={200} height={130} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
                   ) : (
                     <div style={{width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2rem', opacity:0.4}}>
                       {catEmoji[ad.category] || '📦'}
@@ -1042,7 +1055,19 @@ export default function Home() {
           </div>
 
           {loading && !hasLoadedAds && ads.length === 0 ? (
-            <div style={{textAlign:'center', padding:'60px', color:'#6b7c6e'}}>Chargement...</div>
+            <div className="ads-grid" style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'14px'}}>
+              {cardSkeletons.map((_, i) => (
+                <div key={i} style={{background:'white', borderRadius:'16px', overflow:'hidden', border:'1px solid #e8e4de', boxShadow:'0 2px 8px rgba(0,0,0,0.06)'}}>
+                  <div style={{height:'180px', background:'#f1efeb'}} />
+                  <div style={{padding:'12px'}}>
+                    <div style={{height:'12px', width:'78%', background:'#f1efeb', borderRadius:'6px', marginBottom:'10px'}} />
+                    <div style={{height:'16px', width:'52%', background:'#e8e4de', borderRadius:'6px', marginBottom:'10px'}} />
+                    <div style={{height:'10px', width:'38%', background:'#f1efeb', borderRadius:'6px', marginBottom:'12px'}} />
+                    <div style={{height:'34px', background:'#f0f7f3', borderRadius:'8px'}} />
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : displayAds.length === 0 ? (
             <div style={{background:'white', borderRadius:'14px', padding:'56px', textAlign:'center', border:'1px solid #e8e4de'}}>
               <div style={{fontSize:'2.5rem', marginBottom:'12px'}}>🔍</div>
@@ -1059,7 +1084,7 @@ export default function Home() {
                   style={{background:'white', borderRadius:'16px', overflow:'hidden', cursor:'pointer', border: FEATURE_FLAGS.boostedListings && ad.is_boosted ? '1.5px solid #1a7a4a' : '1px solid #e8e4de', boxShadow:'0 2px 8px rgba(0,0,0,0.06)'}}>
                   <div style={{height:'180px', background:'#faf9f7', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'3.5rem', overflow:'hidden', position:'relative'}}>
                     {ad.images && ad.images.length > 0 ? (
-                      <img src={ad.images[0]} alt={ad.title} style={{width:'100%', height:'100%', objectFit:'cover'}}/>
+                      <img src={ad.images[0]} alt={ad.title} width={300} height={180} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
                     ) : (
                       <span style={{opacity:0.5}}>{catEmoji[ad.category] || '📦'}</span>
                     )}

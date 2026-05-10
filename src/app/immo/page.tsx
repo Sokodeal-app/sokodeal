@@ -246,7 +246,7 @@ export default function ImmoPage() {
                     style={{ background: 'white', borderRadius: '14px', overflow: 'hidden', cursor: 'pointer', border: selectedAd?.id === ad.id ? '2px solid #1a7a4a' : '1px solid #e8ede9', display: 'flex', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                     <div style={{ width: '180px', minHeight: '130px', background: '#f5f7f5', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', overflow: 'hidden', position: 'relative' }}>
                       {ad.images && ad.images.length > 0 ? (
-                        <img src={ad.images[0]} alt={ad.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img src={ad.images[0]} alt={ad.title} width={300} height={180} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
                         <span style={{ opacity: 0.4 }}>🏡</span>
                       )}
@@ -279,7 +279,7 @@ export default function ImmoPage() {
                     style={{ background: 'white', borderRadius: '14px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #e8ede9', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                     <div style={{ height: '180px', background: '#f5f7f5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', overflow: 'hidden', position: 'relative' }}>
                       {ad.images && ad.images.length > 0 ? (
-                        <img src={ad.images[0]} alt={ad.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img src={ad.images[0]} alt={ad.title} width={300} height={180} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
                         <span style={{ opacity: 0.4 }}>🏡</span>
                       )}
@@ -316,7 +316,7 @@ export default function ImmoPage() {
             <div style={{ position: 'absolute', bottom: '16px', left: '16px', right: '16px', background: 'white', borderRadius: '12px', padding: '14px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)', border: '1px solid #e8ede9' }}>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                 <div style={{ width: '56px', height: '56px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, background: '#f5f7f5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
-                  {selectedAd.images?.[0] ? <img src={selectedAd.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '🏡'}
+                  {selectedAd.images?.[0] ? <img src={selectedAd.images[0]} alt="" width={56} height={56} loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '🏡'}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: '0.85rem', color: '#111a14', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedAd.title}</div>

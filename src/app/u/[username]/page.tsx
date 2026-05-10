@@ -1215,7 +1215,7 @@ export default function PublicProfile() {
 
       <section className="hero"> 
         {pendingBannerUrl || profile.banner_url ? (
-          <img src={pendingBannerUrl || profile.banner_url} alt="Banniere du profil" />
+          <img src={pendingBannerUrl || profile.banner_url} alt="Banniere du profil" decoding="async" />
         ) : (
           <div className="hero-fallback" />
         )}
@@ -1359,7 +1359,7 @@ export default function PublicProfile() {
               {bestAds.map((ad: any) => (
                 <Link key={ad.id} href={`/annonce/${generateSlug(ad)}`} className="feature-card" style={{textDecoration:'none', color:'inherit', display:'block'}}>
                   {ad.images?.[0] ? (
-                    <img src={ad.images[0]} alt={ad.title} />
+                    <img src={ad.images[0]} alt={ad.title} width={320} height={190} loading="lazy" decoding="async" />
                   ) : (
                     <div className="ad-placeholder">{catLabel[ad.category] || 'Annonce'}</div>
                   )}
@@ -1402,7 +1402,7 @@ export default function PublicProfile() {
                 <Link key={ad.id} href={`/annonce/${generateSlug(ad)}`} className="ad-card" style={{textDecoration:'none', color:'inherit', display:'block'}}>
                   <div className="ad-media">
                     {ad.images?.[0] ? (
-                      <img src={ad.images[0]} alt={ad.title} />
+                      <img src={ad.images[0]} alt={ad.title} width={320} height={190} loading="lazy" decoding="async" />
                     ) : (
                       <div className="ad-placeholder">{catLabel[ad.category] || 'Annonce'}</div>
                     )}
