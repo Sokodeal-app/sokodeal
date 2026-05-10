@@ -3,7 +3,7 @@ import { Fragment, useState, useEffect, useRef, useMemo, useCallback } from 'rea
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { supabasePublic } from '@/lib/supabase-public'
-import { getCurrentUser } from '@/lib/auth'
+import { useAuth } from '@/components/AuthProvider'
 import FavoriteButton from '@/components/FavoriteButton'
 import { useUnreadCount } from '@/hooks/useUnreadCount'
 import { SUBCATEGORIES } from '@/lib/categories'
@@ -21,7 +21,7 @@ export default function Home() {
   const [ads, setAds] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [hasLoadedAds, setHasLoadedAds] = useState(false)
-  const [user, setUser] = useState<any>(null)
+  const { user } = useAuth()
   const [isUserAdmin, setIsUserAdmin] = useState(false)
   const [search, setSearch] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -128,46 +128,28 @@ export default function Home() {
   useEffect(() => {
     fetchAds()
 
-    const getUser = async () => {
-      const { data: { user } } = await getCurrentUser()
-      setUser(user)
-      if (!user) {
-        setIsUserAdmin(false)
-        return
-      }
-      const { data: userData } = await supabase
-        .from('users')
-        .select('is_admin')
-        .eq('id', user.id)
-        .single()
-      setIsUserAdmin(!!userData?.is_admin)
-    }
-    getUser()
-
     const stored = localStorage.getItem('sokodeal:search-history')
     if (stored) {
       try { setLocalHistory(JSON.parse(stored).slice(0, 10)) } catch {}
     }
+  }, [fetchAds])
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_OUT') {
-        setUser(null)
+  useEffect(() => {
+    let cancelled = false
+
+    const loadAdminFlag = async () => {
+      if (!user) {
         setIsUserAdmin(false)
         return
       }
 
-      if (!session?.user) {
-        return
-      }
-
-      const nextUser = session.user
-      setUser(nextUser)
-
       const { data: userData, error } = await supabase
         .from('users')
         .select('is_admin')
-        .eq('id', nextUser.id)
+        .eq('id', user.id)
         .single()
+
+      if (cancelled) return
 
       if (error) {
         console.error('HOME is_admin error', error)
@@ -176,9 +158,13 @@ export default function Home() {
       }
 
       setIsUserAdmin(!!userData?.is_admin)
-    })
-    return () => subscription.unsubscribe()
-  }, [fetchAds])
+    }
+
+    loadAdminFlag()
+    return () => {
+      cancelled = true
+    }
+  }, [user])
 
   useEffect(() => {
     adsLengthRef.current = ads.length

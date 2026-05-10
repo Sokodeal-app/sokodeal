@@ -1,7 +1,7 @@
 // hooks/useFavorites.js
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
-import { getCurrentUser } from '@/lib/auth'
+import { useAuth } from '@/components/AuthProvider'
 
 /**
  * Hook pour gérer les favoris de l'utilisateur connecté.
@@ -12,30 +12,14 @@ import { getCurrentUser } from '@/lib/auth'
 export function useFavorites() {
   const [favorites, setFavorites] = useState([]) // liste des ad_id favoris
   const [loading, setLoading] = useState(true)
-  const [userId, setUserId] = useState(null)
+  const { user, loading: authLoading } = useAuth()
+  const userId = user?.id ?? null
 
   // Récupérer l'utilisateur connecté
-  useEffect(() => {
-    getCurrentUser().then(({ data }) => {
-      setUserId(data?.user?.id ?? null)
-    })
-
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') {
-        setUserId(null)
-        return
-      }
-
-      if (session?.user) {
-        setUserId(session.user.id)
-      }
-    })
-
-    return () => listener.subscription.unsubscribe()
-  }, [])
-
   // Charger les favoris quand l'utilisateur est connu
   useEffect(() => {
+    if (authLoading) return
+
     if (!userId) {
       setFavorites([])
       setLoading(false)
@@ -56,7 +40,7 @@ export function useFavorites() {
     }
 
     fetchFavorites()
-  }, [userId])
+  }, [authLoading, userId])
 
   // Vérifier si une annonce est en favori
   const isFavorite = useCallback(

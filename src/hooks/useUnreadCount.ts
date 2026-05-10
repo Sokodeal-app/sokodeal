@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { getCurrentUser } from '@/lib/auth'
+import { useAuth } from '@/components/AuthProvider'
 
 export function useUnreadCount() {
   const [unreadCount, setUnreadCount] = useState(0)
+  const { user, loading: authLoading } = useAuth()
 
   const loadCount = useCallback(async (uid: string) => {
     const { count, error } = await supabase
@@ -21,20 +22,22 @@ export function useUnreadCount() {
   }, [])
 
   useEffect(() => {
+    if (authLoading) return
+
+    if (!user) {
+      setUnreadCount(0)
+      return
+    }
+
     let cancelled = false
-    let userId: string | null = null
     let channel: ReturnType<typeof supabase.channel> | null = null
     let broadcastChannel: ReturnType<typeof supabase.channel> | null = null
 
     const refreshUnreadCount = () => {
-      if (userId) loadCount(userId)
+      loadCount(user.id)
     }
 
     const init = async () => {
-      const { data: { user } } = await getCurrentUser()
-      if (!user || cancelled) return
-
-      userId = user.id
       await loadCount(user.id)
       if (cancelled) return
 
@@ -67,7 +70,7 @@ export function useUnreadCount() {
       if (channel) supabase.removeChannel(channel)
       if (broadcastChannel) supabase.removeChannel(broadcastChannel)
     }
-  }, [loadCount])
+  }, [authLoading, loadCount, user])
 
   return { unreadCount, resetCount: () => setUnreadCount(0) }
 }

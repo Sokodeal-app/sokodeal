@@ -1,44 +1,16 @@
 ﻿'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { getCurrentUser } from '@/lib/auth'
+import { useAuth } from '@/components/AuthProvider'
 import { useUnreadCount } from '@/hooks/useUnreadCount'
 
 export default function Header() {
   const router = useRouter()
-  const [user, setUser] = useState<any>(null)
+  const { user } = useAuth()
   const [logoutLoading, setLogoutLoading] = useState(false)
   const [logoutError, setLogoutError] = useState('')
   const { unreadCount } = useUnreadCount()
-
-  const refreshUser = useCallback(async () => {
-    const { data: { user } } = await getCurrentUser()
-    setUser(user ?? null)
-  }, [])
-
-  useEffect(() => {
-    refreshUser()
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') {
-        setUser(null)
-        return
-      }
-
-      if (session?.user) {
-        setUser(session.user)
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [refreshUser])
-
-  useEffect(() => {
-    const handlePageShow = () => {
-      refreshUser()
-    }
-    window.addEventListener('pageshow', handlePageShow)
-    return () => window.removeEventListener('pageshow', handlePageShow)
-  }, [refreshUser])
 
   const handleLogout = async () => {
     setLogoutLoading(true)
@@ -51,7 +23,6 @@ export default function Header() {
       return
     }
 
-    setUser(null)
     window.location.href = '/'
   }
 

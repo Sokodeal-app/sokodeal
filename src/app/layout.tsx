@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { AuthProvider } from "@/components/AuthProvider";
 
 export const metadata: Metadata = {
   title: {
@@ -45,7 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
       </head>
       <body style={{margin:0, padding:0, paddingBottom:'env(safe-area-inset-bottom)', background:'#f5f7f5', overflowX:'hidden', maxWidth:'100vw'}}>
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   )

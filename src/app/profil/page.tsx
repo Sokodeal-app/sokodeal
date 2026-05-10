@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { getCurrentUser, isTemporaryAuthError } from '@/lib/auth'
+import { useAuth } from '@/components/AuthProvider'
 import { useFavorites } from '@/hooks/useFavorites'
 import FavoriteButton from '@/components/FavoriteButton'
 import { FEATURE_FLAGS } from '@/lib/feature-flags'
@@ -485,6 +485,7 @@ function StatsTab({ userId, ads }: { userId: string, ads: any[] }) {
 
 export default function ProfilPage() {
   const router = useRouter()
+  const { user: authUser, loading: authLoading } = useAuth()
   const [user, setUser] = useState<any>(null)
   const [ads, setAds] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -514,41 +515,17 @@ export default function ProfilPage() {
 
   useEffect(() => {
     let cancelled = false
-    const MAX_AUTH_LOCK_RETRIES = 2
 
-    const init = async (attempt = 0) => {
-      let shouldRedirect = false
-      let shouldKeepLoading = false
+    const init = async (currentUser: NonNullable<typeof authUser>) => {
       try {
         setLoading(true)
-        const { data: { user }, error: authError } = await getCurrentUser()
-        if (cancelled) return
-        if (authError && isTemporaryAuthError(authError)) {
-          console.warn('AUTH LOCK ERROR - ignored as temporary')
-          if (attempt < MAX_AUTH_LOCK_RETRIES) {
-            shouldKeepLoading = true
-            setTimeout(() => {
-              if (!cancelled) init(attempt + 1)
-            }, 350)
-            return
-          }
-        }
-        if (authError || !user) {
-          console.warn('PROFILE auth missing', authError)
-          sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
-            url: window.location.pathname,
-            state: {}
-          }))
-          shouldRedirect = true
-          router.push('/auth?mode=login')
-          return
-        }
-        setUser(user)
+
+        setUser(currentUser)
 
         const { data: userData, error: profileError } = await supabase
           .from('users')
           .select('*')
-          .eq('id', user.id)
+          .eq('id', currentUser.id)
           .single()
         if (cancelled) return
 
@@ -556,15 +533,15 @@ export default function ProfilPage() {
           console.error('PROFILE users error', profileError)
         } else if (userData) {
           setProfileForm({
-            full_name: userData.full_name || user.user_metadata?.full_name || '',
-            phone: userData.phone || user.user_metadata?.phone || '',
-            location: user.user_metadata?.location || '',
+            full_name: userData.full_name || currentUser.user_metadata?.full_name || '',
+            phone: userData.phone || currentUser.user_metadata?.phone || '',
+            location: currentUser.user_metadata?.location || '',
             username: userData.username || '',
           })
           setHideReadReceipts(!!userData.hide_read_receipts)
         }
 
-        const { data: userAds, error: adsError } = await supabase.from('ads').select('*').eq('user_id', user.id).is('deleted_at', null).order('created_at', { ascending: false })
+        const { data: userAds, error: adsError } = await supabase.from('ads').select('*').eq('user_id', currentUser.id).is('deleted_at', null).order('created_at', { ascending: false })
         if (cancelled) return
 
         if (adsError) {
@@ -575,15 +552,35 @@ export default function ProfilPage() {
       } catch (err) {
         console.error('PROFILE init catch', err)
       } finally {
-        if (!cancelled && !shouldRedirect && !shouldKeepLoading) setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
-    init()
+
+    if (authLoading) {
+      setLoading(true)
+      return () => {
+        cancelled = true
+      }
+    }
+
+    if (!authUser) {
+      sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
+        url: window.location.pathname,
+        state: {}
+      }))
+      setLoading(false)
+      router.push('/auth?mode=login')
+      return () => {
+        cancelled = true
+      }
+    }
+
+    init(authUser)
 
     return () => {
       cancelled = true
     }
-  }, [router])
+  }, [authLoading, authUser, router])
 
   useEffect(() => {
     if (activeTab !== 'favoris' || favorites.length === 0) {

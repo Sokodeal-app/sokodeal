@@ -2,10 +2,11 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { getCurrentUser, getCurrentSession } from '@/lib/auth'
+import { useAuth } from '@/components/AuthProvider'
 import Header from '@/components/Header'
 
 export default function MessagesPage() {
+  const { user: authUser, session, loading: authLoading } = useAuth()
   const [user, setUser] = useState<any>(null)
   const [conversations, setConversations] = useState<any[]>([])
   const [activeConv, setActiveConv] = useState<any>(null)
@@ -21,18 +22,9 @@ export default function MessagesPage() {
     const init = async () => {
       try {
         setLoadError('')
-        const { data: { user } } = await getCurrentUser()
-        if (!user) {
-          sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
-            url: window.location.pathname + window.location.search,
-            state: {}
-          }))
-          window.location.href = '/auth?mode=login'
-          return
-        }
-        setUser(user)
+        setUser(authUser)
 
-      const convList = await loadConversations(user) || []
+      const convList = await loadConversations(authUser) || []
 
       // ✅ Ouvrir direct une conversation si ?user= dans l'URL
       const params = new URLSearchParams(window.location.search)
@@ -73,17 +65,24 @@ export default function MessagesPage() {
         setLoading(false)
       }
     }
-    init()
-  }, [])
 
-  useEffect(() => {
-    if (!loading) return
-    const timeout = setTimeout(() => {
-      setLoadError('Impossible de charger les messages pour le moment.')
+    if (authLoading) {
+      setLoading(true)
+      return
+    }
+
+    if (!authUser) {
+      sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
+        url: window.location.pathname + window.location.search,
+        state: {}
+      }))
       setLoading(false)
-    }, 8000)
-    return () => clearTimeout(timeout)
-  }, [loading])
+      window.location.href = '/auth?mode=login'
+      return
+    }
+
+    init()
+  }, [authLoading, authUser])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -187,7 +186,7 @@ export default function MessagesPage() {
   }
 
   const openConversation = async (conv: any) => {
-    const currentUser = user || (await getCurrentUser()).data.user
+    const currentUser = user
     if (!currentUser) {
       sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
         url: window.location.pathname + window.location.search,
@@ -300,7 +299,6 @@ export default function MessagesPage() {
   }
 
   async function markConversationAsRead(conversationMessages: any[]) {
-    const { data: { session } } = await getCurrentSession()
     if (!session) return false
 
     const messageIds = conversationMessages
