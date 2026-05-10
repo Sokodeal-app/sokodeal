@@ -14,12 +14,24 @@ export default function Header() {
 
   const refreshUser = useCallback(async () => {
     const { data: { user } } = await getCurrentUser()
+    console.log('HEADER REFRESH USER', {
+      userId: user?.id,
+      email: user?.email,
+      metadata: user?.user_metadata,
+      fullName: user?.user_metadata?.full_name,
+    })
     setUser(user ?? null)
   }, [])
 
   useEffect(() => {
     refreshUser()
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('HEADER AUTH EVENT', {
+        event,
+        userId: session?.user?.id,
+        email: session?.user?.email,
+      })
+
       if (event === 'SIGNED_OUT') {
         setUser(null)
         return

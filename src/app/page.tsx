@@ -89,6 +89,12 @@ export default function Home() {
         .is('deleted_at', null)
         .order('created_at', { ascending: false })
 
+      console.log('FETCH ADS DEBUG', {
+        dataLength: data?.length,
+        data: data?.slice(0, 2),
+        error: error ? JSON.stringify(error) : null,
+      })
+
       if (error) {
         console.error('FETCH ADS ERROR', JSON.stringify(error))
         return
@@ -415,6 +421,16 @@ export default function Home() {
   const displayAds = ads.length > 0 ? filteredAds : []
   const immoAds = displayAds.filter(ad => ['immo-vente','immo-location','immo-terrain'].includes(ad.category))
   const cardSkeletons = Array.from({ length: 8 })
+
+  console.log('HOME RENDER DEBUG', {
+    loading,
+    adsLength: ads.length,
+    filteredAdsLength: filteredAds.length,
+    displayAdsLength: displayAds.length,
+    filterCat,
+    search,
+    activeSection,
+  })
 
   return (
     <>

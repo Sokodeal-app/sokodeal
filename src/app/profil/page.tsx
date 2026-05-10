@@ -520,6 +520,15 @@ export default function ProfilPage() {
       try {
         setLoading(true)
         const { data: { user }, error: authError } = await getCurrentUser()
+        console.log('PROFILE INIT DEBUG', {
+          authUser: user?.id,
+          authEmail: user?.email,
+        })
+        console.log('PROFILE STEP 1 getCurrentUser', {
+          authUserId: user?.id,
+          authEmail: user?.email,
+          error: authError,
+        })
         if (cancelled) return
         if (authError || !user) {
           console.warn('PROFILE auth missing', authError)
@@ -538,6 +547,10 @@ export default function ProfilPage() {
           .select('*')
           .eq('id', user.id)
           .single()
+        console.log('PROFILE STEP 2 users query', {
+          profileData: userData,
+          profileError,
+        })
         if (cancelled) return
 
         if (profileError) {
@@ -553,6 +566,10 @@ export default function ProfilPage() {
         }
 
         const { data: userAds, error: adsError } = await supabase.from('ads').select('*').eq('user_id', user.id).is('deleted_at', null).order('created_at', { ascending: false })
+        console.log('PROFILE STEP 3 ads query', {
+          adsLength: userAds?.length,
+          adsError,
+        })
         if (cancelled) return
 
         if (adsError) {
@@ -732,6 +749,13 @@ export default function ProfilPage() {
     ] : []),
     { id:'vendus', label:'Vendus', count: soldCount },
   ]
+
+  console.log('PROFILE FINAL STATE', {
+    loading,
+    hasUser: !!user,
+    hasProfileForm: !!(profileForm.full_name || profileForm.username || profileForm.phone || profileForm.location),
+    adsLength: ads.length,
+  })
 
   if (loading) return (
     <div style={{minHeight:'100vh', background:'#f5f7f5', display:'flex', alignItems:'center', justifyContent:'center'}}>
