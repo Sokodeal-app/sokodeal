@@ -90,7 +90,7 @@ export default function Home() {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.error('fetchAds error:', error)
+        console.error('FETCH ADS ERROR', JSON.stringify(error))
         return
       }
 
@@ -116,7 +116,7 @@ export default function Home() {
         setAds(sorted)
       }
     } catch (err) {
-      console.error('fetchAds catch:', err)
+      console.error('FETCH ADS CATCH', err)
     } finally {
       setHasLoadedAds(true)
       setLoading(false)
@@ -183,14 +183,6 @@ export default function Home() {
     window.addEventListener('pageshow', handlePageShow)
     return () => window.removeEventListener('pageshow', handlePageShow)
   }, [fetchAds])
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setLoading(false)
-    }, 8000)
-
-    return () => clearTimeout(timeout)
-  }, [])
 
   const filteredAds = useMemo(() => {
     let result = [...ads]

@@ -513,11 +513,16 @@ export default function ProfilPage() {
   }, [])
 
   useEffect(() => {
+    let cancelled = false
+
     const init = async () => {
       let shouldRedirect = false
       try {
-        const { data: { user } } = await getCurrentUser()
-        if (!user) {
+        setLoading(true)
+        const { data: { user }, error: authError } = await getCurrentUser()
+        if (cancelled) return
+        if (authError || !user) {
+          console.warn('PROFILE auth missing', authError)
           sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
             url: window.location.pathname,
             state: {}
@@ -528,38 +533,45 @@ export default function ProfilPage() {
         }
         setUser(user)
 
-        const { data: userData } = await supabase
+        const { data: userData, error: profileError } = await supabase
           .from('users')
           .select('*')
           .eq('id', user.id)
           .single()
+        if (cancelled) return
 
-        setProfileForm({
-          full_name: userData?.full_name || user.user_metadata?.full_name || '',
-          phone: userData?.phone || user.user_metadata?.phone || '',
-          location: user.user_metadata?.location || '',
-          username: userData?.username || '',
-        })
-        setHideReadReceipts(!!userData?.hide_read_receipts)
+        if (profileError) {
+          console.error('PROFILE users error', profileError)
+        } else if (userData) {
+          setProfileForm({
+            full_name: userData.full_name || user.user_metadata?.full_name || '',
+            phone: userData.phone || user.user_metadata?.phone || '',
+            location: user.user_metadata?.location || '',
+            username: userData.username || '',
+          })
+          setHideReadReceipts(!!userData.hide_read_receipts)
+        }
 
-        const { data } = await supabase.from('ads').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
-        if (data) setAds(data)
+        const { data: userAds, error: adsError } = await supabase.from('ads').select('*').eq('user_id', user.id).is('deleted_at', null).order('created_at', { ascending: false })
+        if (cancelled) return
+
+        if (adsError) {
+          console.error('PROFILE ads error', adsError)
+        } else if (userAds) {
+          setAds(userAds)
+        }
       } catch (err) {
-        console.error('profil init error:', err)
+        console.error('PROFILE init catch', err)
       } finally {
-        if (!shouldRedirect) setLoading(false)
+        if (!cancelled && !shouldRedirect) setLoading(false)
       }
     }
     init()
-  }, [router])
 
-  useEffect(() => {
-    if (!loading) return
-    const timeout = setTimeout(() => {
-      setLoading(false)
-    }, 8000)
-    return () => clearTimeout(timeout)
-  }, [loading])
+    return () => {
+      cancelled = true
+    }
+  }, [router])
 
   useEffect(() => {
     if (activeTab !== 'favoris' || favorites.length === 0) {
