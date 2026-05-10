@@ -14,20 +14,27 @@ export default function Header() {
 
   const refreshUser = useCallback(async () => {
     const { data: { user } } = await getCurrentUser()
-    setUser(user)
+    setUser(user ?? null)
   }, [])
 
   useEffect(() => {
     refreshUser()
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setUser(null)
+        return
+      }
+
+      if (session?.user) {
+        setUser(session.user)
+      }
     })
     return () => subscription.unsubscribe()
   }, [refreshUser])
 
   useEffect(() => {
-    const handlePageShow = (event: PageTransitionEvent) => {
-      if (event.persisted) refreshUser()
+    const handlePageShow = () => {
+      refreshUser()
     }
     window.addEventListener('pageshow', handlePageShow)
     return () => window.removeEventListener('pageshow', handlePageShow)

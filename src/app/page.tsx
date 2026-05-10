@@ -44,6 +44,8 @@ export default function Home() {
   const mapRef = useRef<any>(null)
   const mapInstanceRef = useRef<any>(null)
   const markersRef = useRef<any[]>([])
+  const adsLengthRef = useRef(0)
+  const hasLoadedAdsRef = useRef(false)
   const { unreadCount } = useUnreadCount()
   const favorites: string[] = []
 
@@ -164,17 +166,23 @@ export default function Home() {
   }, [fetchAds])
 
   useEffect(() => {
-    const handlePageShow = () => {
-      if (!hasLoadedAds || ads.length === 0) {
+    adsLengthRef.current = ads.length
+  }, [ads.length])
+
+  useEffect(() => {
+    hasLoadedAdsRef.current = hasLoadedAds
+  }, [hasLoadedAds])
+
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted || !hasLoadedAdsRef.current || adsLengthRef.current === 0) {
         fetchAds()
-      } else {
-        setLoading(false)
       }
     }
 
     window.addEventListener('pageshow', handlePageShow)
     return () => window.removeEventListener('pageshow', handlePageShow)
-  }, [fetchAds, hasLoadedAds, ads.length])
+  }, [fetchAds])
 
   useEffect(() => {
     const timeout = setTimeout(() => {
