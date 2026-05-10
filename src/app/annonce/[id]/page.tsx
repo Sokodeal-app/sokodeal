@@ -80,12 +80,13 @@ export default function AnnonceDetail() {
   const [loading, setLoading] = useState(true)
   const [activePhoto, setActivePhoto] = useState(0)
   const [msgSent, setMsgSent] = useState(false)
-  const [message, setMessage] = useState('Bonjour, je suis interesse par cette annonce.')
+  const [message, setMessage] = useState('Bonjour, cette annonce est-elle disponible ?')
   const [messageTouched, setMessageTouched] = useState(false)
   const [sending, setSending] = useState(false)
   const [shared, setShared] = useState(false)
   const [showShareMenu, setShowShareMenu] = useState(false)
   const [descriptionExpanded, setDescriptionExpanded] = useState(false)
+  const [showMessageComposer, setShowMessageComposer] = useState(false)
 
   const catEmoji: any = {
     'immo-vente':'🏡','immo-location':'🏢','immo-terrain':'🌿','voiture':'🚗',
@@ -171,6 +172,7 @@ export default function AnnonceDetail() {
       } catch (err) {
         console.error('annonce init error:', err)
       } finally {
+        setShowMessageComposer(false)
         setLoading(false)
       }
     }
@@ -359,10 +361,15 @@ export default function AnnonceDetail() {
         .mobile-trust-chips,
         .description-toggle,
         .mobile-similar-section,
-        .mobile-description-empty {
+        .mobile-description-empty,
+        .mobile-photo-controls,
+        .mobile-message-drawer {
           display: none;
         }
         @media (max-width: 768px) {
+          .detail-page-header {
+            display: none !important;
+          }
           .detail-page-header header {
             background: rgba(250,249,247,0.96) !important;
             backdrop-filter: blur(10px);
@@ -381,8 +388,9 @@ export default function AnnonceDetail() {
           }
           .detail-layout {
             grid-template-columns: 1fr !important;
-            padding: 10px 4% 18px !important;
-            gap: 12px !important;
+            padding: 0 0 18px !important;
+            gap: 0 !important;
+            max-width: none !important;
           }
           .detail-left {
             min-width: 0 !important;
@@ -391,9 +399,10 @@ export default function AnnonceDetail() {
             position: static !important;
           }
           .photo-card {
-            border-radius: 18px !important;
-            margin-bottom: 12px !important;
-            box-shadow: 0 8px 28px rgba(17,26,20,0.08) !important;
+            border-radius: 0 0 26px 26px !important;
+            margin-bottom: 0 !important;
+            border: none !important;
+            box-shadow: 0 10px 30px rgba(17,26,20,0.10) !important;
           }
           .main-photo-frame {
             height: auto !important;
@@ -401,7 +410,8 @@ export default function AnnonceDetail() {
             font-size: 4rem !important;
           }
           .photo-category-badge {
-            top: 10px !important;
+            top: auto !important;
+            bottom: 10px !important;
             left: 10px !important;
             background: rgba(255,255,255,0.92) !important;
             backdrop-filter: blur(8px);
@@ -420,16 +430,63 @@ export default function AnnonceDetail() {
             font-weight: 700;
             backdrop-filter: blur(8px);
           }
+          .mobile-photo-controls {
+            display: flex !important;
+            position: absolute;
+            top: calc(12px + env(safe-area-inset-top));
+            left: 12px;
+            right: 12px;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 4;
+            pointer-events: none;
+          }
+          .mobile-photo-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          .mobile-floating-control {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid rgba(232,228,222,0.72);
+            background: rgba(255,255,255,0.86);
+            color: #111a14;
+            box-shadow: 0 8px 22px rgba(17,26,20,0.16);
+            backdrop-filter: blur(12px);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Syne, sans-serif;
+            font-weight: 800;
+            font-size: 0.92rem;
+            cursor: pointer;
+            pointer-events: auto;
+          }
+          .mobile-floating-control button {
+            box-shadow: none !important;
+            background: transparent !important;
+            backdrop-filter: none !important;
+          }
           .thumb-strip {
-            padding: 10px 12px 12px !important;
-            gap: 9px !important;
+            padding: 11px 4% 14px !important;
+            gap: 8px !important;
             scroll-snap-type: x proximity;
+            background: #faf9f7;
           }
           .thumb-item {
-            width: 68px !important;
-            height: 68px !important;
-            border-radius: 12px !important;
+            width: 58px !important;
+            height: 58px !important;
+            border-radius: 14px !important;
             scroll-snap-align: start;
+            opacity: 0.78 !important;
+            box-shadow: 0 3px 10px rgba(17,26,20,0.08);
+          }
+          .thumb-item-active {
+            opacity: 1 !important;
+            border-color: #1a7a4a !important;
+            box-shadow: 0 5px 14px rgba(26,122,74,0.18);
           }
           .main-info-card,
           .description-card,
@@ -437,10 +494,14 @@ export default function AnnonceDetail() {
           .details-card,
           .contact-card,
           .safety-card {
-            border-radius: 18px !important;
-            padding: 16px !important;
-            margin-bottom: 12px !important;
-            border-color: #e8e4de !important;
+            width: calc(100% - 8%) !important;
+            margin: 0 auto 10px !important;
+            border-radius: 0 !important;
+            padding: 18px 0 !important;
+            border: none !important;
+            border-bottom: 1px solid #ece7df !important;
+            background: transparent !important;
+            box-shadow: none !important;
           }
           .ad-title {
             font-size: 1.42rem !important;
@@ -466,6 +527,12 @@ export default function AnnonceDetail() {
             flex-wrap: wrap;
             margin-top: 14px;
           }
+          .mobile-trust-chips {
+            display: none !important;
+          }
+          .share-block {
+            display: none !important;
+          }
           .mobile-trust-chip {
             padding: 7px 10px;
             border-radius: 999px;
@@ -487,6 +554,8 @@ export default function AnnonceDetail() {
           }
           .mobile-seller-card {
             display: block !important;
+            width: calc(100% - 8%);
+            margin: 0 auto 10px;
           }
           .detail-grid {
             grid-template-columns: 1fr 1fr !important;
@@ -494,9 +563,10 @@ export default function AnnonceDetail() {
           }
           .detail-item {
             border-radius: 12px !important;
-            padding: 12px !important;
-            background: #fffcf7 !important;
-            border-color: #e8e0d4 !important;
+            padding: 10px 0 !important;
+            background: transparent !important;
+            border: none !important;
+            border-bottom: 1px solid #ece7df !important;
           }
           .detail-item-long {
             grid-column: 1 / -1;
@@ -533,12 +603,12 @@ export default function AnnonceDetail() {
           }
           .mobile-similar-section {
             display: block !important;
-            background: white;
-            border: 1px solid #e8e4de;
-            border-radius: 18px;
-            padding: 16px;
-            margin-top: 12px;
-            margin-bottom: 12px;
+            width: calc(100% - 8%);
+            background: transparent;
+            border: none;
+            border-top: 1px solid #ece7df;
+            padding: 18px 0;
+            margin: 6px auto 12px;
           }
           .mobile-action-bar {
             display: grid !important;
@@ -546,15 +616,16 @@ export default function AnnonceDetail() {
             align-items: center;
             gap: 9px;
             position: fixed;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            left: 4%;
+            right: 4%;
+            bottom: calc(10px + env(safe-area-inset-bottom));
             z-index: 320;
-            padding: 10px 4% calc(10px + env(safe-area-inset-bottom));
-            background: rgba(255,255,255,0.9);
-            border-top: 1px solid #e8e4de;
-            box-shadow: 0 -8px 28px rgba(17,26,20,0.12);
-            backdrop-filter: blur(14px);
+            padding: 9px;
+            background: rgba(255,255,255,0.88);
+            border: 1px solid rgba(232,228,222,0.82);
+            border-radius: 22px;
+            box-shadow: 0 12px 34px rgba(17,26,20,0.16);
+            backdrop-filter: blur(18px);
           }
           .mobile-action-primary,
           .mobile-action-secondary {
@@ -600,6 +671,49 @@ export default function AnnonceDetail() {
             border: 1px solid #e8e4de;
             padding: 0 12px;
           }
+          .mobile-message-drawer {
+            display: block !important;
+            position: fixed;
+            inset: 0;
+            z-index: 420;
+            pointer-events: none;
+          }
+          .mobile-message-drawer-backdrop {
+            position: absolute;
+            inset: 0;
+            border: none;
+            background: rgba(17,26,20,0.32);
+            opacity: 0;
+            transition: opacity 0.18s ease;
+          }
+          .mobile-message-drawer-panel {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 16px 4% calc(16px + env(safe-area-inset-bottom));
+            background: white;
+            border-radius: 24px 24px 0 0;
+            box-shadow: 0 -16px 42px rgba(17,26,20,0.18);
+            transform: translateY(110%);
+            transition: transform 0.18s ease;
+          }
+          .mobile-message-drawer.is-open {
+            pointer-events: auto;
+          }
+          .mobile-message-drawer.is-open .mobile-message-drawer-backdrop {
+            opacity: 1;
+          }
+          .mobile-message-drawer.is-open .mobile-message-drawer-panel {
+            transform: translateY(0);
+          }
+          .map-card iframe,
+          .map-card [title="Localisation"] {
+            height: 150px !important;
+          }
+          .map-card > div {
+            height: 150px !important;
+          }
         }
       `}</style>
 
@@ -629,6 +743,25 @@ export default function AnnonceDetail() {
               ) : (
                 <span style={{opacity:0.4}}>{catEmoji[ad.category] || '📦'}</span>
               )}
+              <div className="mobile-photo-controls">
+                <button type="button" className="mobile-floating-control" aria-label="Retour" onClick={() => window.history.back()}>
+                  ←
+                </button>
+                <div className="mobile-photo-actions">
+                  <button type="button" className="mobile-floating-control" aria-label="Partager" onClick={canNativeShare ? handleNativeShare : handleCopyLink}>
+                    ↗
+                  </button>
+                  <div className="mobile-floating-control" aria-label="Favori">
+                    <FavoriteButton adId={ad.id} size="md" onLogin={() => {
+                      sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
+                        url: window.location.pathname,
+                        state: {}
+                      }))
+                      window.location.href = '/auth?mode=login'
+                    }} />
+                  </div>
+                </div>
+              </div>
               <div className="photo-category-badge" style={{position:'absolute', top:'12px', left:'12px', background:'white', color:'#111a14', padding:'4px 10px', borderRadius:'7px', fontSize:'0.75rem', fontWeight:600, border:'1px solid #e8ede9'}}>
                 {catEmoji[ad.category]} {catLabel[ad.category] || ad.category}
               </div>
@@ -641,7 +774,7 @@ export default function AnnonceDetail() {
             {hasPhotos && ad.images.length > 1 && (
               <div className="thumb-strip" style={{display:'flex', gap:'6px', padding:'10px 14px', overflowX:'auto'}}>
                 {ad.images.map((img: string, i: number) => (
-                  <div className="thumb-item" key={i} onClick={() => setActivePhoto(i)} style={{width:'60px', height:'60px', flexShrink:0, borderRadius:'8px', overflow:'hidden', cursor:'pointer', border: activePhoto === i ? '2px solid #1a7a4a' : '2px solid transparent', opacity: activePhoto === i ? 1 : 0.6}}>
+                  <div className={`thumb-item ${activePhoto === i ? 'thumb-item-active' : ''}`} key={i} onClick={() => setActivePhoto(i)} style={{width:'60px', height:'60px', flexShrink:0, borderRadius:'8px', overflow:'hidden', cursor:'pointer', border: activePhoto === i ? '2px solid #1a7a4a' : '2px solid transparent', opacity: activePhoto === i ? 1 : 0.6}}>
                     <img src={img} alt="" width={60} height={60} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}} />
                   </div>
                 ))}
@@ -677,7 +810,7 @@ export default function AnnonceDetail() {
               <span className="mobile-trust-chip">Conseils sécurité</span>
             </div>
 
-            <div style={{marginTop:'14px', position:'relative', display:'inline-block'}} onClick={e => e.stopPropagation()}>
+            <div className="share-block" style={{marginTop:'14px', position:'relative', display:'inline-block'}} onClick={e => e.stopPropagation()}>
               <button onClick={() => setShowShareMenu(!showShareMenu)}
                 style={{display:'flex', alignItems:'center', gap:'6px', padding:'8px 16px', background:'#f5f7f5', border:'1px solid #e8ede9', borderRadius:'9px', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:'0.82rem', color:'#111a14'}}>
                 🔗 {shared ? 'Lien copie !' : 'Partager'}
@@ -976,11 +1109,15 @@ export default function AnnonceDetail() {
           <span className="mobile-favorite-label">Favori</span>
         </div>
         <button
-          onClick={handleContact}
-          disabled={sending || !message.trim()}
+          onClick={() => {
+            if (!messageTouched && !message.trim()) {
+              setMessage('Bonjour, cette annonce est-elle disponible ?')
+            }
+            setShowMessageComposer(true)
+          }}
           className="mobile-action-primary"
         >
-          {sending ? 'Envoi...' : 'Message'}
+          Message
         </button>
         {!ad.hide_phone && (ad.whatsapp || ad.phone) ? (
           user ? (
@@ -1012,6 +1149,50 @@ export default function AnnonceDetail() {
             Appeler
           </button>
         )}
+      </div>
+
+      <div className={`mobile-message-drawer ${showMessageComposer ? 'is-open' : ''}`}>
+        <button
+          type="button"
+          aria-label="Fermer le message"
+          className="mobile-message-drawer-backdrop"
+          onClick={() => setShowMessageComposer(false)}
+        />
+        <div className="mobile-message-drawer-panel">
+          <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'12px', marginBottom:'12px'}}>
+            <div>
+              <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1rem', color:'#111a14', marginBottom:'3px'}}>
+                Envoyer un message
+              </div>
+              <div style={{fontFamily:'DM Sans,sans-serif', fontSize:'0.78rem', color:'#6b7c6e'}}>
+                Modifiez le texte avant l’envoi.
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowMessageComposer(false)}
+              style={{width:'34px', height:'34px', borderRadius:'50%', border:'1px solid #e8e4de', background:'#f5f7f5', color:'#111a14', fontWeight:800, cursor:'pointer'}}
+            >
+              ×
+            </button>
+          </div>
+          <textarea
+            value={message}
+            onChange={e => { setMessage(e.target.value); setMessageTouched(true) }}
+            rows={4}
+            style={{width:'100%', padding:'12px 13px', border:'1px solid #e8e4de', borderRadius:'14px', fontFamily:'DM Sans,sans-serif', fontSize:'0.92rem', outline:'none', resize:'vertical', background:'#faf9f7', marginBottom:'12px', boxSizing:'border-box', color:'#111a14'}}
+          />
+          <button
+            onClick={async () => {
+              await handleContact()
+              if (user) setShowMessageComposer(false)
+            }}
+            disabled={sending || !message.trim()}
+            style={{width:'100%', height:'46px', borderRadius:'14px', border:'none', background: sending || !message.trim() ? '#dce5dd' : '#1a7a4a', color: sending || !message.trim() ? '#6b7c6e' : 'white', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'0.9rem', cursor: sending || !message.trim() ? 'not-allowed' : 'pointer'}}
+          >
+            {sending ? 'Envoi...' : 'Envoyer le message'}
+          </button>
+        </div>
       </div>
     </div>
   )
