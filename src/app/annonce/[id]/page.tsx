@@ -377,7 +377,7 @@ export default function AnnonceDetail() {
           <div style={{background:'white', borderRadius:'14px', overflow:'hidden', border:'1px solid #e8ede9', marginBottom:'16px'}}>
             <div style={{height:'300px', background:'#f5f7f5', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'5rem', position:'relative', overflow:'hidden'}}>
               {hasPhotos ? (
-                <img src={ad.images[activePhoto]} alt={ad.title} style={{width:'100%', height:'100%', objectFit:'cover'}} />
+                <img src={ad.images[activePhoto]} alt={ad.title} width={760} height={300} decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}} />
               ) : (
                 <span style={{opacity:0.4}}>{catEmoji[ad.category] || '📦'}</span>
               )}
@@ -389,7 +389,7 @@ export default function AnnonceDetail() {
               <div style={{display:'flex', gap:'6px', padding:'10px 14px', overflowX:'auto'}}>
                 {ad.images.map((img: string, i: number) => (
                   <div key={i} onClick={() => setActivePhoto(i)} style={{width:'60px', height:'60px', flexShrink:0, borderRadius:'8px', overflow:'hidden', cursor:'pointer', border: activePhoto === i ? '2px solid #1a7a4a' : '2px solid transparent', opacity: activePhoto === i ? 1 : 0.6}}>
-                    <img src={img} alt="" style={{width:'100%', height:'100%', objectFit:'cover'}} />
+                    <img src={img} alt="" width={60} height={60} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}} />
                   </div>
                 ))}
               </div>

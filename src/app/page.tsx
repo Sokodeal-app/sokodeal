@@ -740,7 +740,7 @@ export default function Home() {
                 >
                   <div style={{height:'90px', background:'#f0f7f3', overflow:'hidden'}}>
                     {ad.images?.[0] ? (
-                      <img src={ad.images[0]} alt={ad.title} width={175} height={90} decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
+                      <img src={ad.images[0]} alt={ad.title} width={175} height={90} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
                     ) : (
                       <div style={{width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.8rem', opacity:0.4}}>
                         {catEmoji[ad.category] || '📦'}

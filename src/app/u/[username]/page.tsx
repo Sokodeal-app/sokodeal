@@ -1215,7 +1215,7 @@ export default function PublicProfile() {
 
       <section className="hero"> 
         {pendingBannerUrl || profile.banner_url ? (
-          <img src={pendingBannerUrl || profile.banner_url} alt="Banniere du profil" decoding="async" />
+          <img src={pendingBannerUrl || profile.banner_url} alt="Banniere du profil" width={1100} height={320} decoding="async" />
         ) : (
           <div className="hero-fallback" />
         )}
