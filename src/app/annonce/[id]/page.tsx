@@ -85,6 +85,7 @@ export default function AnnonceDetail() {
   const [sending, setSending] = useState(false)
   const [shared, setShared] = useState(false)
   const [showShareMenu, setShowShareMenu] = useState(false)
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false)
 
   const catEmoji: any = {
     'immo-vente':'🏡','immo-location':'🏢','immo-terrain':'🌿','voiture':'🚗',
@@ -355,7 +356,10 @@ export default function AnnonceDetail() {
         .mobile-photo-count,
         .mobile-seller-card,
         .mobile-action-bar,
-        .mobile-trust-chips {
+        .mobile-trust-chips,
+        .description-toggle,
+        .mobile-similar-section,
+        .mobile-description-empty {
           display: none;
         }
         @media (max-width: 768px) {
@@ -463,15 +467,20 @@ export default function AnnonceDetail() {
             margin-top: 14px;
           }
           .mobile-trust-chip {
-            padding: 6px 9px;
+            padding: 7px 10px;
             border-radius: 999px;
-            background: #f0f7f3;
-            color: #1a7a4a;
-            border: 1px solid #d8eadf;
+            background: #fffcf7;
+            color: #0f5233;
+            border: 1px solid #e8e0d4;
             font-family: DM Sans, sans-serif;
             font-size: 0.72rem;
             font-weight: 700;
             line-height: 1;
+          }
+          .mobile-trust-chip--green {
+            background: #f0f7f3;
+            color: #1a7a4a;
+            border-color: #d8eadf;
           }
           .desktop-seller-card {
             display: none !important;
@@ -482,6 +491,54 @@ export default function AnnonceDetail() {
           .detail-grid {
             grid-template-columns: 1fr 1fr !important;
             gap: 8px !important;
+          }
+          .detail-item {
+            border-radius: 12px !important;
+            padding: 12px !important;
+            background: #fffcf7 !important;
+            border-color: #e8e0d4 !important;
+          }
+          .detail-item-long {
+            grid-column: 1 / -1;
+          }
+          .detail-label {
+            font-size: 0.66rem !important;
+            letter-spacing: 0.02em;
+          }
+          .detail-value {
+            font-size: 0.9rem !important;
+            line-height: 1.25 !important;
+            word-break: break-word;
+          }
+          .description-text-mobile-collapsed {
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+          .description-toggle {
+            display: inline-flex !important;
+            margin-top: 12px;
+            padding: 8px 12px;
+            background: #f5f7f5;
+            border: 1px solid #e8e4de;
+            border-radius: 10px;
+            color: #1a7a4a;
+            font-family: DM Sans, sans-serif;
+            font-size: 0.78rem;
+            font-weight: 800;
+          }
+          .mobile-description-empty {
+            display: block !important;
+          }
+          .mobile-similar-section {
+            display: block !important;
+            background: white;
+            border: 1px solid #e8e4de;
+            border-radius: 18px;
+            padding: 16px;
+            margin-top: 12px;
+            margin-bottom: 12px;
           }
           .mobile-action-bar {
             display: grid !important;
@@ -615,9 +672,9 @@ export default function AnnonceDetail() {
 
             {/* ✅ Bouton partage déplacé ici, bien visible */}
             <div className="mobile-trust-chips">
-              {seller?.is_verified && <span className="mobile-trust-chip">Vendeur verifie</span>}
-              <span className="mobile-trust-chip">Messagerie securisee</span>
-              <span className="mobile-trust-chip">Transaction accompagnee</span>
+              {seller?.is_verified && <span className="mobile-trust-chip mobile-trust-chip--green">Vendeur vérifié</span>}
+              <span className="mobile-trust-chip">Répond via SokoDeal</span>
+              <span className="mobile-trust-chip">Conseils sécurité</span>
             </div>
 
             <div style={{marginTop:'14px', position:'relative', display:'inline-block'}} onClick={e => e.stopPropagation()}>
@@ -655,8 +712,8 @@ export default function AnnonceDetail() {
 
           {seller && (
             <Link href={`/u/${seller.username || seller.id}`} className="mobile-seller-card" style={{textDecoration:'none', color:'inherit'}}>
-              <div style={{background:'white', borderRadius:'18px', padding:'16px', border:'1px solid #e8e4de', marginBottom:'12px', display:'flex', alignItems:'center', gap:'12px', boxShadow:'0 8px 24px rgba(17,26,20,0.07)'}}>
-                <div style={{width:'54px', height:'54px', borderRadius:'50%', background:'#1a7a4a', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.25rem', color:'white', flexShrink:0}}>
+              <div style={{background:'#FFFCF7', borderRadius:'24px', padding:'17px', border:'1px solid #E8E0D4', marginBottom:'12px', display:'flex', alignItems:'center', gap:'13px', boxShadow:'0 8px 24px rgba(17,26,20,0.06)'}}>
+                <div style={{width:'58px', height:'58px', borderRadius:'50%', background:'#1a7a4a', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.3rem', color:'white', flexShrink:0, boxShadow:'0 4px 14px rgba(26,122,74,0.18)'}}>
                   {(seller.full_name || seller.username || 'V')[0].toUpperCase()}
                 </div>
                 <div style={{flex:1, minWidth:0}}>
@@ -664,14 +721,17 @@ export default function AnnonceDetail() {
                     <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'0.95rem', color:'#111a14', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
                       {seller.full_name || '@' + seller.username}
                     </div>
-                    {seller.is_verified && <span style={{fontSize:'0.72rem', color:'#1a7a4a', fontWeight:800, flexShrink:0}}>Verifie</span>}
+                    {seller.is_verified && <span style={{fontSize:'0.7rem', color:'#1a7a4a', fontWeight:800, flexShrink:0, background:'#f0f7f3', border:'1px solid #d8eadf', borderRadius:'999px', padding:'3px 7px'}}>Vérifié</span>}
                   </div>
                   {seller.username && (
                     <div style={{fontSize:'0.76rem', color:'#1a7a4a', fontWeight:700, marginBottom:'3px'}}>@{seller.username}</div>
                   )}
-                  <div style={{fontSize:'0.72rem', color:'#6b7c6e', lineHeight:1.45}}>
+                  <div style={{fontSize:'0.72rem', color:'#8a7f70', lineHeight:1.45}}>
                     Membre depuis {new Date(seller.created_at).toLocaleDateString('fr-FR', {month:'long', year:'numeric'})}
                     {seller.ads_count ? ` · ${seller.ads_count} annonces` : ''}
+                  </div>
+                  <div style={{fontSize:'0.72rem', color:'#6b7c6e', lineHeight:1.45, marginTop:'3px', fontWeight:700}}>
+                    Répond via SokoDeal
                   </div>
                 </div>
                 <span style={{color:'#1a7a4a', fontWeight:800, fontSize:'1rem', flexShrink:0}}>→</span>
@@ -680,10 +740,17 @@ export default function AnnonceDetail() {
           )}
 
           {/* Description */}
-          {ad.description && (
-            <div className="description-card" style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #e8ede9', marginBottom:'16px'}}>
+          {(ad.description || !ad.description) && (
+            <div className={`description-card ${!ad.description ? 'mobile-description-empty' : ''}`} style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #e8ede9', marginBottom:'16px'}}>
               <h2 style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.95rem', marginBottom:'12px', color:'#111a14', textTransform:'uppercase', letterSpacing:'0.04em'}}>Description</h2>
-              <p style={{color:'#333', lineHeight:1.8, fontSize:'0.92rem', whiteSpace:'pre-wrap'}}>{ad.description}</p>
+              <p className={!descriptionExpanded && ad.description ? 'description-text-mobile-collapsed' : ''} style={{color:'#333', lineHeight:1.8, fontSize:'0.92rem', whiteSpace:'pre-wrap', margin:0}}>
+                {ad.description || 'Le vendeur n’a pas ajouté de description.'}
+              </p>
+              {ad.description && ad.description.length > 160 && (
+                <button className="description-toggle" type="button" onClick={() => setDescriptionExpanded(!descriptionExpanded)}>
+                  {descriptionExpanded ? 'Voir moins' : 'Voir plus'}
+                </button>
+              )}
             </div>
           )}
 
@@ -730,7 +797,7 @@ export default function AnnonceDetail() {
             <div className="detail-grid" style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px'}}>
               {[
                 { label:'Categorie', value: catLabel[ad.category] || ad.category, icon:'🏷️' },
-                { label:'Prix', value: Number(ad.price).toLocaleString() + ' RWF', icon:'💰' },
+                { label:'Prix', value: formatPrice(ad.price), icon:'💰' },
                 { label:'Ville', value: ad.province || '-', icon:'🗺️' },
                 { label:'District', value: ad.district || '-', icon:'📍' },
                 { label:'Publie le', value: new Date(ad.created_at).toLocaleDateString('fr-FR'), icon:'📅' },
@@ -744,13 +811,26 @@ export default function AnnonceDetail() {
                 ...(ad.etat ? [{ label:'Etat', value: ad.etat === 'neuf' ? 'Neuf' : ad.etat === 'bon-etat' ? 'Bon etat' : 'A renover', icon:'✨' }] : []),
                 ...(ad.meuble ? [{ label:'Meuble', value: 'Oui', icon:'🛋️' }] : []),
                 ...(ad.charges_incluses ? [{ label:'Charges', value: 'Incluses', icon:'💡' }] : []),
-              ].map((item, i) => (
-                <div key={i} style={{background:'#f5f7f5', borderRadius:'9px', padding:'11px 13px', border:'1px solid #e8ede9'}}>
-                  <div style={{fontSize:'0.7rem', color:'#6b7c6e', fontWeight:600, marginBottom:'3px', textTransform:'uppercase'}}>{item.icon} {item.label}</div>
-                  <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'#111a14'}}>{String(item.value)}</div>
+              ].map((item, i) => {
+                const valueText = String(item.value)
+                const isLongDetail = valueText.length > 18 || item.label.length > 14
+                return (
+                <div key={i} className={`detail-item ${isLongDetail ? 'detail-item-long' : ''}`} style={{background:'#f5f7f5', borderRadius:'9px', padding:'11px 13px', border:'1px solid #e8ede9'}}>
+                  <div className="detail-label" style={{fontSize:'0.7rem', color:'#6b7c6e', fontWeight:600, marginBottom:'3px', textTransform:'uppercase'}}>{item.icon} {item.label}</div>
+                  <div className="detail-value" style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'#111a14'}}>{valueText}</div>
                 </div>
-              ))}
+                )
+              })}
             </div>
+          </div>
+
+          <div className="mobile-similar-section">
+            <h2 style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'0.98rem', color:'#111a14', marginBottom:'8px'}}>
+              Annonces similaires
+            </h2>
+            <p style={{fontFamily:'DM Sans,sans-serif', fontSize:'0.82rem', color:'#6b7c6e', lineHeight:1.55, margin:0}}>
+              Annonces similaires bientôt disponibles.
+            </p>
           </div>
         </div>
 
