@@ -5,8 +5,10 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
 import Header from '@/components/Header'
+import FavoriteButton from '@/components/FavoriteButton'
 import { getApproxCoords } from '@/lib/locations'
 import { extractIdFromSlug, generateSlug, isFullUUID } from '@/lib/slug'
+import { formatPrice } from '@/lib/format'
 
 function ReportButton({ adId, userId }: { adId: string, userId?: string }) {
   const [showForm, setShowForm] = useState(false)
@@ -348,18 +350,207 @@ export default function AnnonceDetail() {
   const coords = getApproxCoords(ad.province, ad.district, ad.id)
 
   return (
-    <div style={{minHeight:'100vh', background:'#f5f7f5'}}>
+    <div className="ad-detail-page" style={{minHeight:'100vh', background:'#f5f7f5'}}>
       <style>{`
+        .mobile-photo-count,
+        .mobile-seller-card,
+        .mobile-action-bar,
+        .mobile-trust-chips {
+          display: none;
+        }
         @media (max-width: 768px) {
-          .detail-layout { grid-template-columns: 1fr !important; }
-          .detail-right { position: static !important; }
-          .detail-grid { grid-template-columns: 1fr 1fr !important; }
+          .detail-page-header header {
+            background: rgba(250,249,247,0.96) !important;
+            backdrop-filter: blur(10px);
+          }
+          .detail-page-header header > div {
+            height: 48px !important;
+            padding-left: 4% !important;
+            padding-right: 4% !important;
+          }
+          .detail-breadcrumb {
+            display: none !important;
+          }
+          .ad-detail-page {
+            padding-bottom: calc(92px + env(safe-area-inset-bottom)) !important;
+            background: #faf9f7 !important;
+          }
+          .detail-layout {
+            grid-template-columns: 1fr !important;
+            padding: 10px 4% 18px !important;
+            gap: 12px !important;
+          }
+          .detail-left {
+            min-width: 0 !important;
+          }
+          .detail-right {
+            position: static !important;
+          }
+          .photo-card {
+            border-radius: 18px !important;
+            margin-bottom: 12px !important;
+            box-shadow: 0 8px 28px rgba(17,26,20,0.08) !important;
+          }
+          .main-photo-frame {
+            height: auto !important;
+            aspect-ratio: 4 / 3 !important;
+            font-size: 4rem !important;
+          }
+          .photo-category-badge {
+            top: 10px !important;
+            left: 10px !important;
+            background: rgba(255,255,255,0.92) !important;
+            backdrop-filter: blur(8px);
+          }
+          .mobile-photo-count {
+            display: block !important;
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: rgba(17,26,20,0.62);
+            color: white;
+            font-family: DM Sans, sans-serif;
+            font-size: 0.74rem;
+            font-weight: 700;
+            backdrop-filter: blur(8px);
+          }
+          .thumb-strip {
+            padding: 10px 12px 12px !important;
+            gap: 9px !important;
+            scroll-snap-type: x proximity;
+          }
+          .thumb-item {
+            width: 68px !important;
+            height: 68px !important;
+            border-radius: 12px !important;
+            scroll-snap-align: start;
+          }
+          .main-info-card,
+          .description-card,
+          .map-card,
+          .details-card,
+          .contact-card,
+          .safety-card {
+            border-radius: 18px !important;
+            padding: 16px !important;
+            margin-bottom: 12px !important;
+            border-color: #e8e4de !important;
+          }
+          .ad-title {
+            font-size: 1.42rem !important;
+            line-height: 1.16 !important;
+            margin-bottom: 10px !important;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+          .ad-price {
+            font-size: 1.9rem !important;
+            line-height: 1.05 !important;
+          }
+          .ad-meta-row {
+            width: 100% !important;
+            margin-top: 10px !important;
+            justify-content: flex-start !important;
+          }
+          .mobile-trust-chips {
+            display: flex !important;
+            gap: 7px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+          }
+          .mobile-trust-chip {
+            padding: 6px 9px;
+            border-radius: 999px;
+            background: #f0f7f3;
+            color: #1a7a4a;
+            border: 1px solid #d8eadf;
+            font-family: DM Sans, sans-serif;
+            font-size: 0.72rem;
+            font-weight: 700;
+            line-height: 1;
+          }
+          .desktop-seller-card {
+            display: none !important;
+          }
+          .mobile-seller-card {
+            display: block !important;
+          }
+          .detail-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+          }
+          .mobile-action-bar {
+            display: grid !important;
+            grid-template-columns: 58px 1fr minmax(86px, auto);
+            align-items: center;
+            gap: 9px;
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 320;
+            padding: 10px 4% calc(10px + env(safe-area-inset-bottom));
+            background: rgba(255,255,255,0.9);
+            border-top: 1px solid #e8e4de;
+            box-shadow: 0 -8px 28px rgba(17,26,20,0.12);
+            backdrop-filter: blur(14px);
+          }
+          .mobile-action-primary,
+          .mobile-action-secondary {
+            height: 44px;
+            border-radius: 12px;
+            font-family: Syne, sans-serif;
+            font-weight: 800;
+            font-size: 0.86rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            white-space: nowrap;
+          }
+          .mobile-favorite-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            min-width: 0;
+          }
+          .mobile-favorite-label {
+            font-family: DM Sans, sans-serif;
+            font-size: 0.62rem;
+            font-weight: 700;
+            color: #6b7c6e;
+            line-height: 1;
+          }
+          .mobile-action-primary {
+            background: #1a7a4a;
+            color: white;
+            border: none;
+          }
+          .mobile-action-primary:disabled {
+            background: #dce5dd;
+            color: #6b7c6e;
+          }
+          .mobile-action-secondary {
+            background: #f5f7f5;
+            color: #111a14;
+            border: 1px solid #e8e4de;
+            padding: 0 12px;
+          }
         }
       `}</style>
 
-      <Header />
+      <div className="detail-page-header">
+        <Header />
+      </div>
 
-      <div style={{background:'white', borderBottom:'1px solid #f0f4f1', padding:'10px 5%'}}>
+      <div className="detail-breadcrumb" style={{background:'white', borderBottom:'1px solid #f0f4f1', padding:'10px 5%'}}>
         <div style={{maxWidth:'1100px', margin:'0 auto', fontSize:'0.78rem', color:'#6b7c6e', display:'flex', alignItems:'center', gap:'6px'}}>
           <a href="/" style={{color:'#1a7a4a', textDecoration:'none', fontWeight:600}}>Accueil</a>
           <span>/</span>
@@ -372,23 +563,28 @@ export default function AnnonceDetail() {
       <div className="detail-layout" style={{maxWidth:'1100px', margin:'0 auto', padding:'20px 5%', display:'grid', gridTemplateColumns:'1fr 340px', gap:'20px', alignItems:'start'}}>
 
         {/* COLONNE GAUCHE */}
-        <div>
+        <div className="detail-left">
           {/* Photos */}
-          <div style={{background:'white', borderRadius:'14px', overflow:'hidden', border:'1px solid #e8ede9', marginBottom:'16px'}}>
-            <div style={{height:'300px', background:'#f5f7f5', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'5rem', position:'relative', overflow:'hidden'}}>
+          <div className="photo-card" style={{background:'white', borderRadius:'14px', overflow:'hidden', border:'1px solid #e8ede9', marginBottom:'16px'}}>
+            <div className="main-photo-frame" style={{height:'300px', background:'#f5f7f5', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'5rem', position:'relative', overflow:'hidden'}}>
               {hasPhotos ? (
                 <img src={ad.images[activePhoto]} alt={ad.title} width={760} height={300} decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}} />
               ) : (
                 <span style={{opacity:0.4}}>{catEmoji[ad.category] || '📦'}</span>
               )}
-              <div style={{position:'absolute', top:'12px', left:'12px', background:'white', color:'#111a14', padding:'4px 10px', borderRadius:'7px', fontSize:'0.75rem', fontWeight:600, border:'1px solid #e8ede9'}}>
+              <div className="photo-category-badge" style={{position:'absolute', top:'12px', left:'12px', background:'white', color:'#111a14', padding:'4px 10px', borderRadius:'7px', fontSize:'0.75rem', fontWeight:600, border:'1px solid #e8ede9'}}>
                 {catEmoji[ad.category]} {catLabel[ad.category] || ad.category}
               </div>
+              {hasPhotos && (
+                <div className="mobile-photo-count">
+                  {activePhoto + 1} / {ad.images.length}
+                </div>
+              )}
             </div>
             {hasPhotos && ad.images.length > 1 && (
-              <div style={{display:'flex', gap:'6px', padding:'10px 14px', overflowX:'auto'}}>
+              <div className="thumb-strip" style={{display:'flex', gap:'6px', padding:'10px 14px', overflowX:'auto'}}>
                 {ad.images.map((img: string, i: number) => (
-                  <div key={i} onClick={() => setActivePhoto(i)} style={{width:'60px', height:'60px', flexShrink:0, borderRadius:'8px', overflow:'hidden', cursor:'pointer', border: activePhoto === i ? '2px solid #1a7a4a' : '2px solid transparent', opacity: activePhoto === i ? 1 : 0.6}}>
+                  <div className="thumb-item" key={i} onClick={() => setActivePhoto(i)} style={{width:'60px', height:'60px', flexShrink:0, borderRadius:'8px', overflow:'hidden', cursor:'pointer', border: activePhoto === i ? '2px solid #1a7a4a' : '2px solid transparent', opacity: activePhoto === i ? 1 : 0.6}}>
                     <img src={img} alt="" width={60} height={60} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}} />
                   </div>
                 ))}
@@ -397,15 +593,15 @@ export default function AnnonceDetail() {
           </div>
 
           {/* Titre + Prix + Partage */}
-          <div style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #e8ede9', marginBottom:'16px'}}>
-            <h1 style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.3rem', marginBottom:'12px', lineHeight:1.3, color:'#111a14'}}>
+          <div className="main-info-card" style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #e8ede9', marginBottom:'16px'}}>
+            <h1 className="ad-title" style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.3rem', marginBottom:'12px', lineHeight:1.3, color:'#111a14'}}>
               {ad.title}
             </h1>
             <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:'10px'}}>
-              <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.7rem', color:'#0f5233'}}>
-                {Number(ad.price).toLocaleString()} <span style={{fontSize:'0.9rem', fontWeight:600, color:'#6b7c6e'}}>RWF</span>
+              <div className="ad-price" style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.7rem', color:'#0f5233'}}>
+                {formatPrice(ad.price)}
               </div>
-              <div style={{display:'flex', gap:'6px', flexWrap:'wrap', alignItems:'center'}}>
+              <div className="ad-meta-row" style={{display:'flex', gap:'6px', flexWrap:'wrap', alignItems:'center'}}>
                 {ad.province && (
                   <span style={{background:'#f5f7f5', color:'#111a14', padding:'5px 10px', borderRadius:'7px', fontSize:'0.75rem', fontWeight:600, border:'1px solid #e8ede9'}}>
                     {ad.province}{ad.district ? ' - ' + ad.district : ''}
@@ -418,6 +614,12 @@ export default function AnnonceDetail() {
             </div>
 
             {/* ✅ Bouton partage déplacé ici, bien visible */}
+            <div className="mobile-trust-chips">
+              {seller?.is_verified && <span className="mobile-trust-chip">Vendeur verifie</span>}
+              <span className="mobile-trust-chip">Messagerie securisee</span>
+              <span className="mobile-trust-chip">Transaction accompagnee</span>
+            </div>
+
             <div style={{marginTop:'14px', position:'relative', display:'inline-block'}} onClick={e => e.stopPropagation()}>
               <button onClick={() => setShowShareMenu(!showShareMenu)}
                 style={{display:'flex', alignItems:'center', gap:'6px', padding:'8px 16px', background:'#f5f7f5', border:'1px solid #e8ede9', borderRadius:'9px', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:'0.82rem', color:'#111a14'}}>
@@ -451,9 +653,35 @@ export default function AnnonceDetail() {
             </div>
           </div>
 
+          {seller && (
+            <Link href={`/u/${seller.username || seller.id}`} className="mobile-seller-card" style={{textDecoration:'none', color:'inherit'}}>
+              <div style={{background:'white', borderRadius:'18px', padding:'16px', border:'1px solid #e8e4de', marginBottom:'12px', display:'flex', alignItems:'center', gap:'12px', boxShadow:'0 8px 24px rgba(17,26,20,0.07)'}}>
+                <div style={{width:'54px', height:'54px', borderRadius:'50%', background:'#1a7a4a', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.25rem', color:'white', flexShrink:0}}>
+                  {(seller.full_name || seller.username || 'V')[0].toUpperCase()}
+                </div>
+                <div style={{flex:1, minWidth:0}}>
+                  <div style={{display:'flex', alignItems:'center', gap:'7px', marginBottom:'3px'}}>
+                    <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'0.95rem', color:'#111a14', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
+                      {seller.full_name || '@' + seller.username}
+                    </div>
+                    {seller.is_verified && <span style={{fontSize:'0.72rem', color:'#1a7a4a', fontWeight:800, flexShrink:0}}>Verifie</span>}
+                  </div>
+                  {seller.username && (
+                    <div style={{fontSize:'0.76rem', color:'#1a7a4a', fontWeight:700, marginBottom:'3px'}}>@{seller.username}</div>
+                  )}
+                  <div style={{fontSize:'0.72rem', color:'#6b7c6e', lineHeight:1.45}}>
+                    Membre depuis {new Date(seller.created_at).toLocaleDateString('fr-FR', {month:'long', year:'numeric'})}
+                    {seller.ads_count ? ` · ${seller.ads_count} annonces` : ''}
+                  </div>
+                </div>
+                <span style={{color:'#1a7a4a', fontWeight:800, fontSize:'1rem', flexShrink:0}}>→</span>
+              </div>
+            </Link>
+          )}
+
           {/* Description */}
           {ad.description && (
-            <div style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #e8ede9', marginBottom:'16px'}}>
+            <div className="description-card" style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #e8ede9', marginBottom:'16px'}}>
               <h2 style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.95rem', marginBottom:'12px', color:'#111a14', textTransform:'uppercase', letterSpacing:'0.04em'}}>Description</h2>
               <p style={{color:'#333', lineHeight:1.8, fontSize:'0.92rem', whiteSpace:'pre-wrap'}}>{ad.description}</p>
             </div>
@@ -461,7 +689,7 @@ export default function AnnonceDetail() {
 
           {/* ✅ Map OpenStreetMap */}
           {(ad.province || ad.district) && (
-            <div style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #e8ede9', marginBottom:'16px'}}>
+            <div className="map-card" style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #e8ede9', marginBottom:'16px'}}>
               <h2 style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.95rem', marginBottom:'14px', color:'#111a14', textTransform:'uppercase', letterSpacing:'0.04em'}}>
                 📍 Localisation approximative
               </h2>
@@ -497,7 +725,7 @@ export default function AnnonceDetail() {
           )}
 
           {/* Détails */}
-          <div style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #e8ede9'}}>
+          <div className="details-card" style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #e8ede9'}}>
             <h2 style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.95rem', marginBottom:'14px', color:'#111a14', textTransform:'uppercase', letterSpacing:'0.04em'}}>Details</h2>
             <div className="detail-grid" style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px'}}>
               {[
@@ -533,6 +761,7 @@ export default function AnnonceDetail() {
           {seller && (
             <Link href={`/u/${seller.username || seller.id}`} style={{textDecoration:'none'}}>
             <div
+              className="desktop-seller-card"
               style={{background:'white', borderRadius:'14px', padding:'16px 20px', border:'1px solid #e8ede9', marginBottom:'12px', display:'flex', alignItems:'center', gap:'12px', cursor:'pointer', transition:'box-shadow 0.15s'}}
               onMouseEnter={e => (e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)')}
               onMouseLeave={e => (e.currentTarget.style.boxShadow='none')}
@@ -558,7 +787,7 @@ export default function AnnonceDetail() {
           )}
 
           {/* Contact vendeur */}
-          <div style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #e8ede9', marginBottom:'12px'}}>
+          <div className="contact-card" style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #e8ede9', marginBottom:'12px'}}>
             <h2 style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.95rem', marginBottom:'16px', color:'#111a14', textTransform:'uppercase', letterSpacing:'0.04em'}}>Contacter le vendeur</h2>
 
             {ad.hide_phone && (
@@ -638,7 +867,7 @@ export default function AnnonceDetail() {
 
           <ReportButton adId={ad.id} userId={user?.id} />
 
-          <div style={{background:'#fffbeb', borderRadius:'12px', padding:'14px', border:'1px solid #fde68a'}}>
+          <div className="safety-card" style={{background:'#fffbeb', borderRadius:'12px', padding:'14px', border:'1px solid #fde68a'}}>
             <h3 style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.82rem', marginBottom:'8px', color:'#78350f', textTransform:'uppercase', letterSpacing:'0.04em'}}>
               Conseils de securite
             </h3>
@@ -653,6 +882,56 @@ export default function AnnonceDetail() {
             ))}
           </div>
         </div>
+      </div>
+
+      <div className="mobile-action-bar">
+        <div className="mobile-favorite-action">
+          <FavoriteButton adId={ad.id} size="md" onLogin={() => {
+            sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
+              url: window.location.pathname,
+              state: {}
+            }))
+            window.location.href = '/auth?mode=login'
+          }} />
+          <span className="mobile-favorite-label">Favori</span>
+        </div>
+        <button
+          onClick={handleContact}
+          disabled={sending || !message.trim()}
+          className="mobile-action-primary"
+        >
+          {sending ? 'Envoi...' : 'Message'}
+        </button>
+        {!ad.hide_phone && (ad.whatsapp || ad.phone) ? (
+          user ? (
+            ad.whatsapp ? (
+              <a href={'https://wa.me/' + waPhone + '?text=' + waText} target="_blank" rel="noopener noreferrer" className="mobile-action-secondary">
+                WhatsApp
+              </a>
+            ) : (
+              <a href={'tel:' + ad.phone} className="mobile-action-secondary">
+                Appeler
+              </a>
+            )
+          ) : (
+            <button
+              onClick={() => {
+                sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
+                  url: window.location.pathname,
+                  state: { message }
+                }))
+                window.location.href = '/auth?mode=login'
+              }}
+              className="mobile-action-secondary"
+            >
+              {ad.whatsapp ? 'WhatsApp' : 'Appeler'}
+            </button>
+          )
+        ) : (
+          <button className="mobile-action-secondary" disabled style={{opacity:0.55}}>
+            Appeler
+          </button>
+        )}
       </div>
     </div>
   )
