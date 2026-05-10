@@ -6,11 +6,16 @@ export function useUnreadCount() {
   const [unreadCount, setUnreadCount] = useState(0)
 
   const loadCount = useCallback(async (uid: string) => {
-    const { count } = await supabase
+    const { count, error } = await supabase
       .from('messages')
       .select('*', { count: 'exact', head: true })
       .eq('receiver_id', uid)
       .eq('is_read', false)
+
+    if (error) {
+      console.error('useUnreadCount error:', error)
+      return
+    }
 
     setUnreadCount(count || 0)
   }, [])
@@ -20,11 +25,9 @@ export function useUnreadCount() {
     let userId: string | null = null
     let channel: ReturnType<typeof supabase.channel> | null = null
     let broadcastChannel: ReturnType<typeof supabase.channel> | null = null
-    let interval: ReturnType<typeof setInterval> | null = null
 
     const refreshUnreadCount = () => {
-      setUnreadCount(0)
-      if (userId) setTimeout(() => loadCount(userId!), 300)
+      if (userId) loadCount(userId)
     }
 
     const init = async () => {
@@ -55,12 +58,6 @@ export function useUnreadCount() {
           refreshUnreadCount()
         })
       broadcastChannel.subscribe()
-
-      window.addEventListener('sokodeal:messages-read', refreshUnreadCount)
-
-      interval = setInterval(() => {
-        if (userId) loadCount(userId)
-      }, 10000)
     }
 
     init()
@@ -69,8 +66,6 @@ export function useUnreadCount() {
       cancelled = true
       if (channel) supabase.removeChannel(channel)
       if (broadcastChannel) supabase.removeChannel(broadcastChannel)
-      if (interval) clearInterval(interval)
-      window.removeEventListener('sokodeal:messages-read', refreshUnreadCount)
     }
   }, [loadCount])
 
