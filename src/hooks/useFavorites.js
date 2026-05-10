@@ -20,8 +20,15 @@ export function useFavorites() {
       setUserId(data?.user?.id ?? null)
     })
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUserId(session?.user?.id ?? null)
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setUserId(null)
+        return
+      }
+
+      if (session?.user) {
+        setUserId(session.user.id)
+      }
     })
 
     return () => listener.subscription.unsubscribe()

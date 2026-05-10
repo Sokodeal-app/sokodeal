@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser, getCurrentSession } from '@/lib/auth'
 import Header from '@/components/Header'
 
 export default function MessagesPage() {
@@ -300,7 +300,7 @@ export default function MessagesPage() {
   }
 
   async function markConversationAsRead(conversationMessages: any[]) {
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { session } } = await getCurrentSession()
     if (!session) return false
 
     const messageIds = conversationMessages

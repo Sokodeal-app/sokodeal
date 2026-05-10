@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { generateSlug } from '@/lib/slug'
+import { getCurrentUser } from '@/lib/auth'
 
 export default function AdminPage() {
   const [user, setUser] = useState<any>(null)
@@ -21,7 +22,7 @@ export default function AdminPage() {
     const init = async () => {
       let shouldRedirect = false
       try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await getCurrentUser()
       if (!user) { shouldRedirect = true; window.location.href = '/'; return }
 
       const { data: userData } = await supabase

@@ -2,6 +2,7 @@
 import { Fragment, useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { supabasePublic } from '@/lib/supabase-public'
 import { getCurrentUser } from '@/lib/auth'
 import FavoriteButton from '@/components/FavoriteButton'
 import { useUnreadCount } from '@/hooks/useUnreadCount'
@@ -82,18 +83,12 @@ export default function Home() {
 
   const fetchAds = useCallback(async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabasePublic
         .from('ads')
         .select('id, title, price, images, province, district, category, subcategory, created_at, is_active, is_sold, is_boosted, sold_at, deleted_at, surface, chambres, salles_de_bain, immo_type, user_id, latitude, longitude')
         .eq('is_active', true)
         .is('deleted_at', null)
         .order('created_at', { ascending: false })
-
-      console.log('FETCH ADS DEBUG', {
-        dataLength: data?.length,
-        data: data?.slice(0, 2),
-        error: error ? JSON.stringify(error) : null,
-      })
 
       if (error) {
         console.error('FETCH ADS ERROR', JSON.stringify(error))
@@ -154,18 +149,32 @@ export default function Home() {
       try { setLocalHistory(JSON.parse(stored).slice(0, 10)) } catch {}
     }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      const nextUser = session?.user ?? null
-      setUser(nextUser)
-      if (!nextUser) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setUser(null)
         setIsUserAdmin(false)
         return
       }
-      const { data: userData } = await supabase
+
+      if (!session?.user) {
+        return
+      }
+
+      const nextUser = session.user
+      setUser(nextUser)
+
+      const { data: userData, error } = await supabase
         .from('users')
         .select('is_admin')
         .eq('id', nextUser.id)
         .single()
+
+      if (error) {
+        console.error('HOME is_admin error', error)
+        setIsUserAdmin(false)
+        return
+      }
+
       setIsUserAdmin(!!userData?.is_admin)
     })
     return () => subscription.unsubscribe()
@@ -421,16 +430,6 @@ export default function Home() {
   const displayAds = ads.length > 0 ? filteredAds : []
   const immoAds = displayAds.filter(ad => ['immo-vente','immo-location','immo-terrain'].includes(ad.category))
   const cardSkeletons = Array.from({ length: 8 })
-
-  console.log('HOME RENDER DEBUG', {
-    loading,
-    adsLength: ads.length,
-    filteredAdsLength: filteredAds.length,
-    displayAdsLength: displayAds.length,
-    filterCat,
-    search,
-    activeSection,
-  })
 
   return (
     <>

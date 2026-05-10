@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser, isTemporaryAuthError } from '@/lib/auth'
 import { useFavorites } from '@/hooks/useFavorites'
 import FavoriteButton from '@/components/FavoriteButton'
 import { FEATURE_FLAGS } from '@/lib/feature-flags'
@@ -514,22 +514,25 @@ export default function ProfilPage() {
 
   useEffect(() => {
     let cancelled = false
+    const MAX_AUTH_LOCK_RETRIES = 2
 
-    const init = async () => {
+    const init = async (attempt = 0) => {
       let shouldRedirect = false
+      let shouldKeepLoading = false
       try {
         setLoading(true)
         const { data: { user }, error: authError } = await getCurrentUser()
-        console.log('PROFILE INIT DEBUG', {
-          authUser: user?.id,
-          authEmail: user?.email,
-        })
-        console.log('PROFILE STEP 1 getCurrentUser', {
-          authUserId: user?.id,
-          authEmail: user?.email,
-          error: authError,
-        })
         if (cancelled) return
+        if (authError && isTemporaryAuthError(authError)) {
+          console.warn('AUTH LOCK ERROR - ignored as temporary')
+          if (attempt < MAX_AUTH_LOCK_RETRIES) {
+            shouldKeepLoading = true
+            setTimeout(() => {
+              if (!cancelled) init(attempt + 1)
+            }, 350)
+            return
+          }
+        }
         if (authError || !user) {
           console.warn('PROFILE auth missing', authError)
           sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
@@ -547,10 +550,6 @@ export default function ProfilPage() {
           .select('*')
           .eq('id', user.id)
           .single()
-        console.log('PROFILE STEP 2 users query', {
-          profileData: userData,
-          profileError,
-        })
         if (cancelled) return
 
         if (profileError) {
@@ -566,10 +565,6 @@ export default function ProfilPage() {
         }
 
         const { data: userAds, error: adsError } = await supabase.from('ads').select('*').eq('user_id', user.id).is('deleted_at', null).order('created_at', { ascending: false })
-        console.log('PROFILE STEP 3 ads query', {
-          adsLength: userAds?.length,
-          adsError,
-        })
         if (cancelled) return
 
         if (adsError) {
@@ -580,7 +575,7 @@ export default function ProfilPage() {
       } catch (err) {
         console.error('PROFILE init catch', err)
       } finally {
-        if (!cancelled && !shouldRedirect) setLoading(false)
+        if (!cancelled && !shouldRedirect && !shouldKeepLoading) setLoading(false)
       }
     }
     init()
@@ -749,13 +744,6 @@ export default function ProfilPage() {
     ] : []),
     { id:'vendus', label:'Vendus', count: soldCount },
   ]
-
-  console.log('PROFILE FINAL STATE', {
-    loading,
-    hasUser: !!user,
-    hasProfileForm: !!(profileForm.full_name || profileForm.username || profileForm.phone || profileForm.location),
-    adsLength: ads.length,
-  })
 
   if (loading) return (
     <div style={{minHeight:'100vh', background:'#f5f7f5', display:'flex', alignItems:'center', justifyContent:'center'}}>
