@@ -424,8 +424,8 @@ export default function Home() {
         body { line-height: 1.4; }
         html, body { overflow-x: hidden; max-width: 100vw; background: #faf9f7; }
         @media (max-width: 768px) {
-          .hero-title { font-size: 2.2rem !important; }
-          .hero-section { grid-template-columns: 1fr !important; padding: 36px 6% !important; }
+          .hero-title { font-size: 2rem !important; line-height: 1.02 !important; }
+          .hero-section { grid-template-columns: 1fr !important; padding: 24px 5.5% !important; min-height: 360px !important; }
           .hero-cta { width: 100% !important; justify-content: center !important; }
           .hero-premium { background-position: center right !important; }
           .hero-premium-gradient {
@@ -439,12 +439,27 @@ export default function Home() {
           }
           .ads-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
           .btn-signup { display: none !important; }
-          .header-inner { padding: 0 4% !important; height: 56px !important; }
-          .deposer-btn { padding: 6px 8px !important; font-size: 0.75rem !important; }
-          .deposer-text { display: none !important; }
+          .header-inner { padding: 0 3.5% !important; height: 56px !important; gap: 6px !important; }
+          .header-logo-mark { width: 30px !important; height: 30px !important; font-size: 15px !important; border-radius: 8px !important; }
+          .header-logo-name { font-size: 1.05rem !important; }
+          .login-btn { padding: 7px 10px !important; font-size: 0.78rem !important; }
+          .deposer-btn { padding: 7px 9px !important; font-size: 0.72rem !important; border-radius: 10px !important; }
+          .deposer-text { display: inline !important; }
           .mon-compte-label { display: none !important; }
           .search-bar { display: none !important; }
+          .mobile-top-search { display: block !important; }
+          .main-cat-nav { justify-content: flex-start !important; gap: 8px !important; padding: 8px 5% 10px !important; scroll-padding-left: 5%; }
+          .main-cat-nav .nav-cat { background: white !important; border: 1px solid #e8e4de !important; border-radius: 999px !important; padding: 8px 13px !important; font-size: 0.8rem !important; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+          .main-cat-nav .cat-separator { display: none !important; }
           .save-search-btn { display: none !important; }
+          .home-results-wrap { margin-top: 20px !important; }
+          .home-filter-card { padding: 10px 12px !important; margin-bottom: 18px !important; }
+          .home-filter-card > div:first-child { align-items: center !important; }
+          .home-count { font-size: 0.74rem !important; }
+          .ad-card-media { height: 150px !important; }
+          .ad-card-body { padding: 10px !important; }
+          .ad-card-category { font-size: 0.6rem !important; margin-bottom: 4px !important; }
+          .ad-view-button { display: none !important; }
         }
         @media (max-width: 900px) {
           .immo-layout { grid-template-columns: 1fr !important; }
@@ -484,8 +499,8 @@ export default function Home() {
       <header style={{background:'#faf9f7', position:'sticky', top:0, zIndex:100, borderBottom:'1px solid #e8e4de', paddingTop:'env(safe-area-inset-top)'}}>
         <div className="header-inner" style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 5%', height:'62px', gap:'14px', maxWidth:'1300px', margin:'0 auto'}}>
           <a href="/" style={{display:'flex', alignItems:'center', gap:'8px', textDecoration:'none', flexShrink:0}}>
-            <div style={{width:'34px', height:'34px', background:'#1a7a4a', borderRadius:'9px', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'17px', color:'white'}}>S</div>
-            <span style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.25rem', color:'#111a14'}}>Soko<span style={{color:'#1a7a4a'}}>Deal</span></span>
+            <div className="header-logo-mark" style={{width:'34px', height:'34px', background:'#1a7a4a', borderRadius:'9px', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'17px', color:'white'}}>S</div>
+            <span className="header-logo-name" style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.25rem', color:'#111a14'}}>Soko<span style={{color:'#1a7a4a'}}>Deal</span></span>
           </a>
 
           <div className="search-bar" style={{flex:1, maxWidth:'480px', position:'relative'}}>
@@ -558,7 +573,7 @@ export default function Home() {
               </>
             ) : (
               <>
-                <button onClick={() => router.push('/auth?mode=login')} style={{padding:'8px 16px', border:'1px solid #1a7a4a', borderRadius:'9px', color:'#1a7a4a', background:'white', fontFamily:'DM Sans,sans-serif', fontSize:'0.85rem', cursor:'pointer'}}>Connexion</button>
+                <button className="login-btn" onClick={() => router.push('/auth?mode=login')} style={{padding:'8px 16px', border:'1px solid #1a7a4a', borderRadius:'9px', color:'#1a7a4a', background:'white', fontFamily:'DM Sans,sans-serif', fontSize:'0.85rem', cursor:'pointer'}}>Connexion</button>
                 <button className="btn-signup" onClick={() => router.push('/auth?mode=signup')} style={{padding:'8px 16px', border:'none', borderRadius:'9px', color:'white', background:'#1a7a4a', fontFamily:'DM Sans,sans-serif', fontWeight:700, fontSize:'0.85rem', cursor:'pointer'}}>S’inscrire</button>
               </>
             )}
@@ -569,12 +584,12 @@ export default function Home() {
         </div>
 
         {/* Navbar catégories */}
-        <div style={{padding:'0 5%', display:'flex', justifyContent:'safe center', alignItems:'center', overflowX:'auto', scrollbarWidth:'none', maxWidth:'1300px', margin:'0 auto', background:'#faf9f7'}}>
+        <div className="main-cat-nav" style={{padding:'0 5%', display:'flex', justifyContent:'safe center', alignItems:'center', overflowX:'auto', scrollbarWidth:'none', maxWidth:'1300px', margin:'0 auto', background:'#faf9f7'}}>
           <a href="#" className="nav-cat" onClick={e => { e.preventDefault(); handleNavCat('') }}
             style={{display:'flex', alignItems:'center', padding:'9px 14px', color: filterCat === '' ? '#1a7a4a' : '#6b7c6e', textDecoration:'none', fontSize:'0.82rem', fontWeight: filterCat === '' ? 700 : 500, whiteSpace:'nowrap', borderBottom: filterCat === '' ? '2px solid #1a7a4a' : '2px solid transparent'}}>
             Tout
           </a>
-          <span style={{color:'#c8c4be', fontSize:'0.4rem', flexShrink:0, margin:'0 2px'}}>●</span>
+          <span className="cat-separator" style={{color:'#c8c4be', fontSize:'0.4rem', flexShrink:0, margin:'0 2px'}}>●</span>
           {LAUNCH_MAIN_CATEGORIES.map((item, index) => (
             <Fragment key={item.value}>
               <a href="#" className="nav-cat"
@@ -583,7 +598,7 @@ export default function Home() {
                 {item.label}
               </a>
               {index < LAUNCH_MAIN_CATEGORIES.length - 1 && (
-                <span style={{color:'#c8c4be', fontSize:'0.4rem', flexShrink:0, margin:'0 2px'}}>●</span>
+                <span className="cat-separator" style={{color:'#c8c4be', fontSize:'0.4rem', flexShrink:0, margin:'0 2px'}}>●</span>
               )}
             </Fragment>
           ))}
@@ -660,6 +675,25 @@ export default function Home() {
           </div>
         )}
       </header>
+
+      <div className="mobile-top-search" style={{display:'none', padding:'10px 5% 4px', background:'#faf9f7'}}>
+        <div style={{display:'flex', alignItems:'center', background:'white', borderRadius:'12px', overflow:'hidden', border:'1px solid #e8e4de', boxShadow:'0 2px 10px rgba(0,0,0,0.04)'}}>
+          <input
+            type="text"
+            placeholder="Que recherchez-vous ?"
+            value={search}
+            onChange={e => { setSearch(e.target.value); setActiveSection('main') }}
+            style={{flex:1, minWidth:0, padding:'12px 14px', border:'none', outline:'none', fontFamily:'DM Sans,sans-serif', fontSize:'0.92rem', background:'transparent', color:'#111a14'}}
+          />
+          <button
+            onClick={() => setActiveSection('main')}
+            aria-label="Rechercher"
+            style={{width:'46px', alignSelf:'stretch', background:'#1a7a4a', border:'none', color:'white', fontSize:'1rem', cursor:'pointer'}}
+          >
+            🔍
+          </button>
+        </div>
+      </div>
 
       {/* ── RECHERCHE @USERNAME ── */}
       {search.startsWith('@') && (
@@ -995,8 +1029,8 @@ export default function Home() {
       )}
 
       {!search.startsWith('@') && activeSection === 'main' && !isImmoMode && (
-        <div style={{padding:'0 5% 24px', maxWidth:'1300px', margin:'0 auto', marginTop:'32px'}}>
-          <div style={{background:'white', borderRadius:'12px', padding:'12px 16px', marginBottom:'20px', border:'1px solid #e8e4de'}}>
+        <div className="home-results-wrap" style={{padding:'0 5% 24px', maxWidth:'1300px', margin:'0 auto', marginTop:'32px'}}>
+          <div className="home-filter-card" style={{background:'white', borderRadius:'12px', padding:'12px 16px', marginBottom:'20px', border:'1px solid #e8e4de'}}>
             <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'10px', flexWrap:'wrap'}}>
               <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
                 <button onClick={() => setShowFilters(!showFilters)} style={{display:'flex', alignItems:'center', gap:'5px', padding:'7px 13px', background: showFilters ? '#1a7a4a' : '#faf9f7', color: showFilters ? 'white' : '#111a14', border:'1px solid ' + (showFilters ? '#1a7a4a' : '#e8e4de'), borderRadius:'8px', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:'0.82rem', cursor:'pointer'}}>
@@ -1020,8 +1054,8 @@ export default function Home() {
                   <option value="moins-cher">Moins cher</option>
                   <option value="plus-cher">Plus cher</option>
                 </select>
-                <span style={{fontSize:'0.8rem', color:'#6b7c6e', whiteSpace:'nowrap'}}>
-                  {displayAds.length + ' annonce(s)'}
+                <span className="home-count" style={{fontSize:'0.8rem', color:'#6b7c6e', whiteSpace:'nowrap'}}>
+                  {displayAds.length + ' annonces disponibles'}
                 </span>
               </div>
             </div>
@@ -1083,7 +1117,7 @@ export default function Home() {
               {displayAds.map((ad: any) => (
                 <div key={ad.id} className="ad-card" onClick={() => router.push('/annonce/' + generateSlug(ad))}
                   style={{background:'white', borderRadius:'16px', overflow:'hidden', cursor:'pointer', border: FEATURE_FLAGS.boostedListings && ad.is_boosted ? '1.5px solid #1a7a4a' : '1px solid #e8e4de', boxShadow:'0 2px 8px rgba(0,0,0,0.06)'}}>
-                  <div style={{height:'180px', background:'#faf9f7', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'3.5rem', overflow:'hidden', position:'relative'}}>
+                  <div className="ad-card-media" style={{height:'180px', background:'#faf9f7', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'3.5rem', overflow:'hidden', position:'relative'}}>
                     {ad.images && ad.images.length > 0 ? (
                       <img src={ad.images[0]} alt={ad.title} width={300} height={180} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
                     ) : (
@@ -1113,8 +1147,8 @@ export default function Home() {
                       <FavoriteButton adId={ad.id} onLogin={() => router.push('/auth?mode=login')} />
                     </div>
                   </div>
-                  <div style={{padding:'14px'}}>
-                    <div style={{fontSize:'0.66rem', fontWeight:600, color:'#1a7a4a', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'5px'}}>
+                  <div className="ad-card-body" style={{padding:'14px'}}>
+                    <div className="ad-card-category" style={{fontSize:'0.66rem', fontWeight:600, color:'#1a7a4a', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'5px'}}>
                       {ad.subcategory ? ad.subcategory : ad.category}
                     </div>
                     <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.9rem', marginBottom:'5px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', color:'#111a14'}}>{ad.title}</div>
@@ -1124,7 +1158,7 @@ export default function Home() {
                     <div style={{fontSize:'0.72rem', color:'#6b7c6e', marginBottom:'10px', height:'18px', overflow:'hidden', fontFamily:"'DM Sans', sans-serif"}}>
                       {ad.province && <>📍 {ad.province}</>}{formatRelativeTime(ad.created_at) && <span> · {formatRelativeTime(ad.created_at)}</span>}
                     </div>
-                    <button onClick={e => { e.stopPropagation(); router.push('/annonce/' + generateSlug(ad)) }} style={{width:'100%', padding:'8px', background:'#f0f7f3', color:'#1a7a4a', border:'1px solid #d4e6da', borderRadius:'8px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.8rem', cursor:'pointer'}}>
+                    <button className="ad-view-button" onClick={e => { e.stopPropagation(); router.push('/annonce/' + generateSlug(ad)) }} style={{width:'100%', padding:'8px', background:'#f0f7f3', color:'#1a7a4a', border:'1px solid #d4e6da', borderRadius:'8px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.8rem', cursor:'pointer'}}>
                       Voir l’annonce
                     </button>
                   </div>
