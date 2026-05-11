@@ -430,11 +430,11 @@ export default function AnnonceDetail() {
             min-width: 0 !important;
             background: #FAF7EF !important;
             border-radius: 24px 24px 0 0 !important;
-            margin-top: -24px !important;
+            margin-top: -48px !important;
             position: relative !important;
-            z-index: 3 !important;
-            padding-top: 8px !important;
-            overflow: hidden !important;
+            z-index: 10 !important;
+            padding-top: 16px !important;
+            overflow: visible !important;
           }
           .detail-right {
             position: static !important;
@@ -447,7 +447,7 @@ export default function AnnonceDetail() {
             border-radius: 0 !important;
             border: none !important;
             box-shadow: none !important;
-            overflow: hidden !important;
+            overflow: visible !important;
           }
           .main-photo-frame {
             height: auto !important;
@@ -545,16 +545,23 @@ export default function AnnonceDetail() {
           .description-card,
           .map-card,
           .details-card,
-          .safety-card {
+          .safety-card,
+          .mobile-seller-card,
+          .mobile-similar-section {
             width: calc(100% - 8%) !important;
-            margin: 0 auto 6px !important;
             border-radius: 0 !important;
-            padding: 12px 0 !important;
             border: none !important;
-            border-bottom: 1px solid rgba(232,224,212,0.4) !important;
+            border-bottom: none !important;
             border-top: none !important;
             background: transparent !important;
             box-shadow: none !important;
+          }
+          .main-info-card,
+          .description-card,
+          .map-card,
+          .details-card {
+            padding: 12px 20px !important;
+            margin: 0 auto 4px !important;
           }
           .contact-card {
             display: none !important;
@@ -634,9 +641,13 @@ export default function AnnonceDetail() {
           .mobile-seller-card {
             display: block !important;
             padding: 0 20px !important;
-            margin-bottom: 6px !important;
+            margin-bottom: 4px !important;
             width: 100% !important;
             box-sizing: border-box !important;
+            border: none !important;
+            border-bottom: none !important;
+            border-top: none !important;
+            box-shadow: none !important;
           }
           .mobile-seller-card > a > div,
           .mobile-seller-card > div {
@@ -723,13 +734,15 @@ export default function AnnonceDetail() {
           }
           .mobile-similar-section {
             display: block !important;
-            width: calc(100% - 8%);
+            width: 100%;
             background: transparent;
             border: none;
             border-top: none !important;
             border-bottom: none !important;
-            padding: 12px 0 !important;
-            margin: 0 auto 6px !important;
+            box-shadow: none !important;
+            padding: 12px 20px !important;
+            margin: 0 auto 4px !important;
+            box-sizing: border-box !important;
           }
           .mobile-report-block {
             display: block !important;
@@ -1136,19 +1149,45 @@ export default function AnnonceDetail() {
               Annonces similaires bientôt disponibles.
             </p>
           </div>
-          {/* Mobile only — signaler + conseils */}
-          <div className="mobile-report-block" style={{padding:'0 20px', marginBottom:'6px'}}>
+          {/* Mobile - signaler */}
+          <div className="mobile-report-block" style={{padding: '0 20px', marginBottom: '4px'}}>
             <ReportButton adId={ad.id} userId={user?.id} />
           </div>
-          <div className="safety-card mobile-safety" style={{margin:'0 20px 24px'}}>
-            <h3>Conseils de sécurité</h3>
+
+          {/* Mobile - conseils securite */}
+          <div
+            className="safety-card mobile-safety"
+            style={{
+              margin: '0 20px 24px',
+              padding: '14px',
+              background: '#FFFCF7',
+              borderRadius: '16px',
+              border: '1px solid #E8E0D4'
+            }}
+          >
+            <h3 style={{
+              fontSize: '13px',
+              fontWeight: 600,
+              color: '#111827',
+              marginBottom: '8px'
+            }}>{'Conseils de s\u00e9curit\u00e9'}</h3>
             {[
-              'Ne payez jamais à l\'avance sans voir l\'article',
+              "Ne payez jamais \u00e0 l'avance sans voir l'article",
               'Rencontrez le vendeur dans un lieu public',
-              'Vérifiez l\'article avant tout paiement'
+              "V\u00e9rifiez l'article avant tout paiement"
             ].map((tip, i) => (
-              <div key={i} style={{display:'flex', gap:'6px', marginBottom:'5px', fontSize:'0.75rem', color:'#78350f'}}>
-                <span style={{fontWeight:700, flexShrink:0}}>✓</span>
+              <div key={i} style={{
+                display: 'flex',
+                gap: '6px',
+                marginBottom: '5px',
+                fontSize: '13px',
+                color: '#6F6B63'
+              }}>
+                <span style={{
+                  color: '#15803D',
+                  fontWeight: 700,
+                  flexShrink: 0
+                }}>{'\u2713'}</span>
                 {tip}
               </div>
             ))}
@@ -1287,7 +1326,7 @@ export default function AnnonceDetail() {
         </div>
       </div>
 
-      <div className="mobile-action-bar" style={{gridTemplateColumns: canUseWhatsApp ? 'auto 1fr 44px 44px' : 'auto 1fr 44px'}}>
+      <div className="mobile-action-bar" style={{gridTemplateColumns: canUseWhatsApp && canUsePhone ? 'auto 1fr 44px 44px' : (canUseWhatsApp || canUsePhone) ? 'auto 1fr 44px' : 'auto 1fr'}}>
         <div className="mobile-favorite-action">
           <FavoriteButton adId={ad.id} size="sm" onLogin={() => {
             sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
@@ -1353,22 +1392,49 @@ export default function AnnonceDetail() {
             </button>
           )
         )}
-        {user && canUsePhone ? (
-          <a href={'tel:' + ad.phone} className="mobile-action-secondary" aria-label="Téléphone">
-            <span className="mobile-action-secondary-icon">📞</span>
-            <span className="mobile-action-secondary-label">Téléphone</span>
-          </a>
-        ) : (
-          <button
-            type="button"
-            className="mobile-action-secondary"
-            disabled={!canUsePhone}
-            onClick={canUsePhone ? redirectToLoginWithMessage : undefined}
-            aria-label="Téléphone"
-          >
-            <span className="mobile-action-secondary-icon">📞</span>
-            <span className="mobile-action-secondary-label">Téléphone</span>
-          </button>
+        {canUsePhone && (
+          user ? (
+            <a
+              href={'tel:' + ad.phone}
+              style={{
+                width: '44px',
+                height: '44px',
+                borderRadius: '50%',
+                border: '1px solid #E8E0D4',
+                background: '#FFFCF7',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                textDecoration: 'none',
+                fontSize: '20px'
+              }}
+              aria-label={'T\u00e9l\u00e9phone'}
+            >
+              {'\u{1F4DE}'}
+            </a>
+          ) : (
+            <button
+              type="button"
+              onClick={redirectToLoginWithMessage}
+              style={{
+                width: '44px',
+                height: '44px',
+                borderRadius: '50%',
+                border: '1px solid #E8E0D4',
+                background: '#FFFCF7',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                cursor: 'pointer',
+                fontSize: '20px'
+              }}
+              aria-label={'T\u00e9l\u00e9phone'}
+            >
+              {'\u{1F4DE}'}
+            </button>
+          )
         )}
       </div>
 
