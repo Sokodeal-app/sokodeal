@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
@@ -87,7 +87,6 @@ export default function AnnonceDetail() {
   const [showShareMenu, setShowShareMenu] = useState(false)
   const [descriptionExpanded, setDescriptionExpanded] = useState(false)
   const [showMessageComposer, setShowMessageComposer] = useState(false)
-  const touchStartX = useRef<number>(0)
 
   const catEmoji: any = {
     'immo-vente':'🏡','immo-location':'🏢','immo-terrain':'🌿','voiture':'🚗',
@@ -355,17 +354,6 @@ export default function AnnonceDetail() {
   )
 
   const hasPhotos = ad.images && ad.images.length > 0
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX
-  }
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const delta = e.changedTouches[0].clientX - touchStartX.current
-    if (Math.abs(delta) < 40 || !hasPhotos) return
-    if (delta < 0)
-      setActivePhoto(p => Math.min(p + 1, ad.images.length - 1))
-    else
-      setActivePhoto(p => Math.max(p - 1, 0))
-  }
   const waPhone = (ad.whatsapp || ad.phone || '').replace(/\s+/g, '').replace('+', '')
   const waText = encodeURIComponent('Bonjour, annonce SokoDeal : ' + ad.title + ' ' + getShareUrl())
   const fbUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(getShareUrl())
@@ -392,6 +380,8 @@ export default function AnnonceDetail() {
         .mobile-trust-chips,
         .description-toggle,
         .mobile-similar-section,
+        .mobile-report-block,
+        .mobile-safety,
         .mobile-description-empty,
         .mobile-photo-controls,
         .mobile-message-drawer {
@@ -557,17 +547,20 @@ export default function AnnonceDetail() {
           .details-card,
           .safety-card {
             width: calc(100% - 8%) !important;
-            margin: 0 auto 10px !important;
+            margin: 0 auto 6px !important;
             border-radius: 0 !important;
-            padding: 18px 0 !important;
+            padding: 12px 0 !important;
             border: none !important;
-            border-bottom: none !important;
+            border-bottom: 1px solid rgba(232,224,212,0.4) !important;
             border-top: none !important;
             background: transparent !important;
             box-shadow: none !important;
-            margin-bottom: 20px !important;
           }
           .contact-card {
+            display: none !important;
+          }
+          .desktop-report-block,
+          .desktop-safety {
             display: none !important;
           }
           .ad-title {
@@ -641,13 +634,13 @@ export default function AnnonceDetail() {
           .mobile-seller-card {
             display: block !important;
             padding: 0 20px !important;
-            margin-bottom: 12px !important;
+            margin-bottom: 6px !important;
             width: 100% !important;
             box-sizing: border-box !important;
           }
           .mobile-seller-card > a > div,
           .mobile-seller-card > div {
-            background: #FFFCF7 !important;
+            background: #FAF7EF !important;
             border-radius: 20px !important;
             border: 1px solid #E8E0D4 !important;
             box-shadow: 0 4px 16px rgba(60,40,10,0.05) !important;
@@ -689,12 +682,13 @@ export default function AnnonceDetail() {
             font-feature-settings: "lnum" 1, "tnum" 1, "onum" 0 !important;
           }
           .safety-card {
-            background: rgba(255,252,247,0.46) !important;
+            width: auto !important;
+            margin: 0 20px 6px !important;
+            background: #FFFCF7 !important;
             border-radius: 16px !important;
-            border: 1px solid rgba(232,224,212,0.32) !important;
+            border: 1px solid #E8E0D4 !important;
             padding: 12px !important;
-            margin-top: 6px !important;
-            margin-bottom: 12px !important;
+            box-shadow: none !important;
           }
           .safety-card h3 {
             color: #6b5b2f !important;
@@ -734,8 +728,27 @@ export default function AnnonceDetail() {
             border: none;
             border-top: none !important;
             border-bottom: none !important;
-            padding: 18px 0;
-            margin: 6px auto 20px;
+            padding: 12px 0 !important;
+            margin: 0 auto 6px !important;
+          }
+          .mobile-report-block {
+            display: block !important;
+          }
+          .mobile-safety {
+            display: block !important;
+            background: #FFFCF7 !important;
+            border-radius: 16px !important;
+            border: 1px solid #E8E0D4 !important;
+            padding: 14px !important;
+            box-shadow: none !important;
+          }
+          .mobile-safety h3 {
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            color: #111827 !important;
+            text-transform: none !important;
+            margin-bottom: 8px !important;
+            letter-spacing: 0 !important;
           }
           .mobile-action-bar {
             display: grid !important;
@@ -890,31 +903,16 @@ export default function AnnonceDetail() {
         <div className="detail-left">
           {/* Photos */}
           <div className="photo-card" style={{background:'white', borderRadius:'14px', overflow:'hidden', border:'1px solid #E8E0D4', marginBottom:'16px'}}>
-            <div className="main-photo-frame" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} style={{height:'auto', aspectRatio:'4/3', background:'#111827', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'5rem', position:'relative', overflow:'hidden', cursor:'grab'}}>
+            <div className="main-photo-frame" style={{height:'auto', aspectRatio:'4/3', background:'#111827', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'5rem', position:'relative', overflow:'hidden', cursor:'grab'}}>
               {hasPhotos ? (
-                <div style={{
-                  display: 'flex',
-                  transition: 'transform 300ms ease',
-                  transform: `translateX(-${activePhoto * 100}%)`,
-                  width: `${ad.images.length * 100}%`,
-                  height: '100%',
-                  willChange: 'transform'
-                }}>
-                  {ad.images.map((img: string, i: number) => (
-                    <div key={i} style={{
-                      width: `${100 / ad.images.length}%`,
-                      flexShrink: 0,
-                      height: '100%'
-                    }}>
-                      <img
-                        src={img}
-                        alt={ad.title}
-                        decoding="async"
-                        style={{width:'100%', height:'100%', objectFit:'cover', display:'block'}}
-                      />
-                    </div>
-                  ))}
-                </div>
+                <img
+                  src={ad.images[activePhoto]}
+                  alt={ad.title}
+                  width={760}
+                  height={300}
+                  decoding="async"
+                  style={{width:'100%', height:'100%', objectFit:'cover'}}
+                />
               ) : (
                 <span style={{opacity:0.4}}>{catEmoji[ad.category] || '📦'}</span>
               )}
@@ -1014,7 +1012,7 @@ export default function AnnonceDetail() {
           {seller && (
             <>
             <Link href={`/u/${seller.username || seller.id}`} className="mobile-seller-card" style={{textDecoration:'none', color:'inherit'}}>
-              <div style={{background:'#FFFCF7', borderRadius:'20px', padding:'16px', border:'1px solid #E8E0D4', boxShadow:'0 4px 16px rgba(60,40,10,0.05)', display:'flex', flexDirection:'column', gap:'0'}}>
+              <div style={{background:'#FAF7EF', borderRadius:'20px', padding:'16px', border:'1px solid #E8E0D4', boxShadow:'0 4px 16px rgba(60,40,10,0.05)', display:'flex', flexDirection:'column', gap:'0'}}>
                 <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
                   <div style={{width:'48px', height:'48px', borderRadius:'50%', background:'#15803D', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:'1.1rem', color:'white', flexShrink:0}}>
                     {(seller.full_name || seller.username || 'V')[0].toUpperCase()}
@@ -1138,6 +1136,23 @@ export default function AnnonceDetail() {
               Annonces similaires bientôt disponibles.
             </p>
           </div>
+          {/* Mobile only — signaler + conseils */}
+          <div className="mobile-report-block" style={{padding:'0 20px', marginBottom:'6px'}}>
+            <ReportButton adId={ad.id} userId={user?.id} />
+          </div>
+          <div className="safety-card mobile-safety" style={{margin:'0 20px 24px'}}>
+            <h3>Conseils de sécurité</h3>
+            {[
+              'Ne payez jamais à l\'avance sans voir l\'article',
+              'Rencontrez le vendeur dans un lieu public',
+              'Vérifiez l\'article avant tout paiement'
+            ].map((tip, i) => (
+              <div key={i} style={{display:'flex', gap:'6px', marginBottom:'5px', fontSize:'0.75rem', color:'#78350f'}}>
+                <span style={{fontWeight:700, flexShrink:0}}>✓</span>
+                {tip}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* COLONNE DROITE */}
@@ -1251,9 +1266,11 @@ export default function AnnonceDetail() {
             )}
           </div>
 
-          <ReportButton adId={ad.id} userId={user?.id} />
+          <div className="desktop-report-block">
+            <ReportButton adId={ad.id} userId={user?.id} />
+          </div>
 
-          <div className="safety-card" style={{background:'#fffbeb', borderRadius:'12px', padding:'14px', border:'1px solid #fde68a'}}>
+          <div className="safety-card desktop-safety" style={{background:'#fffbeb', borderRadius:'12px', padding:'14px', border:'1px solid #fde68a'}}>
             <h3 style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'0.82rem', marginBottom:'8px', color:'#78350f', textTransform:'uppercase', letterSpacing:'0.04em'}}>
               Conseils de sécurité
             </h3>
