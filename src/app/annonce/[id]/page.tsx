@@ -559,7 +559,14 @@ export default function AnnonceDetail() {
           .mobile-seller-card {
             display: block !important;
             width: calc(100% - 8%);
-            margin: 0 auto 10px;
+            margin: 0 auto 8px;
+          }
+          .mobile-seller-card > div {
+            background: rgba(255,252,247,0.58) !important;
+            border: 1px solid rgba(232,224,212,0.36) !important;
+            box-shadow: none !important;
+            padding: 15px 0 !important;
+            border-radius: 0 !important;
           }
           .detail-grid {
             grid-template-columns: 1fr 1fr !important;
@@ -567,10 +574,10 @@ export default function AnnonceDetail() {
           }
           .detail-item {
             border-radius: 0 !important;
-            padding: 9px 0 !important;
+            padding: 8px 0 !important;
             background: transparent !important;
             border: none !important;
-            border-bottom: 1px solid rgba(232,224,212,0.46) !important;
+            border-bottom: 1px solid rgba(232,224,212,0.32) !important;
           }
           .detail-item-long {
             grid-column: 1 / -1;
@@ -586,22 +593,22 @@ export default function AnnonceDetail() {
             word-break: break-word;
           }
           .safety-card {
-            background: rgba(255,252,247,0.72) !important;
-            border-radius: 18px !important;
-            border: 1px solid rgba(232,224,212,0.55) !important;
-            padding: 14px !important;
+            background: rgba(255,252,247,0.46) !important;
+            border-radius: 16px !important;
+            border: 1px solid rgba(232,224,212,0.32) !important;
+            padding: 12px !important;
             margin-top: 6px !important;
             margin-bottom: 12px !important;
           }
           .safety-card h3 {
             color: #6b5b2f !important;
-            font-size: 0.75rem !important;
-            margin-bottom: 7px !important;
+            font-size: 0.7rem !important;
+            margin-bottom: 6px !important;
           }
           .safety-card div {
             color: #7c6a3a !important;
-            font-size: 0.72rem !important;
-            margin-bottom: 4px !important;
+            font-size: 0.7rem !important;
+            margin-bottom: 3px !important;
           }
           .description-text-mobile-collapsed {
             display: -webkit-box;
@@ -982,23 +989,23 @@ export default function AnnonceDetail() {
 
           {/* Détails */}
           <div className="details-card" style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #e8ede9'}}>
-            <h2 style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.95rem', marginBottom:'14px', color:'#111a14', textTransform:'uppercase', letterSpacing:'0.04em'}}>Details</h2>
+            <h2 style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.95rem', marginBottom:'14px', color:'#111a14', textTransform:'uppercase', letterSpacing:'0.04em'}}>Détails</h2>
             <div className="detail-grid" style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px'}}>
               {[
-                { label:'Categorie', value: catLabel[ad.category] || ad.category, icon:'🏷️' },
+                { label:'Catégorie', value: catLabel[ad.category] || ad.category, icon:'🏷️' },
                 { label:'Prix', value: formatPrice(ad.price), icon:'💰' },
                 { label:'Ville', value: ad.province || '-', icon:'🗺️' },
                 { label:'District', value: ad.district || '-', icon:'📍' },
-                { label:'Publie le', value: new Date(ad.created_at).toLocaleDateString('fr-FR'), icon:'📅' },
+                { label:'Publié le', value: new Date(ad.created_at).toLocaleDateString('fr-FR'), icon:'📅' },
                 { label:'Statut', value: ad.is_active ? 'Active' : 'Inactive', icon:'🔘' },
                 ...(ad.immo_type ? [{ label:'Type', value: ad.immo_type, icon:'🏡' }] : []),
                 ...(ad.surface ? [{ label:'Surface habitable', value: ad.surface + ' m²', icon:'📐' }] : []),
                 ...(ad.surface_terrain ? [{ label:'Surface terrain', value: ad.surface_terrain + ' m²', icon:'🌿' }] : []),
                 ...(ad.chambres ? [{ label:'Chambres', value: ad.chambres, icon:'🛏️' }] : []),
                 ...(ad.salles_de_bain ? [{ label:'Salles de bain', value: ad.salles_de_bain, icon:'🚿' }] : []),
-                ...(ad.etage ? [{ label:'Etage', value: ad.etage, icon:'🏢' }] : []),
-                ...(ad.etat ? [{ label:'Etat', value: ad.etat === 'neuf' ? 'Neuf' : ad.etat === 'bon-etat' ? 'Bon etat' : 'A renover', icon:'✨' }] : []),
-                ...(ad.meuble ? [{ label:'Meuble', value: 'Oui', icon:'🛋️' }] : []),
+                ...(ad.etage ? [{ label:'Étage', value: ad.etage, icon:'🏢' }] : []),
+                ...(ad.etat ? [{ label:'État', value: ad.etat === 'neuf' ? 'Neuf' : ad.etat === 'bon-etat' ? 'Bon état' : 'À rénover', icon:'✨' }] : []),
+                ...(ad.meuble ? [{ label:'Meublé', value: 'Oui', icon:'🛋️' }] : []),
                 ...(ad.charges_incluses ? [{ label:'Charges', value: 'Incluses', icon:'💡' }] : []),
               ].map((item, i) => {
                 const valueText = String(item.value)
@@ -1138,12 +1145,12 @@ export default function AnnonceDetail() {
 
           <div className="safety-card" style={{background:'#fffbeb', borderRadius:'12px', padding:'14px', border:'1px solid #fde68a'}}>
             <h3 style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.82rem', marginBottom:'8px', color:'#78350f', textTransform:'uppercase', letterSpacing:'0.04em'}}>
-              Conseils de securite
+              Conseils de sécurité
             </h3>
             {[
-              'Ne payez jamais a l avance sans voir l article',
+              'Ne payez jamais à l’avance sans voir l’article',
               'Rencontrez le vendeur dans un lieu public',
-              'Verifiez l article avant tout paiement'
+              'Vérifiez l’article avant tout paiement'
             ].map((tip, i) => (
               <div key={i} style={{display:'flex', gap:'6px', marginBottom:'5px', fontSize:'0.75rem', color:'#78350f'}}>
                 <span style={{fontWeight:700, flexShrink:0}}>✓</span> {tip}
