@@ -438,20 +438,30 @@ export default function AnnonceDetail() {
           }
           .detail-left {
             min-width: 0 !important;
+            background: #FAF7EF !important;
+            border-radius: 24px 24px 0 0 !important;
+            margin-top: -24px !important;
+            position: relative !important;
+            z-index: 3 !important;
+            padding-top: 8px !important;
           }
           .detail-right {
             position: static !important;
           }
           .photo-card {
-            border-radius: 0 0 26px 26px !important;
+            position: relative !important;
+            z-index: 1 !important;
             margin-bottom: 0 !important;
+            border-radius: 0 !important;
             border: none !important;
-            box-shadow: 0 10px 30px rgba(17,26,20,0.10) !important;
+            box-shadow: none !important;
           }
           .main-photo-frame {
             height: auto !important;
             aspect-ratio: 4 / 3 !important;
             font-size: 4rem !important;
+            border-radius: 0 !important;
+            overflow: hidden !important;
           }
           .photo-category-badge {
             top: auto !important;
@@ -514,10 +524,15 @@ export default function AnnonceDetail() {
             backdrop-filter: none !important;
           }
           .thumb-strip {
-            padding: 11px 4% 14px !important;
+            position: relative !important;
+            z-index: 2 !important;
+            margin-top: 0 !important;
+            background: #FAF7EF !important;
+            border-radius: 0 !important;
+            padding: 14px 16px 10px !important;
+            box-shadow: none !important;
             gap: 8px !important;
             scroll-snap-type: x proximity;
-            background: #FAF7EF;
           }
           .thumb-item {
             width: 58px !important;
@@ -704,7 +719,6 @@ export default function AnnonceDetail() {
           }
           .mobile-action-bar {
             display: grid !important;
-            grid-template-columns: auto 1fr auto auto !important;
             align-items: center !important;
             gap: 8px !important;
             position: fixed !important;
@@ -975,32 +989,35 @@ export default function AnnonceDetail() {
           </div>
 
           {seller && (
+            <>
             <Link href={`/u/${seller.username || seller.id}`} className="mobile-seller-card" style={{textDecoration:'none', color:'inherit'}}>
-              <div style={{background:'#FFFCF7', borderRadius:'24px', padding:'17px', border:'1px solid #E8E0D4', marginBottom:'12px', display:'flex', alignItems:'center', gap:'13px', boxShadow:'0 8px 24px rgba(17,26,20,0.06)'}}>
-                <div style={{width:'58px', height:'58px', borderRadius:'50%', background:'#15803D', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Inter, system-ui, sans-serif', fontWeight:800, fontSize:'1.3rem', color:'white', flexShrink:0, boxShadow:'0 4px 14px rgba(26,122,74,0.18)'}}>
+              <div style={{background:'#FFFCF7', borderRadius:'20px', padding:'16px', border:'1px solid #E8E0D4', boxShadow:'0 4px 20px rgba(60,40,10,0.06)', display:'flex', alignItems:'center', gap:'14px', marginBottom:'12px', marginInline:'20px'}}>
+                <div style={{width:'52px', height:'52px', borderRadius:'50%', background:'#15803D', flexShrink:0, marginLeft:'2px', boxShadow:'0 2px 8px rgba(21,128,61,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.3rem', color:'white', fontWeight:800}}>
                   {(seller.full_name || seller.username || 'V')[0].toUpperCase()}
                 </div>
-                <div style={{flex:1, minWidth:0}}>
+                <div style={{flex:1, minWidth:0, paddingLeft:'2px'}}>
                   <div style={{display:'flex', alignItems:'center', gap:'7px', marginBottom:'3px'}}>
-                    <div style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:800, fontSize:'0.95rem', color:'#111827', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
+                    <div style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'15px', color:'#111827', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
                       {seller.full_name || '@' + seller.username}
                     </div>
-                    {seller.is_verified && <span style={{fontSize:'0.7rem', color:'#15803D', fontWeight:800, flexShrink:0, background:'#E7F6EC', border:'1px solid #E8E0D4', borderRadius:'999px', padding:'3px 7px'}}>Vérifié</span>}
+                    {seller.is_verified && <span style={{fontSize:'11px', color:'#15803D', fontWeight:700, flexShrink:0, background:'#E7F6EC', border:'1px solid #E8E0D4', borderRadius:'999px', padding:'2px 8px'}}>Vérifié</span>}
                   </div>
                   {seller.username && (
-                    <div style={{fontSize:'0.76rem', color:'#15803D', fontWeight:700, marginBottom:'3px'}}>@{seller.username}</div>
+                    <div style={{fontSize:'13px', color:'#15803D', fontWeight:600, marginTop:'2px'}}>@{seller.username}</div>
                   )}
-                  <div style={{fontSize:'0.72rem', color:'#8a7f70', lineHeight:1.45}}>
+                  <div style={{fontSize:'12px', color:'#6F6B63', marginTop:'2px'}}>
                     Membre depuis {new Date(seller.created_at).toLocaleDateString('fr-FR', {month:'long', year:'numeric'})}
                     {seller.ads_count ? ` · ${seller.ads_count} annonces` : ''}
                   </div>
-                  <div style={{fontSize:'0.72rem', color:'#6F6B63', lineHeight:1.45, marginTop:'3px', fontWeight:700}}>
-                    Répond via SokoDeal
-                  </div>
                 </div>
-                <span style={{color:'#15803D', fontWeight:800, fontSize:'1rem', flexShrink:0}}>→</span>
+                <span style={{color:'#15803D', fontSize:'18px', fontWeight:600, marginRight:'2px', flexShrink:0}}>→</span>
               </div>
             </Link>
+            <div style={{marginTop:'10px', marginInline:'20px', padding:'10px 14px', background:'#E7F6EC', borderRadius:'14px', display:'flex', alignItems:'center', gap:'8px', fontSize:'13px', color:'#15803D', fontWeight:500}}>
+              <span>⚡</span>
+              <span>Répond en moins d'1h</span>
+            </div>
+            </>
           )}
 
           {/* Description */}
@@ -1228,7 +1245,7 @@ export default function AnnonceDetail() {
         </div>
       </div>
 
-      <div className="mobile-action-bar">
+      <div className="mobile-action-bar" style={{gridTemplateColumns: canUseWhatsApp ? 'auto 1fr 44px 44px' : 'auto 1fr 44px'}}>
         <div className="mobile-favorite-action">
           <FavoriteButton adId={ad.id} size="sm" onLogin={() => {
             sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
@@ -1250,34 +1267,49 @@ export default function AnnonceDetail() {
         >
           💬 Message
         </button>
-        {user && canUseWhatsApp ? (
-          <a
-            href={'https://wa.me/' + waPhone + '?text=' + waText}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mobile-action-secondary"
-            aria-label="WhatsApp"
-          >
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-              <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.17 1.535 5.943L.057 23.93l6.184-1.622A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.894a9.889 9.889 0 01-5.031-1.378l-.36-.214-3.733.979.996-3.648-.235-.374A9.861 9.861 0 012.106 12C2.106 6.54 6.54 2.106 12 2.106S21.894 6.54 21.894 12 16.46 21.894 12 21.894z"/>
-            </svg>
-            <span className="mobile-action-secondary-label">WhatsApp</span>
-          </a>
-        ) : (
-          <button
-            type="button"
-            className="mobile-action-secondary"
-            disabled={!canUseWhatsApp}
-            onClick={canUseWhatsApp ? redirectToLoginWithMessage : undefined}
-            aria-label="WhatsApp"
-          >
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-              <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.17 1.535 5.943L.057 23.93l6.184-1.622A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.894a9.889 9.889 0 01-5.031-1.378l-.36-.214-3.733.979.996-3.648-.235-.374A9.861 9.861 0 012.106 12C2.106 6.54 6.54 2.106 12 2.106S21.894 6.54 21.894 12 16.46 21.894 12 21.894z"/>
-            </svg>
-            <span className="mobile-action-secondary-label">WhatsApp</span>
-          </button>
+        {canUseWhatsApp && (
+          user ? (
+            <a
+              href={'https://wa.me/' + waPhone + '?text=' + waText}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                width:'44px', height:'44px',
+                borderRadius:'50%',
+                background:'#25D366',
+                display:'flex', alignItems:'center',
+                justifyContent:'center',
+                flexShrink: 0,
+                textDecoration: 'none'
+              }}
+              aria-label="WhatsApp"
+            >
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.17 1.535 5.943L.057 23.93l6.184-1.622A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.894a9.889 9.889 0 01-5.031-1.378l-.360-.214-3.733.979.996-3.648-.235-.374A9.861 9.861 0 012.106 12C2.106 6.54 6.54 2.106 12 2.106S21.894 6.54 21.894 12 16.46 21.894 12 21.894z"/>
+              </svg>
+            </a>
+          ) : (
+            <button
+              type="button"
+              onClick={redirectToLoginWithMessage}
+              style={{
+                width:'44px', height:'44px',
+                borderRadius:'50%',
+                background:'#25D366',
+                border:'none', cursor:'pointer',
+                display:'flex', alignItems:'center',
+                justifyContent:'center',
+                flexShrink: 0
+              }}
+              aria-label="WhatsApp"
+            >
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.17 1.535 5.943L.057 23.93l6.184-1.622A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.894a9.889 9.889 0 01-5.031-1.378l-.360-.214-3.733.979.996-3.648-.235-.374A9.861 9.861 0 012.106 12C2.106 6.54 6.54 2.106 12 2.106S21.894 6.54 21.894 12 16.46 21.894 12 21.894z"/>
+              </svg>
+            </button>
+          )
         )}
         {user && canUsePhone ? (
           <a href={'tel:' + ad.phone} className="mobile-action-secondary" aria-label="Téléphone">
