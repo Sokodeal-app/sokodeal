@@ -87,7 +87,6 @@ export default function AnnonceDetail() {
   const [showShareMenu, setShowShareMenu] = useState(false)
   const [descriptionExpanded, setDescriptionExpanded] = useState(false)
   const [showMessageComposer, setShowMessageComposer] = useState(false)
-  const [showCallOptions, setShowCallOptions] = useState(false)
 
   const catEmoji: any = {
     'immo-vente':'🏡','immo-location':'🏢','immo-terrain':'🌿','voiture':'🚗',
@@ -352,6 +351,15 @@ export default function AnnonceDetail() {
   const waShareUrl = 'https://wa.me/?text=' + encodeURIComponent(shareText + ' ' + getShareUrl())
 
   const coords = getApproxCoords(ad.province, ad.district, ad.id)
+  const canUsePhone = !ad.hide_phone && Boolean(ad.phone)
+  const canUseWhatsApp = !ad.hide_phone && Boolean(ad.whatsapp || ad.phone)
+  const redirectToLoginWithMessage = () => {
+    sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
+      url: window.location.pathname,
+      state: { message }
+    }))
+    window.location.href = '/auth?mode=login'
+  }
 
   return (
     <div className="ad-detail-page" style={{minHeight:'100vh', background:'#f5f7f5'}}>
@@ -364,8 +372,7 @@ export default function AnnonceDetail() {
         .mobile-similar-section,
         .mobile-description-empty,
         .mobile-photo-controls,
-        .mobile-message-drawer,
-        .mobile-call-drawer {
+        .mobile-message-drawer {
           display: none;
         }
         @media (max-width: 768px) {
@@ -386,7 +393,7 @@ export default function AnnonceDetail() {
           }
           .ad-detail-page {
             padding-bottom: calc(92px + env(safe-area-inset-bottom)) !important;
-            background: #faf9f7 !important;
+            background: #FAF7EF !important;
           }
           .detail-layout {
             grid-template-columns: 1fr !important;
@@ -415,7 +422,7 @@ export default function AnnonceDetail() {
             top: auto !important;
             bottom: 10px !important;
             left: 10px !important;
-            background: rgba(255,255,255,0.92) !important;
+            background: rgba(255,252,247,0.92) !important;
             backdrop-filter: blur(8px);
           }
           .mobile-photo-count {
@@ -452,9 +459,9 @@ export default function AnnonceDetail() {
             width: 38px;
             height: 38px;
             border-radius: 50%;
-            border: 1px solid rgba(232,228,222,0.72);
-            background: rgba(255,255,255,0.86);
-            color: #111a14;
+            border: 1px solid rgba(232,224,212,0.78);
+            background: rgba(255,252,247,0.88);
+            color: #111827;
             box-shadow: 0 8px 22px rgba(17,26,20,0.16);
             backdrop-filter: blur(12px);
             display: inline-flex;
@@ -475,7 +482,7 @@ export default function AnnonceDetail() {
             padding: 11px 4% 14px !important;
             gap: 8px !important;
             scroll-snap-type: x proximity;
-            background: #faf9f7;
+            background: #FAF7EF;
           }
           .thumb-item {
             width: 58px !important;
@@ -487,8 +494,8 @@ export default function AnnonceDetail() {
           }
           .thumb-item-active {
             opacity: 1 !important;
-            border-color: #1a7a4a !important;
-            box-shadow: 0 5px 14px rgba(26,122,74,0.18);
+            border-color: #15803D !important;
+            box-shadow: 0 5px 14px rgba(21,128,61,0.18);
           }
           .main-info-card,
           .description-card,
@@ -500,7 +507,7 @@ export default function AnnonceDetail() {
             border-radius: 0 !important;
             padding: 18px 0 !important;
             border: none !important;
-            border-bottom: 1px solid #ece7df !important;
+            border-bottom: 1px solid rgba(232,224,212,0.46) !important;
             background: transparent !important;
             box-shadow: none !important;
           }
@@ -508,22 +515,36 @@ export default function AnnonceDetail() {
             display: none !important;
           }
           .ad-title {
-            font-size: 1.42rem !important;
-            line-height: 1.16 !important;
+            font-family: Syne, sans-serif !important;
+            font-size: 1.32rem !important;
+            line-height: 1.2 !important;
+            font-weight: 700 !important;
             margin-bottom: 10px !important;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            color: #111827 !important;
           }
           .ad-price {
-            font-size: 1.9rem !important;
-            line-height: 1.05 !important;
+            font-family: 'DM Sans', sans-serif !important;
+            font-size: 1.72rem !important;
+            line-height: 1.06 !important;
+            font-weight: 800 !important;
+            color: #15803D !important;
+            letter-spacing: -0.01em !important;
+            font-variant-numeric: lining-nums tabular-nums !important;
+            font-feature-settings: "lnum" 1, "tnum" 1, "onum" 0 !important;
           }
           .ad-meta-row {
             width: 100% !important;
             margin-top: 10px !important;
             justify-content: flex-start !important;
+          }
+          .ad-meta-row span {
+            background: #FFFCF7 !important;
+            border-color: #E8E0D4 !important;
+            color: #6F6B63 !important;
           }
           .mobile-trust-chips {
             display: flex !important;
@@ -550,7 +571,7 @@ export default function AnnonceDetail() {
           }
           .mobile-trust-chip--green {
             background: #f0f7f3;
-            color: #1a7a4a;
+            color: #15803D;
             border-color: #d8eadf;
           }
           .desktop-seller-card {
@@ -562,7 +583,7 @@ export default function AnnonceDetail() {
             margin: 0 auto 8px;
           }
           .mobile-seller-card > div {
-            background: rgba(255,252,247,0.58) !important;
+            background: rgba(255,252,247,0.72) !important;
             border: 1px solid rgba(232,224,212,0.36) !important;
             box-shadow: none !important;
             padding: 15px 0 !important;
@@ -585,12 +606,17 @@ export default function AnnonceDetail() {
           .detail-label {
             font-size: 0.66rem !important;
             letter-spacing: 0.02em;
-            color: rgba(107,124,110,0.76) !important;
+            color: rgba(111,107,99,0.78) !important;
           }
           .detail-value {
+            font-family: 'DM Sans', sans-serif !important;
             font-size: 0.9rem !important;
+            font-weight: 800 !important;
             line-height: 1.25 !important;
             word-break: break-word;
+            color: #111827 !important;
+            font-variant-numeric: lining-nums tabular-nums !important;
+            font-feature-settings: "lnum" 1, "tnum" 1, "onum" 0 !important;
           }
           .safety-card {
             background: rgba(255,252,247,0.46) !important;
@@ -620,10 +646,10 @@ export default function AnnonceDetail() {
             display: inline-flex !important;
             margin-top: 12px;
             padding: 8px 12px;
-            background: #f5f7f5;
-            border: 1px solid #e8e4de;
+            background: #FFFCF7;
+            border: 1px solid #E8E0D4;
             border-radius: 10px;
-            color: #1a7a4a;
+            color: #15803D;
             font-family: DM Sans, sans-serif;
             font-size: 0.78rem;
             font-weight: 800;
@@ -636,23 +662,23 @@ export default function AnnonceDetail() {
             width: calc(100% - 8%);
             background: transparent;
             border: none;
-            border-top: 1px solid #ece7df;
+            border-top: 1px solid rgba(232,224,212,0.46);
             padding: 18px 0;
             margin: 6px auto 12px;
           }
           .mobile-action-bar {
             display: grid !important;
-            grid-template-columns: 58px 1fr minmax(86px, auto);
+            grid-template-columns: 46px minmax(92px, 1fr) 50px 50px;
             align-items: center;
-            gap: 9px;
+            gap: 6px;
             position: fixed;
             left: 4%;
             right: 4%;
             bottom: calc(10px + env(safe-area-inset-bottom));
             z-index: 320;
             padding: 9px;
-            background: rgba(255,255,255,0.88);
-            border: 1px solid rgba(232,228,222,0.82);
+            background: rgba(255,252,247,0.92);
+            border: 1px solid rgba(232,224,212,0.86);
             border-radius: 22px;
             box-shadow: 0 12px 34px rgba(17,26,20,0.16);
             backdrop-filter: blur(18px);
@@ -661,15 +687,16 @@ export default function AnnonceDetail() {
           .mobile-action-secondary {
             height: 44px;
             border-radius: 12px;
-            font-family: Syne, sans-serif;
+            font-family: DM Sans, sans-serif;
             font-weight: 800;
-            font-size: 0.86rem;
+            font-size: 0.74rem;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             box-sizing: border-box;
             white-space: nowrap;
+            cursor: pointer;
           }
           .mobile-favorite-action {
             display: flex;
@@ -683,36 +710,46 @@ export default function AnnonceDetail() {
             font-family: DM Sans, sans-serif;
             font-size: 0.62rem;
             font-weight: 700;
-            color: #6b7c6e;
+            color: #6F6B63;
             line-height: 1;
           }
           .mobile-action-primary {
-            background: #1a7a4a;
+            background: #15803D;
             color: white;
             border: none;
+            font-size: 0.86rem;
           }
           .mobile-action-primary:disabled {
             background: #dce5dd;
-            color: #6b7c6e;
+            color: #6F6B63;
           }
           .mobile-action-secondary {
-            background: #f5f7f5;
-            color: #111a14;
-            border: 1px solid #e8e4de;
-            padding: 0 12px;
+            background: #FFFCF7;
+            color: #111827;
+            border: 1px solid #E8E0D4;
+            padding: 0 6px;
+            flex-direction: column;
+            gap: 1px;
+            line-height: 1.05;
+          }
+          .mobile-action-secondary:disabled {
+            color: rgba(111,107,99,0.48);
+            background: rgba(255,252,247,0.58);
+            cursor: not-allowed;
+          }
+          .mobile-action-secondary-icon {
+            font-size: 0.94rem;
+            line-height: 1;
+          }
+          .mobile-action-secondary-label {
+            font-size: 0.52rem;
+            line-height: 1;
           }
           .mobile-message-drawer {
             display: block !important;
             position: fixed;
             inset: 0;
             z-index: 420;
-            pointer-events: none;
-          }
-          .mobile-call-drawer {
-            display: block !important;
-            position: fixed;
-            inset: 0;
-            z-index: 421;
             pointer-events: none;
           }
           .mobile-message-drawer-backdrop {
@@ -729,7 +766,7 @@ export default function AnnonceDetail() {
             right: 0;
             bottom: 0;
             padding: 16px 4% calc(16px + env(safe-area-inset-bottom));
-            background: white;
+            background: #FFFCF7;
             border-radius: 24px 24px 0 0;
             box-shadow: 0 -16px 42px rgba(17,26,20,0.18);
             transform: translateY(110%);
@@ -738,37 +775,11 @@ export default function AnnonceDetail() {
           .mobile-message-drawer.is-open {
             pointer-events: auto;
           }
-          .mobile-call-drawer.is-open {
-            pointer-events: auto;
-          }
           .mobile-message-drawer.is-open .mobile-message-drawer-backdrop {
-            opacity: 1;
-          }
-          .mobile-call-drawer.is-open .mobile-message-drawer-backdrop {
             opacity: 1;
           }
           .mobile-message-drawer.is-open .mobile-message-drawer-panel {
             transform: translateY(0);
-          }
-          .mobile-call-drawer.is-open .mobile-message-drawer-panel {
-            transform: translateY(0);
-          }
-          .call-choice {
-            width: 100%;
-            height: 48px;
-            border-radius: 14px;
-            border: 1px solid #e8e4de;
-            background: #faf9f7;
-            color: #111a14;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-family: DM Sans, sans-serif;
-            font-size: 0.9rem;
-            font-weight: 800;
-            text-decoration: none;
-            box-sizing: border-box;
           }
           .map-card iframe,
           .map-card [title="Localisation"] {
@@ -1182,12 +1193,43 @@ export default function AnnonceDetail() {
         >
           Message
         </button>
-        <button
-          onClick={() => setShowCallOptions(true)}
-          className="mobile-action-secondary"
-        >
-          📞 Appeler
-        </button>
+        {user && canUseWhatsApp ? (
+          <a
+            href={'https://wa.me/' + waPhone + '?text=' + waText}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mobile-action-secondary"
+          >
+            <span className="mobile-action-secondary-icon">💬</span>
+            <span className="mobile-action-secondary-label">WhatsApp</span>
+          </a>
+        ) : (
+          <button
+            type="button"
+            className="mobile-action-secondary"
+            disabled={!canUseWhatsApp}
+            onClick={canUseWhatsApp ? redirectToLoginWithMessage : undefined}
+          >
+            <span className="mobile-action-secondary-icon">💬</span>
+            <span className="mobile-action-secondary-label">WhatsApp</span>
+          </button>
+        )}
+        {user && canUsePhone ? (
+          <a href={'tel:' + ad.phone} className="mobile-action-secondary">
+            <span className="mobile-action-secondary-icon">📞</span>
+            <span className="mobile-action-secondary-label">Téléphone</span>
+          </a>
+        ) : (
+          <button
+            type="button"
+            className="mobile-action-secondary"
+            disabled={!canUsePhone}
+            onClick={canUsePhone ? redirectToLoginWithMessage : undefined}
+          >
+            <span className="mobile-action-secondary-icon">📞</span>
+            <span className="mobile-action-secondary-label">Téléphone</span>
+          </button>
+        )}
       </div>
 
       <div className={`mobile-message-drawer ${showMessageComposer ? 'is-open' : ''}`}>
@@ -1234,77 +1276,6 @@ export default function AnnonceDetail() {
         </div>
       </div>
 
-      <div className={`mobile-call-drawer ${showCallOptions ? 'is-open' : ''}`}>
-        <button
-          type="button"
-          aria-label="Fermer les options d'appel"
-          className="mobile-message-drawer-backdrop"
-          onClick={() => setShowCallOptions(false)}
-        />
-        <div className="mobile-message-drawer-panel" style={{background:'#fffcf7'}}>
-          <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'12px', marginBottom:'12px'}}>
-            <div>
-              <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1rem', color:'#111a14', marginBottom:'3px'}}>
-                Contacter le vendeur
-              </div>
-              <div style={{fontFamily:'DM Sans,sans-serif', fontSize:'0.78rem', color:'#6b7c6e'}}>
-                Choisissez le moyen le plus pratique.
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowCallOptions(false)}
-              style={{width:'34px', height:'34px', borderRadius:'50%', border:'1px solid #e8e4de', background:'white', color:'#111a14', fontWeight:800, cursor:'pointer'}}
-            >
-              ×
-            </button>
-          </div>
-
-          {ad.hide_phone ? (
-            <div style={{padding:'14px', borderRadius:'16px', border:'1px solid #e8e4de', background:'white', color:'#6b7c6e', fontFamily:'DM Sans,sans-serif', fontSize:'0.86rem', lineHeight:1.5}}>
-              Ce vendeur préfère être contacté via la messagerie SokoDeal.
-            </div>
-          ) : !user ? (
-            <div style={{display:'flex', flexDirection:'column', gap:'10px'}}>
-              <div style={{padding:'14px', borderRadius:'16px', border:'1px solid #e8e4de', background:'white', color:'#6b7c6e', fontFamily:'DM Sans,sans-serif', fontSize:'0.86rem', lineHeight:1.5}}>
-                Connectez-vous pour voir les options d’appel et WhatsApp.
-              </div>
-              <button
-                type="button"
-                className="call-choice"
-                style={{background:'#1a7a4a', color:'white', border:'none'}}
-                onClick={() => {
-                  sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
-                    url: window.location.pathname,
-                    state: { message }
-                  }))
-                  window.location.href = '/auth?mode=login'
-                }}
-              >
-                Se connecter
-              </button>
-            </div>
-          ) : (
-            <div style={{display:'flex', flexDirection:'column', gap:'10px'}}>
-              {ad.phone && (
-                <a href={'tel:' + ad.phone} className="call-choice" onClick={() => setShowCallOptions(false)}>
-                  📞 Appel téléphonique
-                </a>
-              )}
-              {(ad.whatsapp || ad.phone) && (
-                <a href={'https://wa.me/' + waPhone + '?text=' + waText} target="_blank" rel="noopener noreferrer" className="call-choice" style={{background:'#25D366', color:'white', border:'none'}} onClick={() => setShowCallOptions(false)}>
-                  💬 WhatsApp
-                </a>
-              )}
-              {!ad.phone && !ad.whatsapp && (
-                <div style={{padding:'14px', borderRadius:'16px', border:'1px solid #e8e4de', background:'white', color:'#6b7c6e', fontFamily:'DM Sans,sans-serif', fontSize:'0.86rem', lineHeight:1.5}}>
-                  Aucun numéro n’est disponible pour cette annonce.
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   )
 }
