@@ -413,6 +413,7 @@ export default function AnnonceDetail() {
             border-bottom: 1px solid #E8E0D4 !important;
           }
           .detail-page-header header {
+            display: none !important;
             background: transparent !important;
             border-bottom-color: transparent !important;
             backdrop-filter: none !important;
@@ -541,9 +542,11 @@ export default function AnnonceDetail() {
             border-radius: 0 !important;
             padding: 18px 0 !important;
             border: none !important;
-            border-bottom: 1px solid rgba(232,224,212,0.46) !important;
+            border-bottom: none !important;
+            border-top: none !important;
             background: transparent !important;
             box-shadow: none !important;
+            margin-bottom: 20px !important;
           }
           .contact-card {
             display: none !important;
@@ -610,11 +613,13 @@ export default function AnnonceDetail() {
           .mobile-seller-card {
             display: block !important;
             width: calc(100% - 8%);
-            margin: 0 auto 8px;
+            margin: 0 auto 20px;
           }
           .mobile-seller-card > div {
             background: rgba(255,252,247,0.72) !important;
             border: 1px solid rgba(232,224,212,0.36) !important;
+            border-bottom: none !important;
+            border-top: none !important;
             box-shadow: none !important;
             padding: 15px 0 !important;
             border-radius: 0 !important;
@@ -692,13 +697,14 @@ export default function AnnonceDetail() {
             width: calc(100% - 8%);
             background: transparent;
             border: none;
-            border-top: 1px solid rgba(232,224,212,0.46);
+            border-top: none !important;
+            border-bottom: none !important;
             padding: 18px 0;
-            margin: 6px auto 12px;
+            margin: 6px auto 20px;
           }
           .mobile-action-bar {
             display: grid !important;
-            grid-template-columns: 52px 1fr 52px 52px !important;
+            grid-template-columns: auto 1fr auto auto !important;
             align-items: center !important;
             gap: 8px !important;
             position: fixed !important;
@@ -726,26 +732,28 @@ export default function AnnonceDetail() {
             cursor: pointer;
           }
           .mobile-favorite-action {
-            width: 52px !important;
-            height: 52px !important;
-            border-radius: 50% !important;
+            height: 44px !important;
+            border-radius: 12px !important;
             border: 1px solid #E8E0D4 !important;
             background: #FFFCF7 !important;
             display: flex !important;
-            flex-direction: column !important;
+            flex-direction: row !important;
             align-items: center !important;
             justify-content: center !important;
-            gap: 2px !important;
+            gap: 5px !important;
+            padding: 0 10px !important;
+            cursor: pointer !important;
           }
           .mobile-favorite-label {
-            font-size: 10px !important;
+            font-size: 12px !important;
+            font-weight: 500 !important;
             color: #6F6B63 !important;
             font-family: Inter, system-ui, sans-serif !important;
           }
           .mobile-action-primary {
-            height: 52px !important;
-            border-radius: 16px !important;
-            font-size: 15px !important;
+            height: 44px !important;
+            border-radius: 12px !important;
+            font-size: 14px !important;
             font-weight: 600 !important;
             background: #15803D !important;
             color: white !important;
@@ -758,16 +766,21 @@ export default function AnnonceDetail() {
             color: #6F6B63;
           }
           .mobile-action-secondary {
-            width: 52px !important;
-            height: 52px !important;
+            width: 44px !important;
+            height: 44px !important;
             border-radius: 50% !important;
             border: 1px solid #E8E0D4 !important;
             background: #FFFCF7 !important;
             flex-direction: column !important;
             gap: 0 !important;
             padding: 0 !important;
-            font-size: 22px !important;
+            font-size: 20px !important;
             color: #111827;
+          }
+          .mobile-action-secondary[href*="wa.me"],
+          .mobile-action-secondary:not(:disabled):has(svg) {
+            background: #25D366 !important;
+            border-color: #25D366 !important;
           }
           .mobile-action-secondary:disabled {
             color: rgba(111,107,99,0.48);
@@ -845,7 +858,26 @@ export default function AnnonceDetail() {
           <div className="photo-card" style={{background:'white', borderRadius:'14px', overflow:'hidden', border:'1px solid #E8E0D4', marginBottom:'16px'}}>
             <div className="main-photo-frame" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} style={{height:'300px', background:'#FAF7EF', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'5rem', position:'relative', overflow:'hidden', cursor:'grab', userSelect:'none'}}>
               {hasPhotos ? (
-                <img src={ad.images[activePhoto]} alt={ad.title} width={760} height={300} decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}} />
+                <div style={{
+                  display: 'flex',
+                  transition: 'transform 300ms ease',
+                  transform: `translateX(-${activePhoto * 100}%)`,
+                  width: `${ad.images.length * 100}%`,
+                  height: '100%',
+                  willChange: 'transform'
+                }}>
+                  {ad.images.map((img: string, i: number) => (
+                    <div key={i} style={{
+                      width: `${100 / ad.images.length}%`,
+                      flexShrink: 0,
+                      height: '100%'
+                    }}>
+                      <img src={img} alt={ad.title}
+                        style={{width:'100%', height:'100%', objectFit:'cover'}}
+                      />
+                    </div>
+                  ))}
+                </div>
               ) : (
                 <span style={{opacity:0.4}}>{catEmoji[ad.category] || '📦'}</span>
               )}
@@ -1198,7 +1230,7 @@ export default function AnnonceDetail() {
 
       <div className="mobile-action-bar">
         <div className="mobile-favorite-action">
-          <FavoriteButton adId={ad.id} size="md" onLogin={() => {
+          <FavoriteButton adId={ad.id} size="sm" onLogin={() => {
             sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
               url: window.location.pathname,
               state: {}
@@ -1224,8 +1256,12 @@ export default function AnnonceDetail() {
             target="_blank"
             rel="noopener noreferrer"
             className="mobile-action-secondary"
+            aria-label="WhatsApp"
           >
-            <span className="mobile-action-secondary-icon">💬</span>
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+              <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.17 1.535 5.943L.057 23.93l6.184-1.622A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.894a9.889 9.889 0 01-5.031-1.378l-.36-.214-3.733.979.996-3.648-.235-.374A9.861 9.861 0 012.106 12C2.106 6.54 6.54 2.106 12 2.106S21.894 6.54 21.894 12 16.46 21.894 12 21.894z"/>
+            </svg>
             <span className="mobile-action-secondary-label">WhatsApp</span>
           </a>
         ) : (
@@ -1234,13 +1270,17 @@ export default function AnnonceDetail() {
             className="mobile-action-secondary"
             disabled={!canUseWhatsApp}
             onClick={canUseWhatsApp ? redirectToLoginWithMessage : undefined}
+            aria-label="WhatsApp"
           >
-            <span className="mobile-action-secondary-icon">💬</span>
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+              <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.17 1.535 5.943L.057 23.93l6.184-1.622A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.894a9.889 9.889 0 01-5.031-1.378l-.36-.214-3.733.979.996-3.648-.235-.374A9.861 9.861 0 012.106 12C2.106 6.54 6.54 2.106 12 2.106S21.894 6.54 21.894 12 16.46 21.894 12 21.894z"/>
+            </svg>
             <span className="mobile-action-secondary-label">WhatsApp</span>
           </button>
         )}
         {user && canUsePhone ? (
-          <a href={'tel:' + ad.phone} className="mobile-action-secondary">
+          <a href={'tel:' + ad.phone} className="mobile-action-secondary" aria-label="Téléphone">
             <span className="mobile-action-secondary-icon">📞</span>
             <span className="mobile-action-secondary-label">Téléphone</span>
           </a>
@@ -1250,6 +1290,7 @@ export default function AnnonceDetail() {
             className="mobile-action-secondary"
             disabled={!canUsePhone}
             onClick={canUsePhone ? redirectToLoginWithMessage : undefined}
+            aria-label="Téléphone"
           >
             <span className="mobile-action-secondary-icon">📞</span>
             <span className="mobile-action-secondary-label">Téléphone</span>
