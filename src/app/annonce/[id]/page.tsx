@@ -450,8 +450,8 @@ export default function AnnonceDetail() {
             overflow: visible !important;
           }
           .main-photo-frame {
-            height: auto !important;
-            aspect-ratio: 4 / 3 !important;
+            height: 420px !important;
+            aspect-ratio: unset !important;
             font-size: 4rem !important;
             position: relative !important;
             border-radius: 0 !important;
@@ -481,13 +481,14 @@ export default function AnnonceDetail() {
           .mobile-photo-controls {
             display: flex !important;
             position: absolute;
-            top: calc(24px + env(safe-area-inset-top)) !important;
-            left: 12px;
-            right: 12px;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 4;
-            pointer-events: none;
+            top: 0 !important;
+            left: 12px !important;
+            right: 12px !important;
+            padding-top: calc(16px + env(safe-area-inset-top)) !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            z-index: 4 !important;
+            pointer-events: none !important;
           }
           .mobile-photo-actions {
             display: flex;
@@ -523,7 +524,7 @@ export default function AnnonceDetail() {
             margin-top: 0 !important;
             background: #FAF7EF !important;
             border-radius: 0 !important;
-            padding: 14px 16px 10px !important;
+            padding: 14px 20px 10px !important;
             box-shadow: none !important;
             gap: 8px !important;
             scroll-snap-type: x proximity;
@@ -548,7 +549,8 @@ export default function AnnonceDetail() {
           .safety-card,
           .mobile-seller-card,
           .mobile-similar-section {
-            width: calc(100% - 8%) !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
             border-radius: 0 !important;
             border: none !important;
             border-bottom: none !important;
@@ -556,12 +558,15 @@ export default function AnnonceDetail() {
             background: transparent !important;
             box-shadow: none !important;
           }
-          .main-info-card,
+          .main-info-card {
+            padding: 16px 20px !important;
+            margin: 0 0 4px 0 !important;
+          }
           .description-card,
           .map-card,
           .details-card {
             padding: 12px 20px !important;
-            margin: 0 auto 4px !important;
+            margin: 0 0 4px 0 !important;
           }
           .contact-card {
             display: none !important;
@@ -641,7 +646,7 @@ export default function AnnonceDetail() {
           .mobile-seller-card {
             display: block !important;
             padding: 0 20px !important;
-            margin-bottom: 4px !important;
+            margin: 0 0 4px 0 !important;
             width: 100% !important;
             box-sizing: border-box !important;
             border: none !important;
@@ -734,14 +739,14 @@ export default function AnnonceDetail() {
           }
           .mobile-similar-section {
             display: block !important;
-            width: 100%;
+            width: 100% !important;
             background: transparent;
             border: none;
             border-top: none !important;
             border-bottom: none !important;
             box-shadow: none !important;
             padding: 12px 20px !important;
-            margin: 0 auto 4px !important;
+            margin: 0 0 4px 0 !important;
             box-sizing: border-box !important;
           }
           .mobile-report-block {
