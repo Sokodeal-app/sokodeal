@@ -456,7 +456,11 @@ export default function Home() {
           .home-filter-card { padding: 10px 12px !important; margin-bottom: 18px !important; }
           .home-filter-card > div:first-child { align-items: center !important; }
           .home-count { font-size: 0.74rem !important; }
-          .ad-card-media { height: 150px !important; }
+          .ad-card-media {
+            height: 150px !important;
+            position: relative !important;
+            overflow: hidden !important;
+          }
           .ad-card-body { padding: 10px !important; }
           .ad-card-category { font-size: 0.6rem !important; margin-bottom: 4px !important; }
           .ad-view-button { display: none !important; }
@@ -1143,7 +1147,7 @@ export default function Home() {
                         VENDU
                       </div>
                     )}
-                    <div style={{position:'absolute', top:'10px', right:'10px'}} onClick={e => e.stopPropagation()}>
+                    <div style={{position:'absolute', top:'10px', right:'10px', zIndex:10}} onClick={e => e.stopPropagation()}>
                       <FavoriteButton adId={ad.id} onLogin={() => router.push('/auth?mode=login')} />
                     </div>
                   </div>

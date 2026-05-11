@@ -479,13 +479,14 @@ export default function AnnonceDetail() {
             backdrop-filter: blur(8px);
           }
           .mobile-photo-controls {
+            display: flex !important;
             position: absolute !important;
-            top: env(safe-area-inset-top) !important;
+            top: 0 !important;
             left: 0 !important;
             right: 0 !important;
-            padding: 16px 12px !important;
-            padding-top: calc(16px + env(safe-area-inset-top)) !important;
-            display: flex !important;
+            padding-top: calc(20px + env(safe-area-inset-top)) !important;
+            padding-left: 12px !important;
+            padding-right: 12px !important;
             justify-content: space-between !important;
             align-items: center !important;
             z-index: 10 !important;
