@@ -427,8 +427,8 @@ export default function AnnonceDetail() {
             display: none !important;
           }
           .ad-detail-page {
-            padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
-            background: #000000 !important;
+            background: #FAF7EF !important;
+            padding-bottom: calc(92px + env(safe-area-inset-bottom)) !important;
           }
           .detail-layout {
             grid-template-columns: 1fr !important;
@@ -443,19 +443,21 @@ export default function AnnonceDetail() {
             margin-top: -24px !important;
             position: relative !important;
             z-index: 3 !important;
-            padding-top: 12px !important;
+            padding-top: 8px !important;
+            overflow: hidden !important;
           }
           .detail-right {
             position: static !important;
           }
           .photo-card {
-            background: #000000 !important;
+            background: #111827 !important;
             position: relative !important;
             z-index: 1 !important;
             margin-bottom: 0 !important;
             border-radius: 0 !important;
             border: none !important;
             box-shadow: none !important;
+            overflow: hidden !important;
           }
           .main-photo-frame {
             height: auto !important;
@@ -489,7 +491,7 @@ export default function AnnonceDetail() {
           .mobile-photo-controls {
             display: flex !important;
             position: absolute;
-            top: calc(16px + env(safe-area-inset-top)) !important;
+            top: calc(24px + env(safe-area-inset-top)) !important;
             left: 12px;
             right: 12px;
             justify-content: space-between;
@@ -638,17 +640,24 @@ export default function AnnonceDetail() {
           }
           .mobile-seller-card {
             display: block !important;
-            width: calc(100% - 8%);
-            margin: 0 auto 20px;
+            padding: 0 20px !important;
+            margin-bottom: 12px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
           }
+          .mobile-seller-card > a > div,
           .mobile-seller-card > div {
             background: #FFFCF7 !important;
+            border-radius: 20px !important;
             border: 1px solid #E8E0D4 !important;
             box-shadow: 0 4px 16px rgba(60,40,10,0.05) !important;
             padding: 16px !important;
-            border-radius: 20px !important;
-            margin-inline: 20px !important;
-            margin-bottom: 12px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
           }
           .detail-grid {
             grid-template-columns: 1fr 1fr !important;
@@ -881,7 +890,7 @@ export default function AnnonceDetail() {
         <div className="detail-left">
           {/* Photos */}
           <div className="photo-card" style={{background:'white', borderRadius:'14px', overflow:'hidden', border:'1px solid #E8E0D4', marginBottom:'16px'}}>
-            <div className="main-photo-frame" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} style={{height:'300px', background:'#FAF7EF', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'5rem', position:'relative', overflow:'hidden', cursor:'grab', userSelect:'none'}}>
+            <div className="main-photo-frame" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} style={{height:'auto', aspectRatio:'4/3', background:'#111827', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'5rem', position:'relative', overflow:'hidden', cursor:'grab'}}>
               {hasPhotos ? (
                 <div style={{
                   display: 'flex',
@@ -897,8 +906,11 @@ export default function AnnonceDetail() {
                       flexShrink: 0,
                       height: '100%'
                     }}>
-                      <img src={img} alt={ad.title}
-                        style={{width:'100%', height:'100%', objectFit:'cover'}}
+                      <img
+                        src={img}
+                        alt={ad.title}
+                        decoding="async"
+                        style={{width:'100%', height:'100%', objectFit:'cover', display:'block'}}
                       />
                     </div>
                   ))}
@@ -1002,27 +1014,27 @@ export default function AnnonceDetail() {
           {seller && (
             <>
             <Link href={`/u/${seller.username || seller.id}`} className="mobile-seller-card" style={{textDecoration:'none', color:'inherit'}}>
-              <div style={{background:'#FFFCF7', borderRadius:'20px', border:'1px solid #E8E0D4', boxShadow:'0 4px 16px rgba(60,40,10,0.05)', padding:'16px', marginInline:'20px', marginBottom:'12px'}}>
-                <div style={{display:'flex', alignItems:'center', gap:'14px'}}>
-                  <div style={{width:'52px', height:'52px', borderRadius:'50%', background:'#15803D', color:'white', fontSize:'1.3rem', fontWeight:800, flexShrink:0, marginLeft:'4px', boxShadow:'0 2px 8px rgba(21,128,61,0.15)', display:'flex', alignItems:'center', justifyContent:'center'}}>
+              <div style={{background:'#FFFCF7', borderRadius:'20px', padding:'16px', border:'1px solid #E8E0D4', boxShadow:'0 4px 16px rgba(60,40,10,0.05)', display:'flex', flexDirection:'column', gap:'0'}}>
+                <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
+                  <div style={{width:'48px', height:'48px', borderRadius:'50%', background:'#15803D', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:'1.1rem', color:'white', flexShrink:0}}>
                     {(seller.full_name || seller.username || 'V')[0].toUpperCase()}
                   </div>
-                  <div style={{flex:1, minWidth:0, paddingLeft:'4px'}}>
-                    <div style={{display:'flex', alignItems:'center', gap:'7px', marginBottom:'3px'}}>
-                      <div style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'15px', color:'#111827', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
+                  <div style={{flex:1, minWidth:0}}>
+                    <div style={{display:'flex', alignItems:'center', gap:'6px', marginBottom:'2px'}}>
+                      <span style={{fontWeight:700, fontSize:'15px', color:'#111827', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
                         {seller.full_name || '@' + seller.username}
-                      </div>
-                      {seller.is_verified && <span style={{fontSize:'11px', color:'#15803D', fontWeight:700, flexShrink:0, background:'#E7F6EC', border:'1px solid #E8E0D4', borderRadius:'999px', padding:'2px 8px'}}>{'V\u00e9rifi\u00e9'}</span>}
+                      </span>
+                      {seller.is_verified && <span style={{fontSize:'11px', color:'#15803D', fontWeight:600, flexShrink:0, background:'#E7F6EC', border:'1px solid #E8E0D4', borderRadius:'999px', padding:'2px 7px'}}>{'V\u00e9rifi\u00e9'}</span>}
                     </div>
                     {seller.username && (
-                      <div style={{fontSize:'13px', color:'#15803D', fontWeight:600, marginTop:'2px'}}>@{seller.username}</div>
+                      <div style={{fontSize:'13px', color:'#15803D', fontWeight:600, marginBottom:'2px'}}>@{seller.username}</div>
                     )}
-                    <div style={{fontSize:'12px', color:'#6F6B63', marginTop:'2px'}}>
+                    <div style={{fontSize:'12px', color:'#6F6B63'}}>
                       Membre depuis {new Date(seller.created_at).toLocaleDateString('fr-FR', {month:'long', year:'numeric'})}
-                      {seller.ads_count ? ` · ${seller.ads_count} annonces` : ''}
+                      {seller.ads_count ? ` \u00b7 ${seller.ads_count} annonces` : ''}
                     </div>
                   </div>
-                  <span style={{color:'#15803D', fontSize:'18px', fontWeight:600, marginRight:'4px', flexShrink:0}}>{'\u2192'}</span>
+                  <span style={{color:'#15803D', fontSize:'18px', fontWeight:600, flexShrink:0}}>{'\u2192'}</span>
                 </div>
                 <div style={{marginTop:'12px', padding:'10px 12px', background:'#E7F6EC', borderRadius:'12px', display:'flex', alignItems:'center', gap:'8px', fontSize:'13px', color:'#15803D', fontWeight:500}}>
                   <span>{'\u23f1'}</span>
