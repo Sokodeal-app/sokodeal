@@ -479,16 +479,18 @@ export default function AnnonceDetail() {
             backdrop-filter: blur(8px);
           }
           .mobile-photo-controls {
-            display: flex !important;
-            position: absolute;
-            top: 0 !important;
-            left: 12px !important;
-            right: 12px !important;
+            position: absolute !important;
+            top: env(safe-area-inset-top) !important;
+            left: 0 !important;
+            right: 0 !important;
+            padding: 16px 12px !important;
             padding-top: calc(16px + env(safe-area-inset-top)) !important;
+            display: flex !important;
             justify-content: space-between !important;
             align-items: center !important;
-            z-index: 4 !important;
+            z-index: 10 !important;
             pointer-events: none !important;
+            box-sizing: border-box !important;
           }
           .mobile-photo-actions {
             display: flex;
@@ -511,7 +513,7 @@ export default function AnnonceDetail() {
             font-weight: 800;
             font-size: 0.92rem;
             cursor: pointer;
-            pointer-events: auto;
+            pointer-events: auto !important;
           }
           .mobile-floating-control button {
             box-shadow: none !important;
