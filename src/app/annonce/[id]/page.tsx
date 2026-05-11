@@ -428,7 +428,7 @@ export default function AnnonceDetail() {
           }
           .ad-detail-page {
             padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
-            background: #FAF7EF !important;
+            background: #000000 !important;
           }
           .detail-layout {
             grid-template-columns: 1fr !important;
@@ -443,12 +443,13 @@ export default function AnnonceDetail() {
             margin-top: -24px !important;
             position: relative !important;
             z-index: 3 !important;
-            padding-top: 8px !important;
+            padding-top: 12px !important;
           }
           .detail-right {
             position: static !important;
           }
           .photo-card {
+            background: #000000 !important;
             position: relative !important;
             z-index: 1 !important;
             margin-bottom: 0 !important;
@@ -460,6 +461,7 @@ export default function AnnonceDetail() {
             height: auto !important;
             aspect-ratio: 4 / 3 !important;
             font-size: 4rem !important;
+            position: relative !important;
             border-radius: 0 !important;
             overflow: hidden !important;
           }
@@ -487,7 +489,7 @@ export default function AnnonceDetail() {
           .mobile-photo-controls {
             display: flex !important;
             position: absolute;
-            top: calc(12px + env(safe-area-inset-top));
+            top: calc(16px + env(safe-area-inset-top)) !important;
             left: 12px;
             right: 12px;
             justify-content: space-between;
@@ -584,6 +586,15 @@ export default function AnnonceDetail() {
             letter-spacing: -0.01em !important;
             font-variant-numeric: lining-nums tabular-nums !important;
           }
+          .description-card h2,
+          .map-card h2,
+          .details-card h2 {
+            text-transform: none !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            letter-spacing: 0 !important;
+            color: #111827 !important;
+          }
           .ad-meta-row {
             width: 100% !important;
             margin-top: 10px !important;
@@ -631,13 +642,13 @@ export default function AnnonceDetail() {
             margin: 0 auto 20px;
           }
           .mobile-seller-card > div {
-            background: rgba(255,252,247,0.72) !important;
-            border: 1px solid rgba(232,224,212,0.36) !important;
-            border-bottom: none !important;
-            border-top: none !important;
-            box-shadow: none !important;
-            padding: 15px 0 !important;
-            border-radius: 0 !important;
+            background: #FFFCF7 !important;
+            border: 1px solid #E8E0D4 !important;
+            box-shadow: 0 4px 16px rgba(60,40,10,0.05) !important;
+            padding: 16px !important;
+            border-radius: 20px !important;
+            margin-inline: 20px !important;
+            margin-bottom: 12px !important;
           }
           .detail-grid {
             grid-template-columns: 1fr 1fr !important;
@@ -991,32 +1002,34 @@ export default function AnnonceDetail() {
           {seller && (
             <>
             <Link href={`/u/${seller.username || seller.id}`} className="mobile-seller-card" style={{textDecoration:'none', color:'inherit'}}>
-              <div style={{background:'#FFFCF7', borderRadius:'20px', padding:'16px', border:'1px solid #E8E0D4', boxShadow:'0 4px 20px rgba(60,40,10,0.06)', display:'flex', alignItems:'center', gap:'14px', marginBottom:'12px', marginInline:'20px'}}>
-                <div style={{width:'52px', height:'52px', borderRadius:'50%', background:'#15803D', flexShrink:0, marginLeft:'2px', boxShadow:'0 2px 8px rgba(21,128,61,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.3rem', color:'white', fontWeight:800}}>
-                  {(seller.full_name || seller.username || 'V')[0].toUpperCase()}
-                </div>
-                <div style={{flex:1, minWidth:0, paddingLeft:'2px'}}>
-                  <div style={{display:'flex', alignItems:'center', gap:'7px', marginBottom:'3px'}}>
-                    <div style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'15px', color:'#111827', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
-                      {seller.full_name || '@' + seller.username}
+              <div style={{background:'#FFFCF7', borderRadius:'20px', border:'1px solid #E8E0D4', boxShadow:'0 4px 16px rgba(60,40,10,0.05)', padding:'16px', marginInline:'20px', marginBottom:'12px'}}>
+                <div style={{display:'flex', alignItems:'center', gap:'14px'}}>
+                  <div style={{width:'52px', height:'52px', borderRadius:'50%', background:'#15803D', color:'white', fontSize:'1.3rem', fontWeight:800, flexShrink:0, marginLeft:'4px', boxShadow:'0 2px 8px rgba(21,128,61,0.15)', display:'flex', alignItems:'center', justifyContent:'center'}}>
+                    {(seller.full_name || seller.username || 'V')[0].toUpperCase()}
+                  </div>
+                  <div style={{flex:1, minWidth:0, paddingLeft:'4px'}}>
+                    <div style={{display:'flex', alignItems:'center', gap:'7px', marginBottom:'3px'}}>
+                      <div style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'15px', color:'#111827', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
+                        {seller.full_name || '@' + seller.username}
+                      </div>
+                      {seller.is_verified && <span style={{fontSize:'11px', color:'#15803D', fontWeight:700, flexShrink:0, background:'#E7F6EC', border:'1px solid #E8E0D4', borderRadius:'999px', padding:'2px 8px'}}>{'V\u00e9rifi\u00e9'}</span>}
                     </div>
-                    {seller.is_verified && <span style={{fontSize:'11px', color:'#15803D', fontWeight:700, flexShrink:0, background:'#E7F6EC', border:'1px solid #E8E0D4', borderRadius:'999px', padding:'2px 8px'}}>Vérifié</span>}
+                    {seller.username && (
+                      <div style={{fontSize:'13px', color:'#15803D', fontWeight:600, marginTop:'2px'}}>@{seller.username}</div>
+                    )}
+                    <div style={{fontSize:'12px', color:'#6F6B63', marginTop:'2px'}}>
+                      Membre depuis {new Date(seller.created_at).toLocaleDateString('fr-FR', {month:'long', year:'numeric'})}
+                      {seller.ads_count ? ` · ${seller.ads_count} annonces` : ''}
+                    </div>
                   </div>
-                  {seller.username && (
-                    <div style={{fontSize:'13px', color:'#15803D', fontWeight:600, marginTop:'2px'}}>@{seller.username}</div>
-                  )}
-                  <div style={{fontSize:'12px', color:'#6F6B63', marginTop:'2px'}}>
-                    Membre depuis {new Date(seller.created_at).toLocaleDateString('fr-FR', {month:'long', year:'numeric'})}
-                    {seller.ads_count ? ` · ${seller.ads_count} annonces` : ''}
-                  </div>
+                  <span style={{color:'#15803D', fontSize:'18px', fontWeight:600, marginRight:'4px', flexShrink:0}}>{'\u2192'}</span>
                 </div>
-                <span style={{color:'#15803D', fontSize:'18px', fontWeight:600, marginRight:'2px', flexShrink:0}}>→</span>
+                <div style={{marginTop:'12px', padding:'10px 12px', background:'#E7F6EC', borderRadius:'12px', display:'flex', alignItems:'center', gap:'8px', fontSize:'13px', color:'#15803D', fontWeight:500}}>
+                  <span>{'\u23f1'}</span>
+                  <span>{'R\u00e9pond g\u00e9n\u00e9ralement en moins d\'1h'}</span>
+                </div>
               </div>
             </Link>
-            <div style={{marginTop:'10px', marginInline:'20px', padding:'10px 14px', background:'#E7F6EC', borderRadius:'14px', display:'flex', alignItems:'center', gap:'8px', fontSize:'13px', color:'#15803D', fontWeight:500}}>
-              <span>⚡</span>
-              <span>Répond en moins d'1h</span>
-            </div>
             </>
           )}
 
