@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { supabasePublic } from '@/lib/supabase-public'
 import { useAuth } from '@/components/AuthProvider'
 import FavoriteButton from '@/components/FavoriteButton'
+import { ListingCard } from '@/components/listings'
 import { useUnreadCount } from '@/hooks/useUnreadCount'
 import { SUBCATEGORIES } from '@/lib/categories'
 import { FEATURE_FLAGS } from '@/lib/feature-flags'
@@ -972,33 +973,23 @@ export default function Home() {
           </div>
           <div style={{display:'flex', gap:'14px', overflowX:'auto', scrollbarWidth:'none', paddingBottom:'8px', WebkitOverflowScrolling:'touch'}}>
             {[...ads].sort((a, b) => (favorites?.includes(b.id) ? 1 : 0) - (favorites?.includes(a.id) ? 1 : 0)).slice(0, 8).map((ad: any) => (
-              <div key={ad.id} onClick={() => router.push('/annonce/' + generateSlug(ad))} style={{flexShrink:0, width:'200px', background:'white', borderRadius:'14px', overflow:'hidden', border:'1px solid #e8e4de', cursor:'pointer', boxShadow:'0 2px 8px rgba(0,0,0,0.06)'}}>
-                <div style={{height:'130px', background:'#f5f7f5', overflow:'hidden', position:'relative'}}>
-                  {ad.images?.[0] ? (
-                    <img src={ad.images[0]} alt={ad.title} width={200} height={130} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
-                  ) : (
-                    <div style={{width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2rem', opacity:0.4}}>
-                      {catEmoji[ad.category] || '📦'}
-                    </div>
-                  )}
-                  {(() => {
-                    const days = (Date.now() - new Date(ad.created_at).getTime()) / (1000*60*60*24)
-                    return days < 7 ? (
-                      <div style={{position:'absolute', top:'8px', left:'8px', background:'#1a7a4a', color:'white', padding:'2px 7px', borderRadius:'5px', fontSize:'0.6rem', fontWeight:800}}>
-                        Nouveau
-                      </div>
-                    ) : null
-                  })()}
-                </div>
-                <div style={{padding:'10px 12px'}}>
-                  <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.82rem', color:'#111a14', marginBottom:'4px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{ad.title}</div>
-                  <div style={{fontFamily:"'DM Sans', sans-serif", fontWeight:800, fontSize:'0.95rem', color:'#1a7a4a', marginBottom:'4px', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0'}}>
-                    {formatPrice(ad.price)}
-                  </div>
-                  <div style={{fontSize:'0.68rem', color:'#6b7c6e', fontFamily:"'DM Sans', sans-serif"}}>
-                    {ad.province && <>📍 {ad.province}</>}{formatRelativeTime(ad.created_at) && <span> · {formatRelativeTime(ad.created_at)}</span>}
-                  </div>
-                </div>
+              <div key={ad.id} style={{flexShrink:0, width:'180px'}}>
+                <ListingCard
+                  id={ad.id}
+                  title={ad.title}
+                  price={ad.price}
+                  currency="RWF"
+                  city={ad.province}
+                  district={ad.district}
+                  category={ad.category}
+                  images={ad.images}
+                  createdAt={ad.created_at}
+                  isSold={ad.is_sold}
+                  isNew={(Date.now() - new Date(ad.created_at).getTime()) / (1000*60*60*24) < 7}
+                  isFavorited={favorites?.includes(ad.id)}
+                  href={'/annonce/' + generateSlug(ad)}
+                  variant="compact"
+                />
               </div>
             ))}
           </div>

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     default: "SokoDeal — Marketplace N°1 en Afrique",
     template: "%s | SokoDeal"
   },
-  description: "Achetez, vendez et louez facilement en Afrique. Immobilier, vehicules, electronique, emploi et plus encore.",
+  description: "Achetez, vendez et louez facilement en Afrique. Immobilier, véhicules, électronique, emploi et plus encore.",
   keywords: ["annonces", "Rwanda", "Kigali", "immobilier", "voitures", "emploi", "marketplace", "Afrique"],
   authors: [{ name: "SokoDeal" }],
   robots: { index: true, follow: true },

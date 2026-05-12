@@ -1,0 +1,422 @@
+.button {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sd-space-2, var(--soko-space-2));
+  border: 1px solid transparent;
+  border-radius: var(--sd-radius-md, var(--soko-radius-md));
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, opacity 160ms ease, transform 120ms ease;
+  user-select: none;
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.button:disabled,
+.buttonDisabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+  pointer-events: none;
+}
+
+.buttonFullWidth {
+  width: 100%;
+}
+
+.buttonSm {
+  min-height: 34px;
+  padding: 0 var(--sd-space-3, var(--soko-space-3));
+  font-size: 0.875rem;
+}
+
+.buttonMd {
+  min-height: 42px;
+  padding: 0 var(--sd-space-4, var(--soko-space-4));
+  font-size: 0.95rem;
+}
+
+.buttonLg {
+  min-height: 50px;
+  padding: 0 var(--sd-space-5, var(--soko-space-5));
+  font-size: 1rem;
+}
+
+.buttonPrimary {
+  color: #fff;
+  background: var(--sd-primary, var(--soko-green-800));
+  border-color: var(--sd-primary, var(--soko-green-800));
+}
+
+.buttonPrimary:hover {
+  background: var(--sd-primary-dark, var(--soko-green-900));
+  border-color: var(--sd-primary-dark, var(--soko-green-900));
+}
+
+.buttonSecondary {
+  color: var(--sd-primary, var(--soko-green-800));
+  background: var(--sd-surface, var(--soko-surface));
+  border-color: var(--sd-border, var(--soko-line));
+}
+
+.buttonSecondary:hover {
+  background: var(--sd-primary-soft, var(--soko-green-50));
+}
+
+.buttonGhost {
+  color: var(--sd-primary, var(--soko-green-800));
+  background: transparent;
+}
+
+.buttonGhost:hover {
+  background: var(--sd-primary-soft, var(--soko-green-50));
+}
+
+.buttonDanger {
+  color: #fff;
+  background: var(--sd-error, var(--soko-danger));
+  border-color: var(--sd-error, var(--soko-danger));
+}
+
+.buttonDanger:hover {
+  background: var(--sd-error-dark, #9f2f27);
+  border-color: var(--sd-error-dark, #9f2f27);
+}
+
+.buttonSoft {
+  color: var(--sd-text, var(--soko-ink));
+  background: var(--sd-beige, var(--soko-surface-soft));
+  border-color: var(--sd-border, var(--soko-line));
+}
+
+.buttonSoft:hover {
+  background: var(--sd-bg, var(--soko-background));
+}
+
+.spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 999px;
+  animation: sdSpin 800ms linear infinite;
+}
+
+.card {
+  border: 1px solid var(--sd-border, var(--soko-line));
+  border-radius: var(--sd-radius-lg, var(--soko-radius-lg));
+  box-shadow: var(--sd-shadow-card, var(--soko-shadow-sm));
+}
+
+.cardDefault {
+  background: var(--sd-surface, var(--soko-surface));
+}
+
+.cardSoft {
+  background: var(--sd-beige, var(--soko-surface-soft));
+}
+
+.cardHighlight {
+  background: var(--sd-primary-soft, var(--soko-green-50));
+  border-color: var(--sd-primary-muted, var(--soko-green-100));
+}
+
+.cardInteractive {
+  cursor: pointer;
+  background: var(--sd-surface, var(--soko-surface));
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 120ms ease;
+}
+
+.cardInteractive:hover {
+  border-color: var(--sd-primary, var(--soko-green-800));
+  box-shadow: var(--sd-shadow-card, var(--soko-shadow-md));
+}
+
+.cardInteractive:active {
+  transform: scale(0.99);
+}
+
+.cardPaddingNone {
+  padding: 0;
+}
+
+.cardPaddingSm {
+  padding: var(--sd-space-3, var(--soko-space-3));
+}
+
+.cardPaddingMd {
+  padding: var(--sd-space-4, var(--soko-space-4));
+}
+
+.cardPaddingLg {
+  padding: var(--sd-space-6, var(--soko-space-6));
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 0 var(--sd-space-2, var(--soko-space-2));
+  border: 1px solid transparent;
+  border-radius: var(--sd-radius-pill, var(--soko-radius-pill));
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.badgeNeutral {
+  color: var(--sd-muted, var(--soko-muted));
+  background: var(--sd-beige, var(--soko-surface-soft));
+  border-color: var(--sd-border, var(--soko-line));
+}
+
+.badgeSuccess,
+.badgeVerified {
+  color: var(--sd-success-text, var(--soko-green-900));
+  background: var(--sd-success-bg, var(--soko-green-50));
+  border-color: var(--sd-success-border, var(--soko-green-100));
+}
+
+.badgeWarning,
+.badgeComingSoon {
+  color: var(--sd-warning-text, #7a4d00);
+  background: var(--sd-warning-bg, var(--soko-gold-100));
+  border-color: var(--sd-warning-border, var(--soko-gold-500));
+}
+
+.badgeError,
+.badgeSold {
+  color: var(--sd-error-text, #7f1d1d);
+  background: var(--sd-error-bg, #fde8e4);
+  border-color: var(--sd-error-border, #f4b5ad);
+}
+
+.badgeInfo {
+  color: var(--sd-info-text, var(--soko-green-900));
+  background: var(--sd-info-bg, var(--soko-green-50));
+  border-color: var(--sd-info-border, var(--soko-green-100));
+}
+
+.chip {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--sd-border, var(--soko-line));
+  border-radius: var(--sd-radius-pill, var(--soko-radius-pill));
+  padding: 0 var(--sd-space-4, var(--soko-space-4));
+  color: var(--sd-text, var(--soko-ink));
+  background: var(--sd-beige, var(--soko-surface-soft));
+  font-weight: 700;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, opacity 160ms ease, transform 120ms ease;
+}
+
+.chipActive {
+  color: #fff;
+  background: var(--sd-primary, var(--soko-green-800));
+  border-color: var(--sd-primary, var(--soko-green-800));
+}
+
+.chip:active {
+  transform: scale(0.98);
+}
+
+.chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.field {
+  display: grid;
+  gap: var(--sd-space-2, var(--soko-space-2));
+}
+
+.label {
+  color: var(--sd-text, var(--soko-ink));
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.inputWrap {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  gap: var(--sd-space-2, var(--soko-space-2));
+  border: 1px solid var(--sd-border, var(--soko-line));
+  border-radius: var(--sd-radius-md, var(--soko-radius-md));
+  background: var(--sd-surface, var(--soko-surface));
+  padding: 0 var(--sd-space-3, var(--soko-space-3));
+  transition: border-color 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+}
+
+.inputWrap:focus-within {
+  border-color: var(--sd-primary, var(--soko-green-800));
+  box-shadow: 0 0 0 4px rgba(21, 128, 61, 0.12);
+}
+
+.inputWrapError {
+  border-color: var(--sd-error, var(--soko-danger));
+}
+
+.inputWrapDisabled {
+  opacity: 0.5;
+}
+
+.input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  color: var(--sd-text, var(--soko-ink));
+  background: transparent;
+}
+
+.input::placeholder {
+  color: var(--sd-muted, var(--soko-subtle));
+}
+
+.inputMeta {
+  color: var(--sd-muted, var(--soko-muted));
+  font-size: 0.82rem;
+}
+
+.inputError {
+  color: var(--sd-error, var(--soko-danger));
+}
+
+.emptyState {
+  display: grid;
+  justify-items: center;
+  gap: var(--sd-space-3, var(--soko-space-3));
+  padding: var(--sd-space-8, var(--soko-space-8)) var(--sd-space-4, var(--soko-space-4));
+  border: 1px solid var(--sd-border, var(--soko-line));
+  border-radius: var(--sd-radius-lg, var(--soko-radius-lg));
+  background: var(--sd-surface, var(--soko-surface));
+  box-shadow: var(--sd-shadow-card, var(--soko-shadow-sm));
+  text-align: center;
+}
+
+.emptyIcon {
+  color: var(--sd-primary, var(--soko-green-800));
+}
+
+.emptyTitle {
+  color: var(--sd-text, var(--soko-ink));
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.emptyDescription {
+  max-width: 36rem;
+  color: var(--sd-muted, var(--soko-muted));
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, var(--sd-beige, var(--soko-surface-soft)), var(--sd-bg, var(--soko-background)), var(--sd-beige, var(--soko-surface-soft)));
+  background-size: 220% 100%;
+  border: 1px solid var(--sd-border, var(--soko-line));
+  animation: sdShimmer 1.6s ease-in-out infinite;
+}
+
+.skeletonText {
+  width: 100%;
+  height: 1em;
+  border-radius: var(--sd-radius-sm, var(--soko-radius-sm));
+}
+
+.skeletonCircle {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+}
+
+.skeletonRect {
+  width: 100%;
+  height: 120px;
+  border-radius: var(--sd-radius-md, var(--soko-radius-md));
+}
+
+.skeletonCard {
+  width: 100%;
+  height: 180px;
+  border-radius: var(--sd-radius-lg, var(--soko-radius-lg));
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sd-space-3, var(--soko-space-3));
+}
+
+.sectionCopy {
+  display: grid;
+  gap: var(--sd-space-1, var(--soko-space-1));
+}
+
+.sectionTitle {
+  color: var(--sd-text, var(--soko-ink));
+  font-family: var(--sd-font-display, var(--soko-font-display));
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.sectionDescription {
+  color: var(--sd-muted, var(--soko-muted));
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.sectionAction {
+  align-self: flex-start;
+  border: 0;
+  color: var(--sd-primary, var(--soko-green-800));
+  background: transparent;
+  font-weight: 800;
+}
+
+@media (min-width: 720px) {
+  .sectionHeader {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .cardInteractive,
+  .chip,
+  .inputWrap,
+  .skeleton {
+    transition: none;
+    animation: none;
+  }
+}
+
+@keyframes sdSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sdShimmer {
+  0% {
+    background-position: 120% 0;
+  }
+
+  100% {
+    background-position: -120% 0;
+  }
+}

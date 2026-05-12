@@ -1,0 +1,132 @@
+.wrap {
+  width: 100%;
+  max-width: 430px;
+  padding: var(--sd-space-4, var(--soko-space-4)) 0;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sd-space-2, var(--soko-space-2));
+  color: var(--sd-text, var(--soko-ink));
+  text-decoration: none;
+}
+
+.brandWrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--sd-space-6, var(--soko-space-6));
+}
+
+.brandMark {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: var(--sd-radius-md, var(--soko-radius-md));
+  background: var(--sd-accent, var(--soko-gold-500));
+  color: var(--sd-text, var(--soko-ink));
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.brandName {
+  color: var(--sd-text, var(--soko-ink));
+  font-family: var(--sd-font-display, var(--soko-font-display));
+  font-size: 1.42rem;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.brandAccent {
+  color: var(--sd-primary, var(--soko-green-800));
+}
+
+.card {
+  display: grid;
+  gap: var(--sd-space-5, var(--soko-space-5));
+  border-color: var(--sd-border, var(--soko-line));
+  background: var(--sd-surface, var(--soko-surface));
+}
+
+.intro {
+  display: grid;
+  gap: var(--sd-space-1, var(--soko-space-1));
+}
+
+.title {
+  color: var(--sd-text, var(--soko-ink));
+  font-family: var(--sd-font-display, var(--soko-font-display));
+  font-size: 1.28rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.subtitle {
+  color: var(--sd-muted, var(--soko-muted));
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.form {
+  display: grid;
+  gap: var(--sd-space-4, var(--soko-space-4));
+}
+
+.passwordButton {
+  display: inline-grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 0;
+  border-radius: var(--sd-radius-pill, var(--soko-radius-pill));
+  color: var(--sd-muted, var(--soko-muted));
+  background: transparent;
+  font-size: 0.95rem;
+}
+
+.passwordButton:focus-visible {
+  outline: 3px solid rgba(21, 128, 61, 0.18);
+  outline-offset: 1px;
+}
+
+.error {
+  border: 1px solid var(--sd-error-border, #f4b5ad);
+  border-radius: var(--sd-radius-md, var(--soko-radius-md));
+  padding: var(--sd-space-3, var(--soko-space-3));
+  color: var(--sd-error-text, #7f1d1d);
+  background: var(--sd-error-bg, #fde8e4);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.signup {
+  display: grid;
+  gap: var(--sd-space-3, var(--soko-space-3));
+  border-top: 1px solid var(--sd-border, var(--soko-line));
+  padding-top: var(--sd-space-4, var(--soko-space-4));
+  text-align: center;
+}
+
+.signupText {
+  color: var(--sd-muted, var(--soko-muted));
+  font-size: 0.88rem;
+}
+
+.footer {
+  margin-top: var(--sd-space-4, var(--soko-space-4));
+  color: var(--sd-muted, var(--soko-subtle));
+  font-size: 0.76rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .wrap {
+    max-width: none;
+  }
+
+  .card {
+    gap: var(--sd-space-4, var(--soko-space-4));
+  }
+}
