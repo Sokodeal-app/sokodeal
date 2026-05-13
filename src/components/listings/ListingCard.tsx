@@ -126,7 +126,7 @@ export function ListingCard({
             aria-pressed={isFavorited}
             onClick={handleFavoriteClick}
           >
-            ♥
+            {isFavorited ? "\u2665" : "\u2661"}
           </button>
         </div>
 

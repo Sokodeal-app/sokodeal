@@ -106,7 +106,7 @@
   justify-content: center;
   border: 1px solid var(--sd-border, var(--soko-line));
   border-radius: var(--sd-radius-pill, var(--soko-radius-pill));
-  color: var(--sd-primary, var(--soko-green-800));
+  color: var(--sd-muted, var(--soko-muted));
   background: color-mix(in srgb, var(--sd-surface, var(--soko-surface)) 92%, transparent);
   box-shadow: var(--sd-shadow-sm, var(--soko-shadow-sm));
   line-height: 1;
@@ -117,9 +117,9 @@
 }
 
 .favoriteActive {
-  color: #fff;
-  background: var(--sd-primary, var(--soko-green-800));
-  border-color: var(--sd-primary, var(--soko-green-800));
+  color: #dc2626;
+  background: var(--sd-surface, var(--soko-surface));
+  border-color: color-mix(in srgb, #dc2626 42%, var(--sd-border, var(--soko-line)));
 }
 
 .body {

@@ -986,7 +986,7 @@ export default function Home() {
                   createdAt={ad.created_at}
                   isSold={ad.is_sold}
                   isNew={(Date.now() - new Date(ad.created_at).getTime()) / (1000*60*60*24) < 7}
-                  isFavorited={favorites?.includes(ad.id)}
+                  isFavorited={false}
                   href={'/annonce/' + generateSlug(ad)}
                   variant="compact"
                 />
