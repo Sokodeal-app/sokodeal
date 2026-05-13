@@ -5,7 +5,8 @@ import { supabase } from '@/lib/supabase'
 import { supabasePublic } from '@/lib/supabase-public'
 import { useAuth } from '@/components/AuthProvider'
 import FavoriteButton from '@/components/FavoriteButton'
-import { ListingCard } from '@/components/listings'
+import { ListingCard, ListingCardSkeleton, ListingGrid } from '@/components/listings'
+import { SectionHeader } from '@/components/ui'
 import { useUnreadCount } from '@/hooks/useUnreadCount'
 import { SUBCATEGORIES } from '@/lib/categories'
 import { FEATURE_FLAGS } from '@/lib/feature-flags'
@@ -703,7 +704,9 @@ export default function Home() {
       {/* ── RECHERCHE @USERNAME ── */}
       {search.startsWith('@') && (
         <div style={{maxWidth:'1300px', margin:'0 auto', padding:'24px 5%'}}>
-          <h2 style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.1rem', marginBottom:'14px', color:'#111a14'}}>Profils pour "{search}"</h2>
+          <div style={{marginBottom:'14px'}}>
+            <SectionHeader title={`Profils pour "${search}"`} />
+          </div>
           {searchingProfiles ? (
             <p style={{color:'#6b7c6e', fontSize:'0.88rem'}}>Recherche en cours...</p>
           ) : profileResults.length === 0 ? (
@@ -959,17 +962,13 @@ export default function Home() {
       {/* ── MODE NORMAL — Grid annonces ── */}
       {!search && !filterCat && !isImmoMode && user && ads.length > 0 && (
         <div style={{padding:'32px 5% 0', maxWidth:'1300px', margin:'0 auto', marginTop:'40px', width:'100%', boxSizing:'border-box'}}>
-          <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'16px', gap:'14px', flexWrap:'wrap'}}>
-            <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
-              <div style={{width:'32px', height:'32px', background:'#fef9c3', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1rem'}}>⭐</div>
-              <div>
-                <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.1rem', color:'#111a14', letterSpacing:'-0.3px', marginBottom:'4px'}}>Recommandé pour vous</div>
-                <div style={{fontSize:'0.75rem', color:'#6b7c6e', opacity:0.8}}>Basé sur vos favoris, recherches, historique et alertes</div>
-              </div>
-            </div>
-            <button onClick={() => router.push('/profil?tab=alertes')} style={{display:'flex', alignItems:'center', gap:'6px', padding:'8px 14px', background:'white', border:'1px solid #e8e4de', borderRadius:'10px', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:'0.78rem', color:'#111a14', cursor:'pointer'}}>
-              🔔 Gérer mes alertes
-            </button>
+          <div style={{marginBottom:'16px'}}>
+            <SectionHeader
+              title="Recommandé pour vous"
+              description="Basé sur vos favoris, recherches, historique et alertes"
+              actionLabel="Gérer mes alertes"
+              onAction={() => router.push('/profil?tab=alertes')}
+            />
           </div>
           <div style={{display:'flex', gap:'14px', overflowX:'auto', scrollbarWidth:'none', paddingBottom:'8px', WebkitOverflowScrolling:'touch'}}>
             {[...ads].sort((a, b) => (favorites?.includes(b.id) ? 1 : 0) - (favorites?.includes(a.id) ? 1 : 0)).slice(0, 8).map((ad: any) => (
@@ -998,9 +997,8 @@ export default function Home() {
 
       {!search && !filterCat && !isImmoMode && (
         <div id="explore-rapidement" style={{padding:'24px 5% 32px', maxWidth:'1300px', margin:'0 auto', marginTop:'32px', width:'100%', boxSizing:'border-box'}}>
-          <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'16px'}}>
-            <span style={{fontSize:'1.2rem'}}>⚡</span>
-            <span style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.1rem', color:'#111a14', letterSpacing:'-0.3px', marginBottom:'4px'}}>Explorez rapidement</span>
+          <div style={{marginBottom:'16px'}}>
+            <SectionHeader title="Explorez rapidement" />
           </div>
           <div style={{display:'grid', gridTemplateColumns:'repeat(5, 1fr)', gap:'12px'}} className="cat-grid">
             {[
@@ -1085,19 +1083,11 @@ export default function Home() {
           </div>
 
           {loading && !hasLoadedAds && ads.length === 0 ? (
-            <div className="ads-grid" style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'14px'}}>
+            <ListingGrid columns={3} gap="md">
               {cardSkeletons.map((_, i) => (
-                <div key={i} style={{background:'white', borderRadius:'16px', overflow:'hidden', border:'1px solid #e8e4de', boxShadow:'0 2px 8px rgba(0,0,0,0.06)'}}>
-                  <div style={{height:'180px', background:'#f1efeb'}} />
-                  <div style={{padding:'12px'}}>
-                    <div style={{height:'12px', width:'78%', background:'#f1efeb', borderRadius:'6px', marginBottom:'10px'}} />
-                    <div style={{height:'16px', width:'52%', background:'#e8e4de', borderRadius:'6px', marginBottom:'10px'}} />
-                    <div style={{height:'10px', width:'38%', background:'#f1efeb', borderRadius:'6px', marginBottom:'12px'}} />
-                    <div style={{height:'34px', background:'#f0f7f3', borderRadius:'8px'}} />
-                  </div>
-                </div>
+                <ListingCardSkeleton key={i} variant="grid" />
               ))}
-            </div>
+            </ListingGrid>
           ) : displayAds.length === 0 ? (
             <div style={{background:'white', borderRadius:'14px', padding:'56px', textAlign:'center', border:'1px solid #e8e4de'}}>
               <div style={{fontSize:'2.5rem', marginBottom:'12px'}}>🔍</div>
@@ -1108,58 +1098,27 @@ export default function Home() {
               </button>
             </div>
           ) : (
-            <div className="ads-grid" style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'14px'}}>
+            <ListingGrid columns={3} gap="md">
               {displayAds.map((ad: any) => (
-                <div key={ad.id} className="ad-card" onClick={() => router.push('/annonce/' + generateSlug(ad))}
-                  style={{background:'white', borderRadius:'16px', overflow:'hidden', cursor:'pointer', border: FEATURE_FLAGS.boostedListings && ad.is_boosted ? '1.5px solid #1a7a4a' : '1px solid #e8e4de', boxShadow:'0 2px 8px rgba(0,0,0,0.06)'}}>
-                  <div className="ad-card-media" style={{height:'180px', background:'#faf9f7', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'3.5rem', overflow:'hidden', position:'relative'}}>
-                    {ad.images && ad.images.length > 0 ? (
-                      <img src={ad.images[0]} alt={ad.title} width={300} height={180} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
-                    ) : (
-                      <span style={{opacity:0.5}}>{catEmoji[ad.category] || '📦'}</span>
-                    )}
-                    {FEATURE_FLAGS.boostedListings && ad.is_boosted && (
-                      <div style={{position:'absolute', top:'10px', left:'10px', background:'#1a7a4a', color:'white', padding:'3px 9px', borderRadius:'6px', fontSize:'0.68rem', fontWeight:800}}>
-                        Mis en avant
-                      </div>
-                    )}
-                    {ad.is_sold && (
-                      <div style={{
-                        position: 'absolute',
-                        top: FEATURE_FLAGS.boostedListings && ad.is_boosted ? '38px' : '10px',
-                        left: '10px',
-                        background: '#f59e0b',
-                        color: 'white',
-                        padding: '3px 9px',
-                        borderRadius: '6px',
-                        fontSize: '0.68rem',
-                        fontWeight: 800,
-                      }}>
-                        VENDU
-                      </div>
-                    )}
-                    <div style={{position:'absolute', top:'10px', right:'10px', zIndex:10}} onClick={e => e.stopPropagation()}>
-                      <FavoriteButton adId={ad.id} onLogin={() => router.push('/auth?mode=login')} />
-                    </div>
-                  </div>
-                  <div className="ad-card-body" style={{padding:'14px'}}>
-                    <div className="ad-card-category" style={{fontSize:'0.66rem', fontWeight:600, color:'#1a7a4a', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'5px'}}>
-                      {ad.subcategory ? ad.subcategory : ad.category}
-                    </div>
-                    <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.9rem', marginBottom:'5px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', color:'#111a14'}}>{ad.title}</div>
-                    <div style={{fontFamily:"'DM Sans', sans-serif", fontWeight:800, fontSize:'1rem', color:'#1a7a4a', marginBottom:'8px', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0', letterSpacing:'-0.01em'}}>
-                      {formatPrice(ad.price)}
-                    </div>
-                    <div style={{fontSize:'0.72rem', color:'#6b7c6e', marginBottom:'10px', height:'18px', overflow:'hidden', fontFamily:"'DM Sans', sans-serif"}}>
-                      {ad.province && <>📍 {ad.province}</>}{formatRelativeTime(ad.created_at) && <span> · {formatRelativeTime(ad.created_at)}</span>}
-                    </div>
-                    <button className="ad-view-button" onClick={e => { e.stopPropagation(); router.push('/annonce/' + generateSlug(ad)) }} style={{width:'100%', padding:'8px', background:'#f0f7f3', color:'#1a7a4a', border:'1px solid #d4e6da', borderRadius:'8px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.8rem', cursor:'pointer'}}>
-                      Voir l’annonce
-                    </button>
-                  </div>
-                </div>
+                <ListingCard
+                  key={ad.id}
+                  id={ad.id}
+                  title={ad.title}
+                  price={ad.price}
+                  currency="RWF"
+                  city={ad.province}
+                  district={ad.district}
+                  category={ad.subcategory ? ad.subcategory : ad.category}
+                  images={ad.images}
+                  createdAt={ad.created_at}
+                  isSold={ad.is_sold}
+                  isFavorited={false}
+                  href={'/annonce/' + generateSlug(ad)}
+                  variant="grid"
+                  onLoginRequired={() => router.push('/auth?mode=login')}
+                />
               ))}
-            </div>
+            </ListingGrid>
           )}
         </div>
       )}
@@ -1167,7 +1126,9 @@ export default function Home() {
       {/* ── JOBS ── */}
       {activeSection === 'jobs' && (
         <div style={{padding:'32px 5%', maxWidth:'1300px', margin:'0 auto'}}>
-          <h2 style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.4rem', marginBottom:'20px', color:'#111a14'}}>💼 Offres d’emploi</h2>
+          <div style={{marginBottom:'20px'}}>
+            <SectionHeader title="Offres d’emploi" />
+          </div>
           {[
             {co:'🏦', title:'Développeur Full-Stack Senior', company:'Bank of Kigali', loc:'Kigali', salary:'1 200 000 - 1 800 000 RWF/mois', type:'CDI'},
             {co:'🏥', title:'Infirmier diplômé', company:'King Faisal Hospital', loc:'Kigali', salary:'700 000 - 950 000 RWF/mois', type:'CDI'},

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import type { MouseEvent } from "react";
 import { Badge, Card } from "@/components/ui";
 import styles from "./ListingCard.module.css";
@@ -54,6 +55,39 @@ function getPlaceholderLabel(category: string | null | undefined, title: string)
   return source.trim().charAt(0).toUpperCase() || "S";
 }
 
+function safeDecodeURIComponent(value: string) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function encodePathname(pathname: string) {
+  return pathname
+    .split("/")
+    .map((segment) => encodeURIComponent(safeDecodeURIComponent(segment)))
+    .join("/");
+}
+
+function normalizeImageUrl(value: string | null | undefined) {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+
+  if (trimmed.startsWith("/")) {
+    return encodeURI(trimmed);
+  }
+
+  try {
+    const url = new URL(trimmed);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return null;
+    url.pathname = encodePathname(url.pathname);
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
 export function ListingCard({
   id,
   title,
@@ -73,10 +107,15 @@ export function ListingCard({
   variant = "grid",
   className,
 }: ListingCardProps) {
-  const image = images?.find(Boolean);
+  const image = normalizeImageUrl(images?.find((item) => !!item?.trim()));
+  const [imageFailed, setImageFailed] = useState(false);
   const location = [city, district].filter(Boolean).join(" · ");
   const date = formatDate(createdAt);
   const priceLabel = formatPrice(price, currency);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [image]);
 
   const handleFavoriteClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -98,13 +137,14 @@ export function ListingCard({
     >
       <div className={cx(styles.content, styles[variant])}>
         <div className={styles.media}>
-          {image ? (
+          {image && !imageFailed ? (
             <Image
               src={image}
               alt={title}
               fill
               sizes={variant === "list" ? "(max-width: 760px) 34vw, 220px" : "(max-width: 760px) 50vw, 33vw"}
               className={styles.image}
+              onError={() => setImageFailed(true)}
             />
           ) : (
             <div className={styles.placeholder} aria-label="Image indisponible">

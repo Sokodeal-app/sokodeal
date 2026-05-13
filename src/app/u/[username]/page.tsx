@@ -3,10 +3,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import FavoriteButton from '@/components/FavoriteButton'
+import { ListingCard, ListingGrid } from '@/components/listings'
 import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
-import { FEATURE_FLAGS } from '@/lib/feature-flags'
 import { generateSlug } from '@/lib/slug'
 import ImageCropModal from '@/components/ImageCropModal'
 
@@ -122,7 +121,13 @@ export default function PublicProfile() {
           loadSellerReviews(userData.id),
         ])
 
-        if (adsData) setAds(adsData)
+        if (adsData) {
+          const now = Date.now()
+          setAds(adsData.map((ad: any) => ({
+            ...ad,
+            is_new: (now - new Date(ad.created_at).getTime()) / (1000 * 60 * 60 * 24) < 7,
+          })))
+        }
         if (reviewsData) {
           setReviews(reviewsData)
           const userReview = user ? reviewsData.find((r: any) => r.reviewer_id === user.id) : null
@@ -1397,29 +1402,27 @@ export default function PublicProfile() {
               <p>Cet utilisateur n'a pas encore publie d'annonce.</p>
             </div>
           ) : (
-            <div className="ads-grid">
+            <ListingGrid columns={3} gap="md" className="ads-grid">
               {ads.map((ad: any) => (
-                <Link key={ad.id} href={`/annonce/${generateSlug(ad)}`} className="ad-card" style={{textDecoration:'none', color:'inherit', display:'block'}}>
-                  <div className="ad-media">
-                    {ad.images?.[0] ? (
-                      <img src={ad.images[0]} alt={ad.title} width={320} height={190} loading="lazy" decoding="async" />
-                    ) : (
-                      <div className="ad-placeholder">{catLabel[ad.category] || 'Annonce'}</div>
-                    )}
-                    {FEATURE_FLAGS.boostedListings && ad.is_boosted && <span className="boost-badge">Mis en avant</span>}
-                    <div className="favorite-wrap" onClick={(e) => e.stopPropagation()}>
-                      <FavoriteButton adId={ad.id} onLogin={() => router.push('/auth?mode=login')} />
-                    </div>
-                  </div>
-                  <div className="ad-body">
-                    <div className="ad-category">{catLabel[ad.category] || ad.category}</div>
-                    <div className="ad-title" style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'#111a14'}}>{ad.title}</div>
-                    <div className="ad-price" style={{fontFamily:'DM Sans,sans-serif', fontWeight:800, fontSize:'0.95rem', color:'#1a7a4a'}}>{Number(ad.price || 0).toLocaleString()} RWF</div>
-                    {ad.province && <div className="ad-city" style={{fontSize:'0.7rem', color:'#6b7c6e'}}>{ad.province}</div>}
-                  </div>
-                </Link>
+                <ListingCard
+                  key={ad.id}
+                  id={ad.id}
+                  title={ad.title}
+                  price={ad.price}
+                  currency="RWF"
+                  city={ad.province}
+                  category={ad.category}
+                  images={ad.images}
+                  createdAt={ad.created_at}
+                  isSold={ad.is_sold}
+                  isNew={ad.is_new}
+                  isFavorited={false}
+                  href={`/annonce/${generateSlug(ad)}`}
+                  variant="grid"
+                  onLoginRequired={() => router.push('/auth?mode=login')}
+                />
               ))}
-            </div>
+            </ListingGrid>
           )}
         </section>
 
