@@ -168,6 +168,13 @@ export default function PublicProfile() {
   const soldAds = ads.filter((ad) => ad.is_sold)
   const bestAds = ads.slice(0, 3)
 
+  const scrollToSellerAds = () => {
+    document.getElementById('seller-ads')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  }
+
   const handleBannerFileSelect = (e: any) => {
     const file = e.target.files?.[0]
     if (!file || !currentUser) return
@@ -468,8 +475,9 @@ export default function PublicProfile() {
           color: #fff;
         }
         .btn-gold {
-          background: #f5a623;
-          color: #111a14;
+          background: #FFFCF7;
+          color: #15803D;
+          border-color: #E8E0D4;
         }
         .btn-soft {
           background: #fff;
@@ -1213,7 +1221,7 @@ export default function PublicProfile() {
             ) : (
               <button className="btn btn-soft" onClick={() => router.push('/auth?mode=login')}>Connexion</button>
             )}
-            <button className="btn btn-gold" onClick={() => router.push('/publier')}>Deposer</button>
+            <button className="btn btn-gold" onClick={scrollToSellerAds}>Voir les annonces</button>
           </div>
         </div>
       </header>
@@ -1387,7 +1395,7 @@ export default function PublicProfile() {
 
         </section>
 
-        <section>
+        <section id="seller-ads">
           <div className="section-head">
             <div>
               <h2>Annonces de @{profile.username}</h2>
