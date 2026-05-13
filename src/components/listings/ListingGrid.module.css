@@ -18,7 +18,7 @@
 }
 
 .gapMd {
-  gap: var(--sd-space-3, var(--soko-space-3));
+  gap: 14px;
 }
 
 .gapLg {
@@ -28,6 +28,10 @@
 @media (min-width: 760px) {
   .columns3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .gapMd {
+    gap: var(--sd-space-4, var(--soko-space-4));
   }
 }
 

@@ -1,6 +1,7 @@
 .card {
   position: relative;
   min-width: 0;
+  height: 100%;
   overflow: hidden;
   color: var(--sd-text, var(--soko-ink));
   transition: transform 140ms ease, border-color 160ms ease, box-shadow 160ms ease;
@@ -124,41 +125,50 @@
 
 .body {
   display: grid;
+  min-height: 116px;
   align-content: start;
-  gap: var(--sd-space-1, var(--soko-space-1));
-  padding: var(--sd-space-3, var(--soko-space-3));
+  gap: 6px;
+  padding: 13px 14px 14px;
 }
 
 .compact .body {
-  padding: var(--sd-space-2, var(--soko-space-2));
+  min-height: 92px;
+  gap: 5px;
+  padding: 10px;
+}
+
+.list .body {
+  min-height: 0;
+  padding: 12px;
 }
 
 .title {
   display: -webkit-box;
   overflow: hidden;
   color: var(--sd-text, var(--soko-ink));
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.28;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
 
 .compact .title {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
+  line-height: 1.24;
 }
 
 .price {
   color: var(--sd-primary, var(--soko-green-800));
-  font-size: 0.98rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.18;
   font-feature-settings: "lnum" 1, "tnum" 1, "onum" 0;
   font-variant-numeric: lining-nums tabular-nums;
 }
 
 .compact .price {
-  font-size: 0.9rem;
+  font-size: 0.86rem;
 }
 
 .meta {
@@ -167,7 +177,7 @@
   flex-wrap: wrap;
   gap: 0 var(--sd-space-1, var(--soko-space-1));
   color: var(--sd-muted, var(--soko-muted));
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   line-height: 1.35;
 }
 
@@ -181,6 +191,26 @@
 @media (hover: hover) {
   .cardWithHref:hover {
     transform: translateY(-2px);
+  }
+}
+
+@media (max-width: 520px) {
+  .body {
+    min-height: 106px;
+    padding: 11px 10px 12px;
+  }
+
+  .compact .body {
+    min-height: 88px;
+  }
+
+  .favorite {
+    width: 31px;
+    height: 31px;
+  }
+
+  .badges {
+    max-width: calc(100% - 52px);
   }
 }
 

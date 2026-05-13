@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { MouseEvent } from "react";
 import { Badge, Card } from "@/components/ui";
 import styles from "./ListingCard.module.css";
@@ -108,14 +108,11 @@ export function ListingCard({
   className,
 }: ListingCardProps) {
   const image = normalizeImageUrl(images?.find((item) => !!item?.trim()));
-  const [imageFailed, setImageFailed] = useState(false);
+  const [failedImage, setFailedImage] = useState<string | null>(null);
   const location = [city, district].filter(Boolean).join(" · ");
   const date = formatDate(createdAt);
   const priceLabel = formatPrice(price, currency);
-
-  useEffect(() => {
-    setImageFailed(false);
-  }, [image]);
+  const showImage = image && failedImage !== image;
 
   const handleFavoriteClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -137,14 +134,14 @@ export function ListingCard({
     >
       <div className={cx(styles.content, styles[variant])}>
         <div className={styles.media}>
-          {image && !imageFailed ? (
+          {showImage ? (
             <Image
               src={image}
               alt={title}
               fill
               sizes={variant === "list" ? "(max-width: 760px) 34vw, 220px" : "(max-width: 760px) 50vw, 33vw"}
               className={styles.image}
-              onError={() => setImageFailed(true)}
+              onError={() => setFailedImage(image)}
             />
           ) : (
             <div className={styles.placeholder} aria-label="Image indisponible">

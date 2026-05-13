@@ -970,7 +970,7 @@ export default function Home() {
               onAction={() => router.push('/profil?tab=alertes')}
             />
           </div>
-          <div style={{display:'flex', gap:'14px', overflowX:'auto', scrollbarWidth:'none', paddingBottom:'8px', WebkitOverflowScrolling:'touch'}}>
+          <div style={{display:'flex', gap:'16px', overflowX:'auto', scrollbarWidth:'none', paddingBottom:'10px', WebkitOverflowScrolling:'touch'}}>
             {[...ads].sort((a, b) => (favorites?.includes(b.id) ? 1 : 0) - (favorites?.includes(a.id) ? 1 : 0)).slice(0, 8).map((ad: any) => (
               <div key={ad.id} style={{flexShrink:0, width:'180px'}}>
                 <ListingCard
