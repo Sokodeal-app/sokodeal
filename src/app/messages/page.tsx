@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
 import Header from '@/components/Header'
+import { BottomNav } from '@/components/navigation'
 
 export default function MessagesPage() {
   const { user: authUser, session, loading: authLoading } = useAuth()
@@ -509,6 +510,7 @@ export default function MessagesPage() {
           </div>
         </div>
       </div>
+      <BottomNav withSpacer />
     </div>
   )
 }

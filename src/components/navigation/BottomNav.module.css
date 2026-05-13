@@ -1,0 +1,97 @@
+.nav {
+  --bottom-nav-height: calc(64px + env(safe-area-inset-bottom));
+
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--sd-z-bottom-nav, 70);
+  display: none;
+  min-height: var(--bottom-nav-height);
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--sd-border, var(--soko-line));
+  background: color-mix(in srgb, var(--sd-surface, var(--soko-surface)) 94%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.inner {
+  display: grid;
+  max-width: 520px;
+  margin: 0 auto;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.item {
+  display: inline-flex;
+  min-width: 0;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--sd-radius-lg, var(--soko-radius-lg));
+  color: var(--sd-muted, var(--soko-muted));
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  transition: background 140ms ease, border-color 140ms ease, color 140ms ease, transform 120ms ease;
+}
+
+.item:active {
+  transform: scale(0.98);
+}
+
+.item:focus-visible {
+  outline: 3px solid var(--sd-focus, rgba(21, 128, 61, 0.28));
+  outline-offset: 2px;
+}
+
+.active {
+  color: var(--sd-primary, var(--soko-green-800));
+  background: var(--sd-primary-soft, var(--soko-green-50));
+  border-color: var(--sd-primary-muted, var(--soko-green-100));
+}
+
+.primary {
+  color: var(--sd-primary, var(--soko-green-800));
+  background: var(--sd-beige, var(--soko-surface-soft));
+  border-color: var(--sd-border, var(--soko-line));
+}
+
+.primary.active {
+  color: #fff;
+  background: var(--sd-primary, var(--soko-green-800));
+  border-color: var(--sd-primary, var(--soko-green-800));
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spacer {
+  display: none;
+  height: var(--bottom-nav-height);
+}
+
+@media (max-width: 768px) {
+  .nav {
+    display: block;
+  }
+
+  .spacer {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    transition: none;
+  }
+
+  .item:active {
+    transform: none;
+  }
+}

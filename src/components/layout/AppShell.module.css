@@ -1,4 +1,6 @@
 .shell {
+  --bottom-nav-height: calc(64px + env(safe-area-inset-bottom));
+
   min-height: 100dvh;
   width: 100%;
   margin: 0 auto;
@@ -11,6 +13,10 @@
 
 .withBottomPadding {
   padding-bottom: max(var(--sd-space-6, var(--soko-space-6)), env(safe-area-inset-bottom));
+}
+
+.withBottomNav {
+  padding-bottom: max(var(--bottom-nav-height), var(--sd-space-6, var(--soko-space-6)));
 }
 
 .mobile {

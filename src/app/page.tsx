@@ -6,6 +6,7 @@ import { supabasePublic } from '@/lib/supabase-public'
 import { useAuth } from '@/components/AuthProvider'
 import FavoriteButton from '@/components/FavoriteButton'
 import { ListingCard, ListingCardSkeleton, ListingGrid } from '@/components/listings'
+import { BottomNav } from '@/components/navigation'
 import { SectionHeader } from '@/components/ui'
 import { useUnreadCount } from '@/hooks/useUnreadCount'
 import { SUBCATEGORIES } from '@/lib/categories'
@@ -1168,6 +1169,7 @@ export default function Home() {
           </div>
         </footer>
       )}
+      <BottomNav withSpacer />
     </>
   )
 }

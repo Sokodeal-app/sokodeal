@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { BottomNav } from "@/components/navigation";
 import styles from "./AppShell.module.css";
 
 type AppShellProps = {
@@ -6,6 +7,7 @@ type AppShellProps = {
   maxWidth?: "mobile" | "desktop" | "full";
   variant?: "default" | "auth" | "plain";
   withBottomPadding?: boolean;
+  withBottomNav?: boolean;
   className?: string;
 };
 
@@ -18,6 +20,7 @@ export function AppShell({
   maxWidth = "mobile",
   variant = "default",
   withBottomPadding = true,
+  withBottomNav = false,
   className,
 }: AppShellProps) {
   return (
@@ -27,10 +30,12 @@ export function AppShell({
         styles[maxWidth],
         styles[variant],
         withBottomPadding && styles.withBottomPadding,
+        withBottomNav && styles.withBottomNav,
         className
       )}
     >
       {children}
+      {withBottomNav ? <BottomNav /> : null}
     </main>
   );
 }
