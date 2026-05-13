@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
+import { BottomNav } from '@/components/navigation'
 import { useFavorites } from '@/hooks/useFavorites'
 import FavoriteButton from '@/components/FavoriteButton'
 import { FEATURE_FLAGS } from '@/lib/feature-flags'
@@ -1295,6 +1296,7 @@ export default function ProfilPage() {
         )}
 
       </div>
+      <BottomNav withSpacer />
     </div>
   )
 }

@@ -4,9 +4,82 @@
   padding: 0;
 }
 
+:root {
+  --soko-green-950: #06281a;
+  --soko-green-900: #0b3d27;
+  --soko-green-800: #0f5233;
+  --soko-green-700: #146b43;
+  --soko-green-600: #1d8a59;
+  --soko-green-500: #2aae6f;
+  --soko-green-100: #dff3e8;
+  --soko-green-50: #f0faf4;
+  --soko-gold-600: #c7871f;
+  --soko-gold-500: #e0a12f;
+  --soko-gold-100: #faecc9;
+  --soko-ink: #102018;
+  --soko-muted: #5d6f64;
+  --soko-subtle: #8aa095;
+  --soko-line: #dbe5de;
+  --soko-surface: #ffffff;
+  --soko-surface-soft: #f5f7f5;
+  --soko-background: #f0f4f1;
+  --soko-danger: #c24135;
+  --soko-radius-xs: 4px;
+  --soko-radius-sm: 6px;
+  --soko-radius-md: 8px;
+  --soko-radius-lg: 12px;
+  --soko-radius-pill: 999px;
+  --soko-shadow-sm: 0 1px 2px rgba(16, 32, 24, 0.08);
+  --soko-shadow-md: 0 8px 24px rgba(16, 32, 24, 0.12);
+  --soko-space-1: 4px;
+  --soko-space-2: 8px;
+  --soko-space-3: 12px;
+  --soko-space-4: 16px;
+  --soko-space-5: 20px;
+  --soko-space-6: 24px;
+  --soko-space-8: 32px;
+  --soko-space-10: 40px;
+  --soko-space-12: 48px;
+  --soko-font-sans: 'DM Sans', sans-serif;
+  --soko-font-display: 'Syne', sans-serif;
+}
+
 html, body {
-  font-family: 'DM Sans', sans-serif;
-  background: #f0f4f1;
+  font-family: var(--soko-font-sans);
+  background: var(--soko-background);
+  color: var(--soko-ink);
+}
+
+body {
+  min-height: 100vh;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
 }
 
 /* RESPONSIVE GRID */
