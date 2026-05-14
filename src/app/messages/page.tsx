@@ -347,6 +347,7 @@ export default function MessagesPage() {
           .msg-layout { grid-template-columns: 1fr !important; }
           .conv-panel { display: ${activeConv ? 'none' : 'flex'} !important; }
           .chat-panel { display: ${activeConv ? 'flex' : 'none'} !important; }
+          .messages-shell { padding-bottom: var(--sd-bottom-nav-height, calc(64px + env(safe-area-inset-bottom))) !important; }
         }
         .conv-item:hover { background: #f0f4f1 !important; }
         textarea:focus { border-color: #1a7a4a !important; outline: none; }
@@ -354,7 +355,7 @@ export default function MessagesPage() {
 
       <Header />
 
-      <div style={{ maxWidth: '1100px', width: '100%', margin: '20px auto', padding: '0 5%', flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div className="messages-shell" style={{ maxWidth: '1100px', width: '100%', margin: '20px auto', padding: '0 5%', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <h1 style={{ fontFamily: 'Syne,sans-serif', fontWeight: 800, fontSize: '1.3rem', marginBottom: '16px', color: '#111a14' }}>
           💬 Messages
         </h1>

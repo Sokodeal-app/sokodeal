@@ -44,6 +44,8 @@ const NAV_ITEMS: NavItem[] = [
 function shouldHideBottomNav(pathname: string) {
   return (
     pathname.startsWith("/annonce/") ||
+    pathname.startsWith("/modifier/") ||
+    pathname.startsWith("/publier") ||
     pathname.startsWith("/auth") ||
     pathname.startsWith("/admin")
   );
@@ -60,7 +62,7 @@ type BottomNavProps = {
 /**
  * Mobile-only bottom navigation.
  * Pages that render this component should reserve enough bottom padding
- * using var(--bottom-nav-height) to avoid hiding page content behind it.
+ * using var(--sd-bottom-nav-height) to avoid hiding page content behind it.
  */
 export function BottomNav({ withSpacer = false }: BottomNavProps) {
   const pathname = usePathname() || "/";
