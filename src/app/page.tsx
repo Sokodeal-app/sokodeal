@@ -1,5 +1,5 @@
 ﻿'use client'
-import { Fragment, useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { supabasePublic } from '@/lib/supabase-public'
@@ -7,12 +7,12 @@ import { useAuth } from '@/components/AuthProvider'
 import FavoriteButton from '@/components/FavoriteButton'
 import { ListingCard, ListingCardSkeleton, ListingGrid } from '@/components/listings'
 import { BottomNav } from '@/components/navigation'
-import { SectionHeader } from '@/components/ui'
+import { CategoryBar, HeroBanner, QuickExplore, SearchBar, SectionHeader } from '@/components/ui'
 import { useUnreadCount } from '@/hooks/useUnreadCount'
 import { SUBCATEGORIES } from '@/lib/categories'
 import { FEATURE_FLAGS } from '@/lib/feature-flags'
 import { getApproxCoords } from '@/lib/locations'
-import { LAUNCH_CITIES, LAUNCH_MAIN_CATEGORIES, LAUNCH_SUBCATEGORIES, matchesCategoryGroup } from '@/lib/market-config'
+import { LAUNCH_CITIES, LAUNCH_SUBCATEGORIES, matchesCategoryGroup } from '@/lib/market-config'
 import { generateSlug } from '@/lib/slug'
 import { formatPrice, formatRelativeTime } from '@/lib/format'
 
@@ -27,8 +27,6 @@ export default function Home() {
   const { user } = useAuth()
   const [isUserAdmin, setIsUserAdmin] = useState(false)
   const [search, setSearch] = useState('')
-  const [showSuggestions, setShowSuggestions] = useState(false)
-  const [localHistory, setLocalHistory] = useState<string[]>([])
   const [filterCat, setFilterCat] = useState('')
   const [filterSubcat, setFilterSubcat] = useState('')
   const [filterVille, setFilterVille] = useState('')
@@ -131,10 +129,6 @@ export default function Home() {
   useEffect(() => {
     fetchAds()
 
-    const stored = localStorage.getItem('sokodeal:search-history')
-    if (stored) {
-      try { setLocalHistory(JSON.parse(stored).slice(0, 10)) } catch {}
-    }
   }, [fetchAds])
 
   useEffect(() => {
@@ -396,7 +390,6 @@ export default function Home() {
           const existing: string[] = stored ? JSON.parse(stored) : []
           const updated = [cleanSearch, ...existing.filter(s => s !== cleanSearch)].slice(0, 10)
           localStorage.setItem('sokodeal:search-history', JSON.stringify(updated))
-          setLocalHistory(updated)
         } catch {}
       }
 
@@ -489,6 +482,49 @@ export default function Home() {
         .nav-cat:hover { color: #1a7a4a !important; }
         .immo-card:hover { border-color: #1a7a4a !important; }
         .immo-card { transition: border-color 0.15s, box-shadow 0.15s; }
+        .homepage-spec-shell,
+        .homepage-footer-inner {
+          width: 100%;
+          max-width: 480px;
+          margin: 0 auto;
+          padding: 0 16px;
+          box-sizing: border-box;
+        }
+        .homepage-header-inner {
+          width: 100%;
+          max-width: 480px !important;
+          padding: 0 16px !important;
+          box-sizing: border-box;
+        }
+        .homepage-footer {
+          padding: 40px 0 calc(104px + env(safe-area-inset-bottom)) !important;
+        }
+        .homepage-content-safe { padding-bottom: 0; }
+        @media (min-width: 480px) {
+          .homepage-spec-shell,
+          .homepage-footer-inner,
+          .homepage-header-inner {
+            max-width: 640px !important;
+            padding-right: 24px !important;
+            padding-left: 24px !important;
+          }
+        }
+        @media (min-width: 768px) {
+          .homepage-spec-shell,
+          .homepage-footer-inner,
+          .homepage-header-inner {
+            max-width: 1120px !important;
+            padding-right: 32px !important;
+            padding-left: 32px !important;
+          }
+        }
+        @media (min-width: 1280px) {
+          .homepage-spec-shell,
+          .homepage-footer-inner,
+          .homepage-header-inner {
+            max-width: 1120px !important;
+          }
+        }
       `}</style>
 
       {toast && (
@@ -504,61 +540,11 @@ export default function Home() {
 
       {/* ── HEADER ── */}
       <header style={{background:'#faf9f7', position:'sticky', top:0, zIndex:100, borderBottom:'1px solid #e8e4de', paddingTop:'env(safe-area-inset-top)'}}>
-        <div className="header-inner" style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 5%', height:'62px', gap:'14px', maxWidth:'1300px', margin:'0 auto'}}>
+        <div className="header-inner homepage-header-inner" style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 5%', height:'62px', gap:'14px', maxWidth:'1300px', margin:'0 auto'}}>
           <a href="/" style={{display:'flex', alignItems:'center', gap:'8px', textDecoration:'none', flexShrink:0}}>
             <div className="header-logo-mark" style={{width:'34px', height:'34px', background:'#1a7a4a', borderRadius:'9px', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'17px', color:'white'}}>S</div>
             <span className="header-logo-name" style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.25rem', color:'#111a14'}}>Soko<span style={{color:'#1a7a4a'}}>Deal</span></span>
           </a>
-
-          <div className="search-bar" style={{flex:1, maxWidth:'480px', position:'relative'}}>
-            <div style={{display:'flex', background:'white', borderRadius:'9px', overflow:'hidden', border:'1px solid #e8e4de'}}>
-              <input type="text" placeholder="Rechercher... ou @username" value={search}
-                onChange={e => { setSearch(e.target.value); setActiveSection('main') }}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                style={{flex:1, padding:'9px 14px', border:'none', outline:'none', fontFamily:'DM Sans,sans-serif', fontSize:'0.9rem', background:'transparent', color:'#111a14'}}
-              />
-              <button style={{background:'#1a7a4a', border:'none', cursor:'pointer', padding:'9px 16px', fontSize:'1rem', color:'white'}}>🔍</button>
-            </div>
-            {showSuggestions && localHistory.length > 0 && !search && (
-              <div style={{position:'absolute', top:'44px', left:0, right:0, background:'white', borderRadius:'12px', border:'1px solid #e8e4de', boxShadow:'0 8px 24px rgba(0,0,0,0.10)', zIndex:500, overflow:'hidden'}}>
-                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 14px', borderBottom:'1px solid #e8e4de'}}>
-                  <span style={{fontSize:'0.72rem', fontWeight:700, color:'#6b7c6e', textTransform:'uppercase'}}>Recherches récentes</span>
-                  <button
-                    onMouseDown={() => {
-                      localStorage.removeItem('sokodeal:search-history')
-                      setLocalHistory([])
-                      setShowSuggestions(false)
-                    }}
-                    style={{fontSize:'0.72rem', color:'#c0392b', background:'none', border:'none', cursor:'pointer', fontWeight:600}}
-                  >
-                    Tout effacer
-                  </button>
-                </div>
-                {localHistory.map((item, i) => (
-                  <div key={`${item}-${i}`} style={{display:'flex', alignItems:'center', padding:'10px 14px', borderBottom: i < localHistory.length - 1 ? '1px solid #e8e4de' : 'none'}}>
-                    <span style={{fontSize:'0.85rem', marginRight:'8px'}}>🕐</span>
-                    <span
-                      onMouseDown={() => { setSearch(item); setShowSuggestions(false); setActiveSection('main') }}
-                      style={{flex:1, fontSize:'0.85rem', color:'#111a14', cursor:'pointer', fontFamily:'DM Sans,sans-serif'}}
-                    >
-                      {item}
-                    </span>
-                    <button
-                      onMouseDown={() => {
-                        const updated = localHistory.filter((_, j) => j !== i)
-                        setLocalHistory(updated)
-                        localStorage.setItem('sokodeal:search-history', JSON.stringify(updated))
-                      }}
-                      style={{background:'none', border:'none', cursor:'pointer', color:'#9ca3af', fontSize:'1rem', padding:'0 4px'}}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
 
           <div style={{display:'flex', alignItems:'center', gap:'8px', flexShrink:0}}>
             {user ? (
@@ -589,45 +575,6 @@ export default function Home() {
             </button>
           </div>
         </div>
-
-        {/* Navbar catégories */}
-        <div className="main-cat-nav" style={{padding:'0 5%', display:'flex', justifyContent:'safe center', alignItems:'center', overflowX:'auto', scrollbarWidth:'none', maxWidth:'1300px', margin:'0 auto', background:'#faf9f7'}}>
-          <a href="#" className="nav-cat" onClick={e => { e.preventDefault(); handleNavCat('') }}
-            style={{display:'flex', alignItems:'center', padding:'9px 14px', color: filterCat === '' ? '#1a7a4a' : '#6b7c6e', textDecoration:'none', fontSize:'0.82rem', fontWeight: filterCat === '' ? 700 : 500, whiteSpace:'nowrap', borderBottom: filterCat === '' ? '2px solid #1a7a4a' : '2px solid transparent'}}>
-            Tout
-          </a>
-          <span className="cat-separator" style={{color:'#c8c4be', fontSize:'0.4rem', flexShrink:0, margin:'0 2px'}}>●</span>
-          {LAUNCH_MAIN_CATEGORIES.map((item, index) => (
-            <Fragment key={item.value}>
-              <a href="#" className="nav-cat"
-                onClick={e => { e.preventDefault(); handleNavCat(item.value) }}
-                style={{display:'flex', alignItems:'center', padding:'9px 14px', color: filterCat === item.value ? '#1a7a4a' : '#6b7c6e', textDecoration:'none', fontSize:'0.82rem', fontWeight: filterCat === item.value ? 700 : 500, whiteSpace:'nowrap', borderBottom: filterCat === item.value ? '2px solid #1a7a4a' : '2px solid transparent'}}>
-                {item.label}
-              </a>
-              {index < LAUNCH_MAIN_CATEGORIES.length - 1 && (
-                <span className="cat-separator" style={{color:'#c8c4be', fontSize:'0.4rem', flexShrink:0, margin:'0 2px'}}>●</span>
-              )}
-            </Fragment>
-          ))}
-        </div>
-
-        {/* Sous-catégories */}
-        {subcats.length > 0 && !isImmoMode && (
-          <div style={{borderTop:'1px solid #e8e4de', padding:'0 5%', display:'flex', overflowX:'auto', scrollbarWidth:'none', maxWidth:'1300px', margin:'0 auto', background:'#faf9f7'}}>
-            <a href="#" className="nav-cat"
-              onClick={e => { e.preventDefault(); setFilterSubcat('') }}
-              style={{display:'flex', alignItems:'center', padding:'7px 12px', color: filterSubcat === '' ? '#1a7a4a' : '#6b7c6e', textDecoration:'none', fontSize:'0.78rem', fontWeight: filterSubcat === '' ? 700 : 500, whiteSpace:'nowrap', borderBottom: filterSubcat === '' ? '2px solid #1a7a4a' : '2px solid transparent'}}>
-              Tous
-            </a>
-            {subcats.map((sub) => (
-              <a key={sub.value} href="#" className="nav-cat"
-                onClick={e => { e.preventDefault(); setFilterSubcat(sub.value) }}
-                style={{display:'flex', alignItems:'center', padding:'7px 12px', color: filterSubcat === sub.value ? '#1a7a4a' : '#6b7c6e', textDecoration:'none', fontSize:'0.78rem', fontWeight: filterSubcat === sub.value ? 700 : 500, whiteSpace:'nowrap', borderBottom: filterSubcat === sub.value ? '2px solid #1a7a4a' : '2px solid transparent'}}>
-                {sub.label}
-              </a>
-            ))}
-          </div>
-        )}
 
         {/* ✅ Filtres immo inline dans le header */}
         {isImmoMode && (
@@ -683,24 +630,14 @@ export default function Home() {
         )}
       </header>
 
-      <div className="mobile-top-search" style={{display:'none', padding:'10px 5% 4px', background:'#faf9f7'}}>
-        <div style={{display:'flex', alignItems:'center', background:'white', borderRadius:'12px', overflow:'hidden', border:'1px solid #e8e4de', boxShadow:'0 2px 10px rgba(0,0,0,0.04)'}}>
-          <input
-            type="text"
-            placeholder="Que recherchez-vous ?"
-            value={search}
-            onChange={e => { setSearch(e.target.value); setActiveSection('main') }}
-            style={{flex:1, minWidth:0, padding:'12px 14px', border:'none', outline:'none', fontFamily:'DM Sans,sans-serif', fontSize:'0.92rem', background:'transparent', color:'#111a14'}}
-          />
-          <button
-            onClick={() => setActiveSection('main')}
-            aria-label="Rechercher"
-            style={{width:'46px', alignSelf:'stretch', background:'#1a7a4a', border:'none', color:'white', fontSize:'1rem', cursor:'pointer'}}
-          >
-            🔍
-          </button>
-        </div>
-      </div>
+      <main className="homepage-content-safe">
+        {!search.startsWith('@') && activeSection === 'main' && !search && !filterCat && (
+          <div className="homepage-spec-shell" style={{paddingTop:'16px', display:'flex', flexDirection:'column', gap:'16px'}}>
+            <SearchBar />
+            <CategoryBar />
+            <HeroBanner />
+          </div>
+        )}
 
       {/* ── RECHERCHE @USERNAME ── */}
       {search.startsWith('@') && (
@@ -734,77 +671,6 @@ export default function Home() {
               ))}
             </div>
           )}
-        </div>
-      )}
-
-      {/* ── HERO ── */}
-      {!search.startsWith('@') && activeSection === 'main' && !search && !filterCat && (
-        <div style={{padding:'24px 5% 0', maxWidth:'1300px', margin:'0 auto', width:'100%', boxSizing:'border-box'}}>
-          <div className="hero-section hero-premium" style={{position:'relative', overflow:'hidden', background:'#faf9f7', backgroundImage:"url('https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=1400&q=80')", backgroundSize:'cover', backgroundPosition:'right center', backgroundRepeat:'no-repeat', minHeight:'420px', padding:'48px 5%', borderRadius:'16px', display:'grid', gridTemplateColumns:'1.1fr 0.9fr', gap:'32px', alignItems:'center', border:'1px solid #e8e4de'}}>
-            <div className="hero-premium-gradient" style={{position:'absolute', inset:0, background:'linear-gradient(90deg, #faf9f7 0%, rgba(250,249,247,0.95) 25%, rgba(250,249,247,0.6) 45%, rgba(250,249,247,0.2) 65%, transparent 80%)', zIndex:1, pointerEvents:'none'}} />
-            <div style={{maxWidth:'520px', position:'relative', zIndex:2}}>
-              <div style={{display:'inline-flex', alignItems:'center', background:'#e8f5ee', color:'#1a7a4a', borderRadius:'20px', padding:'7px 13px', fontSize:'0.72rem', fontWeight:700, marginBottom:'20px', letterSpacing:'0.04em'}}>
-                ⭐ LE MARKETPLACE N°1 AU RWANDA
-              </div>
-              <h1 className="hero-title" style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'3rem', color:'#111a14', lineHeight:1.1, marginBottom:0}}>
-                Achetez.<br/>
-                Vendez.<br/>
-                Louez.<br/>
-                <span style={{color:'#1a7a4a'}}>Sans effort.</span>
-              </h1>
-              <p style={{color:'#6b7c6e', fontSize:'0.95rem', marginTop:'16px', maxWidth:'380px', lineHeight:1.6}}>
-                Des milliers d’annonces près de chez vous. Simple, rapide et sécurisé.
-              </p>
-              <button className="hero-cta" onClick={() => document.getElementById('explore-rapidement')?.scrollIntoView({ behavior: 'smooth' })}
-                style={{display:'inline-flex', alignItems:'center', justifyContent:'center', background:'#1a7a4a', color:'white', padding:'14px 28px', borderRadius:'10px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.95rem', marginTop:'28px', border:'none', cursor:'pointer'}}>
-                Voir les annonces
-              </button>
-            </div>
-            <div style={{position:'relative', zIndex:2, minHeight:'280px', display:'flex', alignItems:'center', justifyContent:'center'}} className="hero-cards">
-              {ads.slice(0, 2).map((ad, i) => (
-                <div
-                  key={ad.id}
-                  onClick={() => router.push('/annonce/' + generateSlug(ad))}
-                  style={{
-                    position:'absolute',
-                    top: i === 0 ? '0px' : 'auto',
-                    bottom: i === 1 ? '0px' : 'auto',
-                    left: i === 0 ? '5%' : 'auto',
-                    right: i === 1 ? '0%' : 'auto',
-                    width:'175px',
-                    background:'white', borderRadius:'14px', overflow:'hidden',
-                    boxShadow:'0 12px 40px rgba(0,0,0,0.14)',
-                    transition:'transform 0.2s ease',
-                    cursor:'pointer', border:'1px solid #e8e4de',
-                    zIndex: i === 0 ? 2 : 1,
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
-                  onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-                >
-                  <div style={{height:'90px', background:'#f0f7f3', overflow:'hidden'}}>
-                    {ad.images?.[0] ? (
-                      <img src={ad.images[0]} alt={ad.title} width={175} height={90} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
-                    ) : (
-                      <div style={{width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.8rem', opacity:0.4}}>
-                        {catEmoji[ad.category] || '📦'}
-                      </div>
-                    )}
-                  </div>
-                  <div style={{padding:'8px 10px'}}>
-                    <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.75rem', color:'#111a14', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:'3px'}}>
-                      {ad.title}
-                    </div>
-                    <div style={{fontFamily:"'DM Sans', sans-serif", fontWeight:800, fontSize:'0.85rem', color:'#1a7a4a', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0'}}>
-                      {formatPrice(ad.price)}
-                    </div>
-                    <div style={{fontSize:'0.65rem', color:'#6b7c6e', marginTop:'2px', fontFamily:"'DM Sans', sans-serif"}}>
-                      📍 {ad.province}{formatRelativeTime(ad.created_at) && <span> · {formatRelativeTime(ad.created_at)}</span>}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       )}
 
@@ -962,13 +828,13 @@ export default function Home() {
 
       {/* ── MODE NORMAL — Grid annonces ── */}
       {!search && !filterCat && !isImmoMode && user && ads.length > 0 && (
-        <div style={{padding:'32px 5% 0', maxWidth:'1300px', margin:'0 auto', marginTop:'40px', width:'100%', boxSizing:'border-box'}}>
+        <div className="homepage-spec-shell" style={{marginTop:'40px', paddingTop:'32px'}}>
           <div style={{marginBottom:'16px'}}>
             <SectionHeader
               title="Recommandé pour vous"
               description="Basé sur vos favoris, recherches, historique et alertes"
-              actionLabel="Gérer mes alertes"
-              onAction={() => router.push('/profil?tab=alertes')}
+              actionLabel="Voir tout"
+              onAction={() => router.push('/explorer')}
             />
           </div>
           <div style={{display:'flex', gap:'16px', overflowX:'auto', scrollbarWidth:'none', paddingBottom:'10px', WebkitOverflowScrolling:'touch'}}>
@@ -996,34 +862,17 @@ export default function Home() {
         </div>
       )}
 
-      {!search && !filterCat && !isImmoMode && (
-        <div id="explore-rapidement" style={{padding:'24px 5% 32px', maxWidth:'1300px', margin:'0 auto', marginTop:'32px', width:'100%', boxSizing:'border-box'}}>
+      {!search.startsWith('@') && activeSection === 'main' && !search && !filterCat && !isImmoMode && (
+        <section id="explore-rapidement" className="homepage-spec-shell" style={{marginTop:'32px'}}>
           <div style={{marginBottom:'16px'}}>
-            <SectionHeader title="Explorez rapidement" />
+            <SectionHeader title="Explorer rapidement" />
           </div>
-          <div style={{display:'grid', gridTemplateColumns:'repeat(5, 1fr)', gap:'12px'}} className="cat-grid">
-            {[
-              { icon:'🏡', label:'Logement', sub:'Maisons, appartements, chambres à louer', cat:'immo' },
-              { icon:'🚗', label:'Véhicules', sub:'Voitures, motos, camions...', cat:'voiture' },
-              { icon:'📱', label:'Tech', sub:'Téléphones, ordinateurs, accessoires...', cat:'electronique' },
-              { icon:'👗', label:'Mode', sub:'Vêtements, chaussures, accessoires...', cat:'mode' },
-              { icon:'💼', label:'Emplois & Services', sub:"Offres d'emploi, services...", cat:'services' },
-            ].map((item) => (
-              <div key={item.cat} onClick={() => handleNavCat(item.cat)} style={{background:'white', borderRadius:'14px', padding:'16px', border:'1px solid #e8e4de', cursor:'pointer', display:'flex', alignItems:'center', gap:'12px', transition:'all 0.2s ease'}} onMouseEnter={e => { e.currentTarget.style.borderColor = '#1a7a4a'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(0,0,0,0.08)' }} onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8e4de'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}>
-                <div style={{width:'42px', height:'42px', borderRadius:'10px', background:'#f0f7f3', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.3rem', flexShrink:0}}>{item.icon}</div>
-                <div style={{flex:1, minWidth:0}}>
-                  <div style={{fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'#111a14', marginBottom:'2px'}}>{item.label}</div>
-                  <div style={{fontSize:'0.7rem', color:'#6b7c6e', lineHeight:1.4}}>{item.sub}</div>
-                </div>
-                <span style={{color:'#1a7a4a', fontSize:'0.9rem', flexShrink:0}}>→</span>
-              </div>
-            ))}
-          </div>
-        </div>
+          <QuickExplore />
+        </section>
       )}
 
       {!search.startsWith('@') && activeSection === 'main' && !isImmoMode && (
-        <div className="home-results-wrap" style={{padding:'0 5% 24px', maxWidth:'1300px', margin:'0 auto', marginTop:'32px'}}>
+        <div className="home-results-wrap homepage-spec-shell" style={{paddingBottom:'24px', marginTop:'32px'}}>
           <div className="home-filter-card" style={{background:'white', borderRadius:'12px', padding:'12px 16px', marginBottom:'20px', border:'1px solid #e8e4de'}}>
             <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'10px', flexWrap:'wrap'}}>
               <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
@@ -1153,8 +1002,8 @@ export default function Home() {
 
       {/* ── FOOTER ── */}
       {!isImmoMode && (
-        <footer style={{background:'#111a14', color:'rgba(255,255,255,0.5)', padding:'48px 5%', marginTop:'40px'}}>
-          <div style={{maxWidth:'1300px', margin:'0 auto', display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:'16px', alignItems:'center'}}>
+        <footer className="homepage-footer" style={{background:'#111a14', color:'rgba(255,255,255,0.5)', padding:'40px 5% calc(104px + env(safe-area-inset-bottom))', marginTop:'40px'}}>
+          <div className="homepage-footer-inner" style={{display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:'16px', alignItems:'center'}}>
             <div>
               <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.15rem', color:'white', marginBottom:'4px'}}>Soko<span style={{color:'#4ade80'}}>Deal</span></div>
               <p style={{fontSize:'0.8rem', color:'rgba(255,255,255,0.5)', maxWidth:'240px', lineHeight:1.6}}>La première plateforme d’annonces d’Afrique.</p>
@@ -1169,7 +1018,8 @@ export default function Home() {
           </div>
         </footer>
       )}
-      <BottomNav withSpacer />
+      </main>
+      <BottomNav withSpacer={isImmoMode} />
     </>
   )
 }

@@ -1,0 +1,98 @@
+.searchBar {
+  display: flex;
+  width: 100%;
+  min-height: 48px;
+  align-items: center;
+  gap: var(--sd-space-3, var(--soko-space-3));
+  padding: 0 var(--sd-space-4, var(--soko-space-4));
+  border: 1px solid var(--sd-border, var(--soko-line));
+  border-radius: var(--sd-radius-pill, var(--soko-radius-pill));
+  background: var(--sd-surface, var(--soko-surface));
+  color: var(--sd-text, var(--soko-ink));
+  box-shadow: var(--sd-shadow-sm, var(--soko-shadow-sm));
+  text-align: left;
+}
+
+.searchIcon,
+.pinIcon {
+  position: relative;
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  color: var(--sd-muted, var(--soko-muted));
+}
+
+.searchIcon::before {
+  width: 11px;
+  height: 11px;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  content: "";
+}
+
+.searchIcon::after {
+  position: absolute;
+  right: 1px;
+  bottom: 2px;
+  width: 7px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  content: "";
+  transform: rotate(45deg);
+  transform-origin: center;
+}
+
+.placeholder {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  color: var(--sd-muted, var(--soko-muted));
+  font-family: Inter, var(--soko-font-sans);
+  font-size: 0.92rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.location {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  gap: var(--sd-space-1, var(--soko-space-1));
+  color: var(--sd-primary, var(--soko-green-800));
+  font-family: Inter, var(--soko-font-sans);
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pinIcon::before {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  width: 9px;
+  height: 9px;
+  border: 2px solid currentColor;
+  border-radius: 999px 999px 999px 0;
+  content: "";
+  transform: rotate(-45deg);
+}
+
+.pinIcon::after {
+  position: absolute;
+  top: 5px;
+  left: 7px;
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: currentColor;
+  content: "";
+}
+
+@media (min-width: 768px) {
+  .searchBar {
+    max-width: 640px;
+  }
+}

@@ -1,0 +1,158 @@
+.heroBanner {
+  position: relative;
+  display: grid;
+  min-height: 260px;
+  overflow: hidden;
+  grid-template-columns: 1fr;
+  align-items: center;
+  padding: var(--sd-space-6, var(--soko-space-6));
+  border: 1px solid var(--sd-border, var(--soko-line));
+  border-radius: var(--sd-radius-lg, var(--soko-radius-lg));
+  background:
+    linear-gradient(135deg, var(--sd-surface, var(--soko-surface)) 0%, var(--sd-bg, var(--soko-background)) 100%);
+  box-shadow: var(--sd-shadow-sm, var(--soko-shadow-sm));
+}
+
+.copy {
+  position: relative;
+  z-index: 1;
+}
+
+.title {
+  margin: 0;
+  color: var(--sd-text, var(--soko-ink));
+  font-family: var(--soko-font-display);
+  font-size: 3.2rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 0.98;
+}
+
+.title span {
+  color: var(--sd-primary, var(--soko-green-800));
+}
+
+.cta {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--sd-space-6, var(--soko-space-6));
+  padding: 0 var(--sd-space-5, var(--soko-space-5));
+  border: 0;
+  border-radius: var(--sd-radius-pill, var(--soko-radius-pill));
+  background: var(--sd-primary, var(--soko-green-800));
+  color: #fff;
+  font-family: Inter, var(--soko-font-sans);
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.illustration {
+  position: absolute;
+  top: var(--sd-space-5, var(--soko-space-5));
+  right: var(--sd-space-5, var(--soko-space-5));
+  width: 88px;
+  height: 88px;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.orbit,
+.shapeOne,
+.shapeTwo {
+  position: absolute;
+  display: block;
+}
+
+.orbit {
+  inset: 0;
+  border: 1px solid color-mix(in srgb, var(--sd-primary, var(--soko-green-800)) 18%, transparent);
+  border-radius: 40% 60% 48% 52%;
+  background: color-mix(in srgb, var(--sd-primary-soft, var(--soko-green-50)) 72%, transparent);
+}
+
+.shapeOne {
+  top: 20px;
+  left: 18px;
+  width: 42px;
+  height: 42px;
+  border-radius: 36% 64% 42% 58%;
+  background: color-mix(in srgb, var(--sd-primary, var(--soko-green-800)) 18%, transparent);
+}
+
+.shapeTwo {
+  right: 14px;
+  bottom: 16px;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--sd-primary, var(--soko-green-800));
+}
+
+@media (max-width: 420px) {
+  .heroBanner {
+    min-height: 250px;
+    padding: var(--sd-space-5, var(--soko-space-5));
+  }
+
+  .illustration {
+    width: 72px;
+    height: 72px;
+    opacity: 0.5;
+  }
+
+  .title {
+    font-size: 2.45rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .heroBanner {
+    min-height: 390px;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: var(--sd-space-10, var(--soko-space-10));
+    padding: 56px;
+    background:
+      linear-gradient(135deg, var(--sd-surface, var(--soko-surface)) 0%, var(--sd-primary-soft, var(--soko-green-50)) 100%);
+  }
+
+  .title {
+    font-size: 4.25rem;
+  }
+
+  .cta {
+    min-width: 210px;
+  }
+
+  .illustration {
+    position: relative;
+    top: auto;
+    right: auto;
+    justify-self: end;
+    width: 320px;
+    height: 260px;
+    opacity: 1;
+  }
+
+  .orbit {
+    inset: 0;
+    border-radius: 38% 62% 44% 56%;
+    background: color-mix(in srgb, var(--sd-primary-soft, var(--soko-green-50)) 82%, var(--sd-surface, var(--soko-surface)));
+  }
+
+  .shapeOne {
+    top: 54px;
+    left: 56px;
+    width: 146px;
+    height: 146px;
+    border-radius: 36% 64% 48% 52%;
+  }
+
+  .shapeTwo {
+    right: 62px;
+    bottom: 58px;
+    width: 68px;
+    height: 68px;
+  }
+}

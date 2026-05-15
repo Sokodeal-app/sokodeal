@@ -1,8 +1,12 @@
 export { Badge } from "./Badge";
 export { Button } from "./Button";
 export { Card } from "./Card";
+export { CategoryBar } from "./CategoryBar";
 export { Chip } from "./Chip";
 export { EmptyState } from "./EmptyState";
+export { HeroBanner } from "./HeroBanner";
 export { Input } from "./Input";
+export { QuickExplore } from "./QuickExplore";
+export { SearchBar } from "./SearchBar";
 export { SectionHeader } from "./SectionHeader";
 export { Skeleton } from "./Skeleton";
