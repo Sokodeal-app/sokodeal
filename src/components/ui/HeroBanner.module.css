@@ -3,7 +3,7 @@
   display: grid;
   min-height: 260px;
   overflow: hidden;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr;
   align-items: center;
   padding: var(--sd-space-6, var(--soko-space-6));
   border: 1px solid var(--sd-border, var(--soko-line));
@@ -52,45 +52,42 @@
   position: absolute;
   top: var(--sd-space-5, var(--soko-space-5));
   right: var(--sd-space-5, var(--soko-space-5));
-  width: 100px;
-  height: 100px;
+  width: 88px;
+  height: 88px;
+  opacity: 0.75;
+  pointer-events: none;
 }
 
 .orbit,
-.cardOne,
-.cardTwo {
+.shapeOne,
+.shapeTwo {
   position: absolute;
   display: block;
 }
 
 .orbit {
   inset: 0;
-  border: 1px solid var(--sd-primary-muted, var(--soko-green-100));
-  border-radius: 42% 58% 46% 54%;
+  border: 1px solid color-mix(in srgb, var(--sd-primary, var(--soko-green-800)) 18%, transparent);
+  border-radius: 40% 60% 48% 52%;
   background: color-mix(in srgb, var(--sd-primary-soft, var(--soko-green-50)) 72%, transparent);
 }
 
-.cardOne {
-  top: 19px;
+.shapeOne {
+  top: 20px;
   left: 18px;
-  width: 52px;
-  height: 36px;
-  border: 1px solid var(--sd-border, var(--soko-line));
-  border-radius: var(--sd-radius-md, var(--soko-radius-md));
-  background: var(--sd-surface, var(--soko-surface));
-  box-shadow: var(--sd-shadow-sm, var(--soko-shadow-sm));
-  transform: rotate(-9deg);
+  width: 42px;
+  height: 42px;
+  border-radius: 36% 64% 42% 58%;
+  background: color-mix(in srgb, var(--sd-primary, var(--soko-green-800)) 18%, transparent);
 }
 
-.cardTwo {
-  right: 15px;
-  bottom: 18px;
-  width: 44px;
-  height: 32px;
-  border-radius: var(--sd-radius-md, var(--soko-radius-md));
+.shapeTwo {
+  right: 14px;
+  bottom: 16px;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
   background: var(--sd-primary, var(--soko-green-800));
-  box-shadow: var(--sd-shadow-sm, var(--soko-shadow-sm));
-  transform: rotate(10deg);
 }
 
 @media (max-width: 420px) {
@@ -100,9 +97,9 @@
   }
 
   .illustration {
-    width: 82px;
-    height: 82px;
-    opacity: 0.8;
+    width: 72px;
+    height: 72px;
+    opacity: 0.5;
   }
 
   .title {
@@ -110,7 +107,7 @@
   }
 }
 
-@media (min-width: 769px) {
+@media (min-width: 768px) {
   .heroBanner {
     min-height: 390px;
     grid-template-columns: minmax(0, 1fr) 360px;
@@ -135,27 +132,27 @@
     justify-self: end;
     width: 320px;
     height: 260px;
+    opacity: 1;
   }
 
   .orbit {
-    inset: 18px 0 0 34px;
-    border-radius: 28px;
+    inset: 0;
+    border-radius: 38% 62% 44% 56%;
     background: color-mix(in srgb, var(--sd-primary-soft, var(--soko-green-50)) 82%, var(--sd-surface, var(--soko-surface)));
   }
 
-  .cardOne {
-    top: 42px;
-    left: 22px;
-    width: 190px;
-    height: 124px;
-    border-radius: var(--sd-radius-lg, var(--soko-radius-lg));
+  .shapeOne {
+    top: 54px;
+    left: 56px;
+    width: 146px;
+    height: 146px;
+    border-radius: 36% 64% 48% 52%;
   }
 
-  .cardTwo {
-    right: 24px;
-    bottom: 42px;
-    width: 156px;
-    height: 104px;
-    border-radius: var(--sd-radius-lg, var(--soko-radius-lg));
+  .shapeTwo {
+    right: 62px;
+    bottom: 58px;
+    width: 68px;
+    height: 68px;
   }
 }

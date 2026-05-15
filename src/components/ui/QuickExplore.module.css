@@ -43,11 +43,23 @@
 }
 
 .flame::before {
-  width: 10px;
+  width: 12px;
   height: 16px;
   border-radius: 8px 8px 8px 2px;
   background: currentColor;
   transform: rotate(24deg);
+}
+
+.flame::after {
+  position: absolute;
+  bottom: 6px;
+  left: 11px;
+  width: 6px;
+  height: 9px;
+  border-radius: 999px 999px 999px 2px;
+  background: var(--sd-surface, var(--soko-surface));
+  content: "";
+  transform: rotate(20deg);
 }
 
 .pin::before {
@@ -97,4 +109,10 @@
   border-radius: 999px;
   background: currentColor;
   content: "";
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }

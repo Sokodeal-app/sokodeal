@@ -59,17 +59,16 @@
 
 .all::before {
   inset: 3px;
-  border: 2px solid currentColor;
-  border-radius: 999px;
+  background:
+    linear-gradient(currentColor 0 0) 0 0 / 7px 7px no-repeat,
+    linear-gradient(currentColor 0 0) 11px 0 / 7px 7px no-repeat,
+    linear-gradient(currentColor 0 0) 0 11px / 7px 7px no-repeat,
+    linear-gradient(currentColor 0 0) 11px 11px / 7px 7px no-repeat;
+  border-radius: 2px;
 }
 
 .all::after {
-  top: 8px;
-  left: 8px;
-  width: 2px;
-  height: 2px;
-  border-radius: 999px;
-  background: currentColor;
+  display: none;
 }
 
 .home::before {
@@ -163,13 +162,26 @@
 .services::before {
   top: 4px;
   left: 3px;
-  width: 12px;
-  height: 10px;
+  width: 13px;
+  height: 4px;
   border: 2px solid currentColor;
-  border-radius: 3px;
+  border-radius: 999px;
+  transform: rotate(-35deg);
 }
 
-@media (min-width: 769px) {
+.services::after {
+  position: absolute;
+  right: 3px;
+  bottom: 4px;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  content: "";
+  transform: rotate(-35deg);
+}
+
+@media (min-width: 768px) {
   .categoryBar {
     flex-wrap: wrap;
     margin: 0;

@@ -24,8 +24,8 @@ export function HeroBanner() {
       </div>
       <div className={styles.illustration} aria-hidden="true">
         <span className={styles.orbit} />
-        <span className={styles.cardOne} />
-        <span className={styles.cardTwo} />
+        <span className={styles.shapeOne} />
+        <span className={styles.shapeTwo} />
       </div>
     </section>
   );

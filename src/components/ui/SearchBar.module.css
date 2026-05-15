@@ -91,7 +91,7 @@
   content: "";
 }
 
-@media (min-width: 769px) {
+@media (min-width: 768px) {
   .searchBar {
     max-width: 640px;
   }
