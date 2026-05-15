@@ -1,0 +1,161 @@
+.heroBanner {
+  position: relative;
+  display: grid;
+  min-height: 260px;
+  overflow: hidden;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: var(--sd-space-6, var(--soko-space-6));
+  border: 1px solid var(--sd-border, var(--soko-line));
+  border-radius: var(--sd-radius-lg, var(--soko-radius-lg));
+  background:
+    linear-gradient(135deg, var(--sd-surface, var(--soko-surface)) 0%, var(--sd-bg, var(--soko-background)) 100%);
+  box-shadow: var(--sd-shadow-sm, var(--soko-shadow-sm));
+}
+
+.copy {
+  position: relative;
+  z-index: 1;
+}
+
+.title {
+  margin: 0;
+  color: var(--sd-text, var(--soko-ink));
+  font-family: var(--soko-font-display);
+  font-size: 3.2rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 0.98;
+}
+
+.title span {
+  color: var(--sd-primary, var(--soko-green-800));
+}
+
+.cta {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--sd-space-6, var(--soko-space-6));
+  padding: 0 var(--sd-space-5, var(--soko-space-5));
+  border: 0;
+  border-radius: var(--sd-radius-pill, var(--soko-radius-pill));
+  background: var(--sd-primary, var(--soko-green-800));
+  color: #fff;
+  font-family: Inter, var(--soko-font-sans);
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.illustration {
+  position: absolute;
+  top: var(--sd-space-5, var(--soko-space-5));
+  right: var(--sd-space-5, var(--soko-space-5));
+  width: 100px;
+  height: 100px;
+}
+
+.orbit,
+.cardOne,
+.cardTwo {
+  position: absolute;
+  display: block;
+}
+
+.orbit {
+  inset: 0;
+  border: 1px solid var(--sd-primary-muted, var(--soko-green-100));
+  border-radius: 42% 58% 46% 54%;
+  background: color-mix(in srgb, var(--sd-primary-soft, var(--soko-green-50)) 72%, transparent);
+}
+
+.cardOne {
+  top: 19px;
+  left: 18px;
+  width: 52px;
+  height: 36px;
+  border: 1px solid var(--sd-border, var(--soko-line));
+  border-radius: var(--sd-radius-md, var(--soko-radius-md));
+  background: var(--sd-surface, var(--soko-surface));
+  box-shadow: var(--sd-shadow-sm, var(--soko-shadow-sm));
+  transform: rotate(-9deg);
+}
+
+.cardTwo {
+  right: 15px;
+  bottom: 18px;
+  width: 44px;
+  height: 32px;
+  border-radius: var(--sd-radius-md, var(--soko-radius-md));
+  background: var(--sd-primary, var(--soko-green-800));
+  box-shadow: var(--sd-shadow-sm, var(--soko-shadow-sm));
+  transform: rotate(10deg);
+}
+
+@media (max-width: 420px) {
+  .heroBanner {
+    min-height: 250px;
+    padding: var(--sd-space-5, var(--soko-space-5));
+  }
+
+  .illustration {
+    width: 82px;
+    height: 82px;
+    opacity: 0.8;
+  }
+
+  .title {
+    font-size: 2.45rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .heroBanner {
+    min-height: 390px;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: var(--sd-space-10, var(--soko-space-10));
+    padding: 56px;
+    background:
+      linear-gradient(135deg, var(--sd-surface, var(--soko-surface)) 0%, var(--sd-primary-soft, var(--soko-green-50)) 100%);
+  }
+
+  .title {
+    font-size: 4.25rem;
+  }
+
+  .cta {
+    min-width: 210px;
+  }
+
+  .illustration {
+    position: relative;
+    top: auto;
+    right: auto;
+    justify-self: end;
+    width: 320px;
+    height: 260px;
+  }
+
+  .orbit {
+    inset: 18px 0 0 34px;
+    border-radius: 28px;
+    background: color-mix(in srgb, var(--sd-primary-soft, var(--soko-green-50)) 82%, var(--sd-surface, var(--soko-surface)));
+  }
+
+  .cardOne {
+    top: 42px;
+    left: 22px;
+    width: 190px;
+    height: 124px;
+    border-radius: var(--sd-radius-lg, var(--soko-radius-lg));
+  }
+
+  .cardTwo {
+    right: 24px;
+    bottom: 42px;
+    width: 156px;
+    height: 104px;
+    border-radius: var(--sd-radius-lg, var(--soko-radius-lg));
+  }
+}

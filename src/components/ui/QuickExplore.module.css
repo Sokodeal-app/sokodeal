@@ -1,0 +1,100 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sd-space-3, var(--soko-space-3));
+}
+
+.item {
+  display: flex;
+  min-height: 88px;
+  align-items: center;
+  gap: var(--sd-space-3, var(--soko-space-3));
+  padding: var(--sd-space-4, var(--soko-space-4));
+  border: 1px solid var(--sd-border, var(--soko-line));
+  border-radius: var(--sd-radius-lg, var(--soko-radius-lg));
+  background: var(--sd-surface, var(--soko-surface));
+  color: var(--sd-text, var(--soko-ink));
+  box-shadow: var(--sd-shadow-sm, var(--soko-shadow-sm));
+  font-family: Inter, var(--soko-font-sans);
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-align: left;
+}
+
+.icon {
+  position: relative;
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--sd-radius-md, var(--soko-radius-md));
+  background: var(--sd-primary-soft, var(--soko-green-50));
+  color: var(--sd-primary, var(--soko-green-800));
+}
+
+.flame::before,
+.pin::before,
+.home::before,
+.tag::before {
+  position: absolute;
+  content: "";
+}
+
+.flame::before {
+  width: 10px;
+  height: 16px;
+  border-radius: 8px 8px 8px 2px;
+  background: currentColor;
+  transform: rotate(24deg);
+}
+
+.pin::before {
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-radius: 999px 999px 999px 0;
+  transform: rotate(-45deg);
+}
+
+.home::before {
+  top: 12px;
+  left: 8px;
+  width: 12px;
+  height: 9px;
+  border: 2px solid currentColor;
+  border-top: 0;
+  border-radius: 2px;
+}
+
+.home::after {
+  position: absolute;
+  top: 7px;
+  left: 9px;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid currentColor;
+  border-left: 2px solid currentColor;
+  content: "";
+  transform: rotate(45deg);
+}
+
+.tag::before {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-radius: 4px 4px 4px 1px;
+  transform: rotate(45deg);
+}
+
+.tag::after {
+  position: absolute;
+  top: 9px;
+  left: 13px;
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: currentColor;
+  content: "";
+}

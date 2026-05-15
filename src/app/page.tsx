@@ -1,5 +1,5 @@
 ﻿'use client'
-import { Fragment, useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { supabasePublic } from '@/lib/supabase-public'
@@ -7,12 +7,12 @@ import { useAuth } from '@/components/AuthProvider'
 import FavoriteButton from '@/components/FavoriteButton'
 import { ListingCard, ListingCardSkeleton, ListingGrid } from '@/components/listings'
 import { BottomNav } from '@/components/navigation'
-import { SectionHeader } from '@/components/ui'
+import { CategoryBar, HeroBanner, QuickExplore, SearchBar, SectionHeader } from '@/components/ui'
 import { useUnreadCount } from '@/hooks/useUnreadCount'
 import { SUBCATEGORIES } from '@/lib/categories'
 import { FEATURE_FLAGS } from '@/lib/feature-flags'
 import { getApproxCoords } from '@/lib/locations'
-import { LAUNCH_CITIES, LAUNCH_MAIN_CATEGORIES, LAUNCH_SUBCATEGORIES, matchesCategoryGroup } from '@/lib/market-config'
+import { LAUNCH_CITIES, LAUNCH_SUBCATEGORIES, matchesCategoryGroup } from '@/lib/market-config'
 import { generateSlug } from '@/lib/slug'
 import { formatPrice, formatRelativeTime } from '@/lib/format'
 
@@ -27,8 +27,6 @@ export default function Home() {
   const { user } = useAuth()
   const [isUserAdmin, setIsUserAdmin] = useState(false)
   const [search, setSearch] = useState('')
-  const [showSuggestions, setShowSuggestions] = useState(false)
-  const [localHistory, setLocalHistory] = useState<string[]>([])
   const [filterCat, setFilterCat] = useState('')
   const [filterSubcat, setFilterSubcat] = useState('')
   const [filterVille, setFilterVille] = useState('')
@@ -131,10 +129,6 @@ export default function Home() {
   useEffect(() => {
     fetchAds()
 
-    const stored = localStorage.getItem('sokodeal:search-history')
-    if (stored) {
-      try { setLocalHistory(JSON.parse(stored).slice(0, 10)) } catch {}
-    }
   }, [fetchAds])
 
   useEffect(() => {
@@ -396,7 +390,6 @@ export default function Home() {
           const existing: string[] = stored ? JSON.parse(stored) : []
           const updated = [cleanSearch, ...existing.filter(s => s !== cleanSearch)].slice(0, 10)
           localStorage.setItem('sokodeal:search-history', JSON.stringify(updated))
-          setLocalHistory(updated)
         } catch {}
       }
 
@@ -489,6 +482,11 @@ export default function Home() {
         .nav-cat:hover { color: #1a7a4a !important; }
         .immo-card:hover { border-color: #1a7a4a !important; }
         .immo-card { transition: border-color 0.15s, box-shadow 0.15s; }
+        .homepage-spec-shell { max-width: 480px; margin: 0 auto; padding: 0 16px; }
+        .homepage-content-safe { padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
+        @media (min-width: 769px) {
+          .homepage-spec-shell { max-width: 1120px; padding: 0 32px; }
+        }
       `}</style>
 
       {toast && (
@@ -509,56 +507,6 @@ export default function Home() {
             <div className="header-logo-mark" style={{width:'34px', height:'34px', background:'#1a7a4a', borderRadius:'9px', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'17px', color:'white'}}>S</div>
             <span className="header-logo-name" style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.25rem', color:'#111a14'}}>Soko<span style={{color:'#1a7a4a'}}>Deal</span></span>
           </a>
-
-          <div className="search-bar" style={{flex:1, maxWidth:'480px', position:'relative'}}>
-            <div style={{display:'flex', background:'white', borderRadius:'9px', overflow:'hidden', border:'1px solid #e8e4de'}}>
-              <input type="text" placeholder="Rechercher... ou @username" value={search}
-                onChange={e => { setSearch(e.target.value); setActiveSection('main') }}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                style={{flex:1, padding:'9px 14px', border:'none', outline:'none', fontFamily:'DM Sans,sans-serif', fontSize:'0.9rem', background:'transparent', color:'#111a14'}}
-              />
-              <button style={{background:'#1a7a4a', border:'none', cursor:'pointer', padding:'9px 16px', fontSize:'1rem', color:'white'}}>🔍</button>
-            </div>
-            {showSuggestions && localHistory.length > 0 && !search && (
-              <div style={{position:'absolute', top:'44px', left:0, right:0, background:'white', borderRadius:'12px', border:'1px solid #e8e4de', boxShadow:'0 8px 24px rgba(0,0,0,0.10)', zIndex:500, overflow:'hidden'}}>
-                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 14px', borderBottom:'1px solid #e8e4de'}}>
-                  <span style={{fontSize:'0.72rem', fontWeight:700, color:'#6b7c6e', textTransform:'uppercase'}}>Recherches récentes</span>
-                  <button
-                    onMouseDown={() => {
-                      localStorage.removeItem('sokodeal:search-history')
-                      setLocalHistory([])
-                      setShowSuggestions(false)
-                    }}
-                    style={{fontSize:'0.72rem', color:'#c0392b', background:'none', border:'none', cursor:'pointer', fontWeight:600}}
-                  >
-                    Tout effacer
-                  </button>
-                </div>
-                {localHistory.map((item, i) => (
-                  <div key={`${item}-${i}`} style={{display:'flex', alignItems:'center', padding:'10px 14px', borderBottom: i < localHistory.length - 1 ? '1px solid #e8e4de' : 'none'}}>
-                    <span style={{fontSize:'0.85rem', marginRight:'8px'}}>🕐</span>
-                    <span
-                      onMouseDown={() => { setSearch(item); setShowSuggestions(false); setActiveSection('main') }}
-                      style={{flex:1, fontSize:'0.85rem', color:'#111a14', cursor:'pointer', fontFamily:'DM Sans,sans-serif'}}
-                    >
-                      {item}
-                    </span>
-                    <button
-                      onMouseDown={() => {
-                        const updated = localHistory.filter((_, j) => j !== i)
-                        setLocalHistory(updated)
-                        localStorage.setItem('sokodeal:search-history', JSON.stringify(updated))
-                      }}
-                      style={{background:'none', border:'none', cursor:'pointer', color:'#9ca3af', fontSize:'1rem', padding:'0 4px'}}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
 
           <div style={{display:'flex', alignItems:'center', gap:'8px', flexShrink:0}}>
             {user ? (
@@ -589,45 +537,6 @@ export default function Home() {
             </button>
           </div>
         </div>
-
-        {/* Navbar catégories */}
-        <div className="main-cat-nav" style={{padding:'0 5%', display:'flex', justifyContent:'safe center', alignItems:'center', overflowX:'auto', scrollbarWidth:'none', maxWidth:'1300px', margin:'0 auto', background:'#faf9f7'}}>
-          <a href="#" className="nav-cat" onClick={e => { e.preventDefault(); handleNavCat('') }}
-            style={{display:'flex', alignItems:'center', padding:'9px 14px', color: filterCat === '' ? '#1a7a4a' : '#6b7c6e', textDecoration:'none', fontSize:'0.82rem', fontWeight: filterCat === '' ? 700 : 500, whiteSpace:'nowrap', borderBottom: filterCat === '' ? '2px solid #1a7a4a' : '2px solid transparent'}}>
-            Tout
-          </a>
-          <span className="cat-separator" style={{color:'#c8c4be', fontSize:'0.4rem', flexShrink:0, margin:'0 2px'}}>●</span>
-          {LAUNCH_MAIN_CATEGORIES.map((item, index) => (
-            <Fragment key={item.value}>
-              <a href="#" className="nav-cat"
-                onClick={e => { e.preventDefault(); handleNavCat(item.value) }}
-                style={{display:'flex', alignItems:'center', padding:'9px 14px', color: filterCat === item.value ? '#1a7a4a' : '#6b7c6e', textDecoration:'none', fontSize:'0.82rem', fontWeight: filterCat === item.value ? 700 : 500, whiteSpace:'nowrap', borderBottom: filterCat === item.value ? '2px solid #1a7a4a' : '2px solid transparent'}}>
-                {item.label}
-              </a>
-              {index < LAUNCH_MAIN_CATEGORIES.length - 1 && (
-                <span className="cat-separator" style={{color:'#c8c4be', fontSize:'0.4rem', flexShrink:0, margin:'0 2px'}}>●</span>
-              )}
-            </Fragment>
-          ))}
-        </div>
-
-        {/* Sous-catégories */}
-        {subcats.length > 0 && !isImmoMode && (
-          <div style={{borderTop:'1px solid #e8e4de', padding:'0 5%', display:'flex', overflowX:'auto', scrollbarWidth:'none', maxWidth:'1300px', margin:'0 auto', background:'#faf9f7'}}>
-            <a href="#" className="nav-cat"
-              onClick={e => { e.preventDefault(); setFilterSubcat('') }}
-              style={{display:'flex', alignItems:'center', padding:'7px 12px', color: filterSubcat === '' ? '#1a7a4a' : '#6b7c6e', textDecoration:'none', fontSize:'0.78rem', fontWeight: filterSubcat === '' ? 700 : 500, whiteSpace:'nowrap', borderBottom: filterSubcat === '' ? '2px solid #1a7a4a' : '2px solid transparent'}}>
-              Tous
-            </a>
-            {subcats.map((sub) => (
-              <a key={sub.value} href="#" className="nav-cat"
-                onClick={e => { e.preventDefault(); setFilterSubcat(sub.value) }}
-                style={{display:'flex', alignItems:'center', padding:'7px 12px', color: filterSubcat === sub.value ? '#1a7a4a' : '#6b7c6e', textDecoration:'none', fontSize:'0.78rem', fontWeight: filterSubcat === sub.value ? 700 : 500, whiteSpace:'nowrap', borderBottom: filterSubcat === sub.value ? '2px solid #1a7a4a' : '2px solid transparent'}}>
-                {sub.label}
-              </a>
-            ))}
-          </div>
-        )}
 
         {/* ✅ Filtres immo inline dans le header */}
         {isImmoMode && (
@@ -683,24 +592,14 @@ export default function Home() {
         )}
       </header>
 
-      <div className="mobile-top-search" style={{display:'none', padding:'10px 5% 4px', background:'#faf9f7'}}>
-        <div style={{display:'flex', alignItems:'center', background:'white', borderRadius:'12px', overflow:'hidden', border:'1px solid #e8e4de', boxShadow:'0 2px 10px rgba(0,0,0,0.04)'}}>
-          <input
-            type="text"
-            placeholder="Que recherchez-vous ?"
-            value={search}
-            onChange={e => { setSearch(e.target.value); setActiveSection('main') }}
-            style={{flex:1, minWidth:0, padding:'12px 14px', border:'none', outline:'none', fontFamily:'DM Sans,sans-serif', fontSize:'0.92rem', background:'transparent', color:'#111a14'}}
-          />
-          <button
-            onClick={() => setActiveSection('main')}
-            aria-label="Rechercher"
-            style={{width:'46px', alignSelf:'stretch', background:'#1a7a4a', border:'none', color:'white', fontSize:'1rem', cursor:'pointer'}}
-          >
-            🔍
-          </button>
-        </div>
-      </div>
+      <main className="homepage-content-safe">
+        {!search.startsWith('@') && activeSection === 'main' && !search && !filterCat && (
+          <div className="homepage-spec-shell" style={{paddingTop:'16px', display:'flex', flexDirection:'column', gap:'16px'}}>
+            <SearchBar />
+            <CategoryBar />
+            <HeroBanner />
+          </div>
+        )}
 
       {/* ── RECHERCHE @USERNAME ── */}
       {search.startsWith('@') && (
@@ -738,7 +637,7 @@ export default function Home() {
       )}
 
       {/* ── HERO ── */}
-      {!search.startsWith('@') && activeSection === 'main' && !search && !filterCat && (
+      {false && !search.startsWith('@') && activeSection === 'main' && !search && !filterCat && (
         <div style={{padding:'24px 5% 0', maxWidth:'1300px', margin:'0 auto', width:'100%', boxSizing:'border-box'}}>
           <div className="hero-section hero-premium" style={{position:'relative', overflow:'hidden', background:'#faf9f7', backgroundImage:"url('https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=1400&q=80')", backgroundSize:'cover', backgroundPosition:'right center', backgroundRepeat:'no-repeat', minHeight:'420px', padding:'48px 5%', borderRadius:'16px', display:'grid', gridTemplateColumns:'1.1fr 0.9fr', gap:'32px', alignItems:'center', border:'1px solid #e8e4de'}}>
             <div className="hero-premium-gradient" style={{position:'absolute', inset:0, background:'linear-gradient(90deg, #faf9f7 0%, rgba(250,249,247,0.95) 25%, rgba(250,249,247,0.6) 45%, rgba(250,249,247,0.2) 65%, transparent 80%)', zIndex:1, pointerEvents:'none'}} />
@@ -967,8 +866,8 @@ export default function Home() {
             <SectionHeader
               title="Recommandé pour vous"
               description="Basé sur vos favoris, recherches, historique et alertes"
-              actionLabel="Gérer mes alertes"
-              onAction={() => router.push('/profil?tab=alertes')}
+              actionLabel="Voir tout"
+              onAction={() => router.push('/explorer')}
             />
           </div>
           <div style={{display:'flex', gap:'16px', overflowX:'auto', scrollbarWidth:'none', paddingBottom:'10px', WebkitOverflowScrolling:'touch'}}>
@@ -996,7 +895,7 @@ export default function Home() {
         </div>
       )}
 
-      {!search && !filterCat && !isImmoMode && (
+      {false && !search && !filterCat && !isImmoMode && (
         <div id="explore-rapidement" style={{padding:'24px 5% 32px', maxWidth:'1300px', margin:'0 auto', marginTop:'32px', width:'100%', boxSizing:'border-box'}}>
           <div style={{marginBottom:'16px'}}>
             <SectionHeader title="Explorez rapidement" />
@@ -1124,6 +1023,15 @@ export default function Home() {
         </div>
       )}
 
+      {!search.startsWith('@') && activeSection === 'main' && !search && !filterCat && !isImmoMode && (
+        <section id="explore-rapidement" className="homepage-spec-shell" style={{marginTop:'32px'}}>
+          <div style={{marginBottom:'16px'}}>
+            <SectionHeader title="Explorer rapidement" />
+          </div>
+          <QuickExplore />
+        </section>
+      )}
+
       {/* ── JOBS ── */}
       {activeSection === 'jobs' && (
         <div style={{padding:'32px 5%', maxWidth:'1300px', margin:'0 auto'}}>
@@ -1169,6 +1077,7 @@ export default function Home() {
           </div>
         </footer>
       )}
+      </main>
       <BottomNav withSpacer />
     </>
   )
