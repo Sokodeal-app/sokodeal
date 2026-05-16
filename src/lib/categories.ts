@@ -1,4 +1,68 @@
 // lib/categories.ts
+// Fichier partagé: les anciens slugs restent disponibles, les nouveaux slugs DS v4 sont stables.
+
+export const CATEGORY_SLUGS = {
+  REAL_ESTATE: 'real_estate',
+  VEHICLES: 'vehicles',
+  ELECTRONICS: 'electronics',
+  HOME: 'home',
+  FASHION: 'fashion',
+  SERVICES: 'services',
+  MOTO: 'moto',
+  OTHER: 'other',
+} as const
+
+export type CategorySlug = (typeof CATEGORY_SLUGS)[keyof typeof CATEGORY_SLUGS]
+
+export type CategoryOption = {
+  value: string
+  label: string
+  navbar?: boolean
+}
+
+export const DS_CATEGORIES: CategoryOption[] = [
+  { value: CATEGORY_SLUGS.REAL_ESTATE, label: 'Immobilier', navbar: true },
+  { value: CATEGORY_SLUGS.VEHICLES, label: 'Véhicules', navbar: true },
+  { value: CATEGORY_SLUGS.MOTO, label: 'Motos', navbar: true },
+  { value: CATEGORY_SLUGS.ELECTRONICS, label: 'Électronique', navbar: true },
+  { value: CATEGORY_SLUGS.HOME, label: 'Maison', navbar: true },
+  { value: CATEGORY_SLUGS.FASHION, label: 'Mode', navbar: true },
+  { value: CATEGORY_SLUGS.SERVICES, label: 'Services', navbar: true },
+  { value: CATEGORY_SLUGS.OTHER, label: 'Autre', navbar: true },
+]
+
+export const LEGACY_CATEGORY_ALIASES: Record<string, CategorySlug> = {
+  immo: CATEGORY_SLUGS.REAL_ESTATE,
+  'immo-vente': CATEGORY_SLUGS.REAL_ESTATE,
+  'immo-location': CATEGORY_SLUGS.REAL_ESTATE,
+  'immo-terrain': CATEGORY_SLUGS.REAL_ESTATE,
+  voiture: CATEGORY_SLUGS.VEHICLES,
+  vehicles: CATEGORY_SLUGS.VEHICLES,
+  moto: CATEGORY_SLUGS.MOTO,
+  electronique: CATEGORY_SLUGS.ELECTRONICS,
+  electronics: CATEGORY_SLUGS.ELECTRONICS,
+  maison: CATEGORY_SLUGS.HOME,
+  home: CATEGORY_SLUGS.HOME,
+  mode: CATEGORY_SLUGS.FASHION,
+  fashion: CATEGORY_SLUGS.FASHION,
+  services: CATEGORY_SLUGS.SERVICES,
+  emploi: CATEGORY_SLUGS.SERVICES,
+  agriculture: CATEGORY_SLUGS.OTHER,
+  materiaux: CATEGORY_SLUGS.OTHER,
+  sante: CATEGORY_SLUGS.OTHER,
+  sport: CATEGORY_SLUGS.OTHER,
+  education: CATEGORY_SLUGS.OTHER,
+  animaux: CATEGORY_SLUGS.OTHER,
+  other: CATEGORY_SLUGS.OTHER,
+  autre: CATEGORY_SLUGS.OTHER,
+}
+
+export function normalizeCategorySlug(value: string | null | undefined): CategorySlug {
+  const key = value?.trim()
+  if (!key) return CATEGORY_SLUGS.OTHER
+
+  return LEGACY_CATEGORY_ALIASES[key] || CATEGORY_SLUGS.OTHER
+}
 // Fichier partagé — importer dans page.tsx et publier/page.tsx
 
 export const SUBCATEGORIES: Record<string, { value: string; label: string }[]> = {
