@@ -1,10 +1,17 @@
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+}
+
+* {
   margin: 0;
   padding: 0;
 }
 
 :root {
+  color-scheme: light;
+
   --soko-green-950: #06281a;
   --soko-green-900: #0b3d27;
   --soko-green-800: #0f5233;
@@ -13,6 +20,7 @@
   --soko-green-500: #2aae6f;
   --soko-green-100: #dff3e8;
   --soko-green-50: #f0faf4;
+  --soko-gold-700: #9f6413;
   --soko-gold-600: #c7871f;
   --soko-gold-500: #e0a12f;
   --soko-gold-100: #faecc9;
@@ -24,13 +32,18 @@
   --soko-surface-soft: #f5f7f5;
   --soko-background: #f0f4f1;
   --soko-danger: #c24135;
+
   --soko-radius-xs: 4px;
   --soko-radius-sm: 6px;
   --soko-radius-md: 8px;
   --soko-radius-lg: 12px;
+  --soko-radius-xl: 16px;
   --soko-radius-pill: 999px;
+
   --soko-shadow-sm: 0 1px 2px rgba(16, 32, 24, 0.08);
   --soko-shadow-md: 0 8px 24px rgba(16, 32, 24, 0.12);
+  --soko-shadow-lg: 0 16px 48px rgba(16, 32, 24, 0.14);
+
   --soko-space-1: 4px;
   --soko-space-2: 8px;
   --soko-space-3: 12px;
@@ -40,18 +53,93 @@
   --soko-space-8: 32px;
   --soko-space-10: 40px;
   --soko-space-12: 48px;
-  --soko-font-sans: 'DM Sans', sans-serif;
-  --soko-font-display: 'Syne', sans-serif;
+
+  --soko-font-sans: "DM Sans", Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --soko-font-display: "Syne", "DM Sans", Inter, system-ui, sans-serif;
+
+  --sd-bg: var(--soko-background);
+  --sd-surface: var(--soko-surface);
+  --sd-beige: var(--soko-surface-soft);
+  --sd-border: var(--soko-line);
+  --sd-text: var(--soko-ink);
+  --sd-muted: var(--soko-muted);
+  --sd-subtle: var(--soko-subtle);
+
+  --sd-primary: var(--soko-green-800);
+  --sd-primary-dark: var(--soko-green-900);
+  --sd-primary-muted: var(--soko-green-100);
+  --sd-primary-soft: var(--soko-green-50);
+  --sd-accent: var(--soko-gold-500);
+  --sd-accent-dark: var(--soko-gold-600);
+
+  --sd-error: var(--soko-danger);
+  --sd-error-dark: #9f2f27;
+  --sd-error-text: #7f1d1d;
+  --sd-error-bg: #fde8e4;
+  --sd-error-border: #f4b5ad;
+  --sd-success-text: var(--soko-green-900);
+  --sd-success-bg: var(--soko-green-50);
+  --sd-success-border: var(--soko-green-100);
+  --sd-warning-text: #7a4d00;
+  --sd-warning-bg: var(--soko-gold-100);
+  --sd-warning-border: var(--soko-gold-500);
+  --sd-info-text: var(--soko-green-900);
+  --sd-info-bg: var(--soko-green-50);
+  --sd-info-border: var(--soko-green-100);
+
+  --sd-radius-xs: var(--soko-radius-xs);
+  --sd-radius-sm: var(--soko-radius-sm);
+  --sd-radius-md: var(--soko-radius-md);
+  --sd-radius-lg: var(--soko-radius-lg);
+  --sd-radius-xl: var(--soko-radius-xl);
+  --sd-radius-pill: var(--soko-radius-pill);
+
+  --sd-shadow-sm: var(--soko-shadow-sm);
+  --sd-shadow-card: var(--soko-shadow-md);
+  --sd-shadow-lg: var(--soko-shadow-lg);
+  --sd-focus: rgba(20, 107, 67, 0.28);
+
+  --sd-space-1: var(--soko-space-1);
+  --sd-space-2: var(--soko-space-2);
+  --sd-space-3: var(--soko-space-3);
+  --sd-space-4: var(--soko-space-4);
+  --sd-space-5: var(--soko-space-5);
+  --sd-space-6: var(--soko-space-6);
+  --sd-space-8: var(--soko-space-8);
+  --sd-space-10: var(--soko-space-10);
+  --sd-space-12: var(--soko-space-12);
+
+  --sd-font-sans: var(--soko-font-sans);
+  --sd-font-display: var(--soko-font-display);
+  --sd-page-max: 1180px;
+  --sd-desktop-max: 1300px;
+  --sd-header-height: 58px;
+  --sd-bottom-nav-height: calc(64px + env(safe-area-inset-bottom));
+  --sd-z-header: 60;
+  --sd-z-bottom-nav: 70;
+  --sd-z-modal: 100;
 }
 
-html, body {
-  font-family: var(--soko-font-sans);
-  background: var(--soko-background);
-  color: var(--soko-ink);
+html {
+  min-width: 320px;
+  background: var(--sd-bg);
+  font-family: var(--sd-font-sans);
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+html,
+body {
+  min-height: 100%;
 }
 
 body {
   min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background: var(--sd-bg);
+  color: var(--sd-text);
+  font-family: var(--sd-font-sans);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -69,8 +157,30 @@ select {
   font: inherit;
 }
 
-button {
+button,
+select {
+  text-transform: none;
+}
+
+button,
+[role="button"] {
   cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+input,
+textarea,
+select {
+  color: var(--sd-text);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--sd-subtle);
 }
 
 img,
@@ -82,7 +192,28 @@ svg {
   max-width: 100%;
 }
 
-/* RESPONSIVE GRID */
+img,
+video {
+  height: auto;
+}
+
+::selection {
+  background: var(--sd-primary-muted);
+  color: var(--sd-text);
+}
+
+:focus-visible {
+  outline: 3px solid var(--sd-focus);
+  outline-offset: 2px;
+}
+
+@supports selector(:focus-visible) {
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+/* Legacy layout helpers kept for pre-DS pages. */
 @media (max-width: 768px) {
   .grid-3 { grid-template-columns: 1fr 1fr !important; }
   .grid-4 { grid-template-columns: 1fr 1fr !important; }
@@ -97,11 +228,6 @@ svg {
   .full-mobile { width: 100% !important; }
 }
 
-/* Safe area iPhone */
-body {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
 .bottom-nav {
   padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
 }
@@ -111,4 +237,15 @@ body {
 .numeric-text {
   font-variant-numeric: lining-nums tabular-nums;
   font-feature-settings: "lnum" 1, "tnum" 1, "onum" 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }
