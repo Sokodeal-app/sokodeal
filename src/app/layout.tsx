@@ -43,10 +43,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-title" content="SokoDeal"/>
         <link rel="manifest" href="/manifest.json"/>
         <link rel="preconnect" href="https://fonts.googleapis.com"/>
-        <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+        <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
       </head>
-      <body style={{margin:0, padding:0, paddingBottom:'env(safe-area-inset-bottom)', background:'#f5f7f5', overflowX:'hidden', maxWidth:'100vw'}}>
-        <AuthProvider>{children}</AuthProvider>
+      <body className="sd-app-body">
+        <AuthProvider>
+          <div className="sd-app-shell">{children}</div>
+        </AuthProvider>
       </body>
     </html>
   )

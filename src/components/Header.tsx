@@ -1,9 +1,21 @@
-﻿'use client'
+'use client'
+
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
 import { useUnreadCount } from '@/hooks/useUnreadCount'
+
+const UI_TEXT = {
+  home: 'Accueil SokoDeal',
+  messages: 'Messages',
+  profile: 'Mon compte',
+  logout: 'Se deconnecter',
+  logoutLoading: 'Sortie...',
+  login: 'Connexion',
+  publish: 'Publier',
+}
 
 export default function Header() {
   const router = useRouter()
@@ -11,6 +23,9 @@ export default function Header() {
   const [logoutLoading, setLogoutLoading] = useState(false)
   const [logoutError, setLogoutError] = useState('')
   const { unreadCount } = useUnreadCount()
+  const userInitial = (user?.user_metadata?.full_name || user?.email || 'U')[0].toUpperCase()
+  const unreadLabel = unreadCount > 9 ? '9+' : String(unreadCount)
+  const messagesLabel = unreadCount > 0 ? `${UI_TEXT.messages} (${unreadCount} non lu(s))` : UI_TEXT.messages
 
   const handleLogout = async () => {
     setLogoutLoading(true)
@@ -27,69 +42,79 @@ export default function Header() {
   }
 
   return (
-    <>
-      <style>{`
-        .header-logo-text { display: block; }
-        .header-search { display: flex; }
-        @media (max-width: 768px) {
-          .header-logo-text { display: none !important; }
-          .header-search { display: none !important; }
-          .mon-compte-label { display: none !important; }
-          .deposer-text { display: none !important; }
-        }
-      `}</style>
-      <header style={{ background: 'white', position: 'sticky', top: 0, zIndex: 100, borderBottom: '1px solid #e8ede9', paddingTop: 'env(safe-area-inset-top)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4%', height: '58px', gap: '10px', maxWidth: '1300px', margin: '0 auto' }}>
+    <header className="sd-header">
+      <div className="sd-header__inner">
+        <Link href="/" className="sd-header__brand" aria-label={UI_TEXT.home}>
+          <span className="sd-header__brand-mark" aria-hidden="true">S</span>
+          <span className="sd-header__brand-text">
+            Soko<span className="sd-header__brand-accent">Deal</span>
+          </span>
+        </Link>
 
-          {/* LOGO */}
-          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', flexShrink: 0 }}>
-            <div style={{ width: '34px', height: '34px', background: '#f5a623', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '17px' }}>🦁</div>
-            <span className="header-logo-text" style={{ fontFamily: 'Syne,sans-serif', fontWeight: 800, fontSize: '1.25rem', color: '#111a14' }}>
-              Soko<span style={{ color: '#1a7a4a' }}>Deal</span>
-            </span>
-          </a>
-
-          {/* BOUTONS */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0, position: 'relative' }}>
-            {user ? (
-              <>
-                <button onClick={() => router.push('/messages')} style={{ position: 'relative', width: '38px', height: '38px', background: '#f5f7f5', border: '1px solid #e8ede9', borderRadius: '9px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  💬
-                  {unreadCount > 0 && (
-                    <div style={{ position: 'absolute', top: '-4px', right: '-4px', width: '16px', height: '16px', background: '#e74c3c', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.58rem', fontWeight: 800, color: 'white' }}>
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </div>
-                  )}
-                </button>
-                <button onClick={() => router.push('/profil')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', background: '#f5f7f5', border: '1px solid #e8ede9', borderRadius: '9px', color: '#111a14', fontFamily: 'DM Sans,sans-serif', fontSize: '0.85rem', cursor: 'pointer' }}>
-                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#f5a623', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.78rem', color: '#111a14', flexShrink: 0 }}>
-                    {(user.user_metadata?.full_name || user.email || 'U')[0].toUpperCase()}
-                  </div>
-                  <span className="mon-compte-label">Mon compte</span>
-                </button>
-                <button onClick={handleLogout} disabled={logoutLoading} title="Se deconnecter" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', background: logoutLoading ? '#f5f7f5' : '#fff1f0', border: '1px solid #ffd6d6', borderRadius: '9px', color: logoutLoading ? '#6b7c6e' : '#c0392b', fontFamily: 'DM Sans,sans-serif', fontSize: '0.82rem', fontWeight: 700, cursor: logoutLoading ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}>
-                  <span style={{ fontSize: '0.95rem', lineHeight: 1 }}>⏻</span>
-                  <span className="mon-compte-label">{logoutLoading ? 'Sortie...' : 'Se deconnecter'}</span>
-                </button>
-                {logoutError && (
-                  <div style={{ position: 'absolute', top: '44px', right: 0, background: '#fff1f0', border: '1px solid #ffd6d6', color: '#c0392b', borderRadius: '8px', padding: '8px 10px', fontFamily: 'DM Sans,sans-serif', fontSize: '0.75rem', width: '220px', boxShadow: '0 8px 24px rgba(17,26,20,.12)' }}>
-                    {logoutError}
-                  </div>
+        <div className="sd-header__actions">
+          {user ? (
+            <>
+              <button
+                type="button"
+                onClick={() => router.push('/messages')}
+                className="sd-header__icon-button"
+                aria-label={messagesLabel}
+              >
+                <span aria-hidden="true">💬</span>
+                {unreadCount > 0 && (
+                  <span className="sd-header__badge" aria-hidden="true">
+                    {unreadLabel}
+                  </span>
                 )}
-              </>
-            ) : (
-              <>
-                <button onClick={() => router.push('/auth?mode=login')} style={{ padding: '7px 12px', border: '1px solid #e8ede9', borderRadius: '9px', color: '#111a14', background: 'white', fontFamily: 'DM Sans,sans-serif', fontSize: '0.82rem', cursor: 'pointer' }}>
-                  Connexion
-                </button>
-              </>
-            )}
-            <button onClick={() => router.push('/publier')} style={{ padding: '7px 12px', background: '#f5a623', border: 'none', borderRadius: '9px', fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: '0.82rem', color: '#111a14', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-              +<span className="deposer-text"> Publier</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push('/profil')}
+                className="sd-header__account-button"
+                aria-label={UI_TEXT.profile}
+              >
+                <span className="sd-header__avatar" aria-hidden="true">{userInitial}</span>
+                <span className="sd-header__optional-label">{UI_TEXT.profile}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={logoutLoading}
+                title={UI_TEXT.logout}
+                className="sd-header__logout-button"
+                aria-label={logoutLoading ? UI_TEXT.logoutLoading : UI_TEXT.logout}
+              >
+                <span className="sd-header__button-icon" aria-hidden="true">⏻</span>
+                <span className="sd-header__optional-label">
+                  {logoutLoading ? UI_TEXT.logoutLoading : UI_TEXT.logout}
+                </span>
+              </button>
+              {logoutError && (
+                <div className="sd-header__error" role="alert">
+                  {logoutError}
+                </div>
+              )}
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => router.push('/auth?mode=login')}
+              className="sd-header__button"
+            >
+              {UI_TEXT.login}
             </button>
-          </div>
+          )}
+          <button
+            type="button"
+            onClick={() => router.push('/publier')}
+            className="sd-header__publish-button"
+            aria-label={UI_TEXT.publish}
+          >
+            <span aria-hidden="true">+</span>
+            <span className="sd-header__publish-label"> {UI_TEXT.publish}</span>
+          </button>
         </div>
-      </header>
-    </>
+      </div>
+    </header>
   )
 }
