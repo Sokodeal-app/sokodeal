@@ -418,7 +418,12 @@ export default function Home() {
       <style>{`
         * { box-sizing: border-box; }
         body { line-height: 1.4; }
-        html, body { overflow-x: hidden; max-width: 100vw; background: #faf9f7; }
+        html, body { overflow-x: hidden; max-width: 100vw; }
+        html { background: var(--sd-beige); }
+        body { background: var(--sd-bg); }
+        @media (min-width: 768px) {
+          body { background: var(--sd-beige); }
+        }
         @media (max-width: 768px) {
           .hero-title { font-size: 2rem !important; line-height: 1.02 !important; }
           .hero-section { grid-template-columns: 1fr !important; padding: 24px 5.5% !important; min-height: 360px !important; }
@@ -497,9 +502,9 @@ export default function Home() {
           box-sizing: border-box;
         }
         .homepage-footer {
-          padding: var(--sd-section-gap) 0 var(--sd-page-bottom-gap) !important;
+          padding: var(--sd-section-gap) 0 var(--sd-bottom-safe-padding) !important;
         }
-        .homepage-content-safe { padding-bottom: var(--sd-bottom-safe-padding); }
+        .homepage-content-safe { padding-bottom: 0; }
         @media (min-width: 480px) {
           .homepage-spec-shell,
           .homepage-footer-inner,
@@ -510,6 +515,9 @@ export default function Home() {
           }
         }
         @media (min-width: 768px) {
+          .homepage-footer {
+            padding-bottom: var(--sd-page-bottom-gap) !important;
+          }
           .homepage-spec-shell,
           .homepage-footer-inner,
           .homepage-header-inner {
@@ -1002,7 +1010,7 @@ export default function Home() {
 
       {/* ── FOOTER ── */}
       {!isImmoMode && (
-        <footer className="homepage-footer" style={{background:'#111a14', color:'rgba(255,255,255,0.5)', padding:'var(--sd-section-gap) 5% var(--sd-page-bottom-gap)', marginTop:'var(--sd-section-gap)'}}>
+        <footer className="homepage-footer" style={{background:'#111a14', color:'rgba(255,255,255,0.5)', padding:'var(--sd-section-gap) 5% var(--sd-bottom-safe-padding)', marginTop:'var(--sd-section-gap)'}}>
           <div className="homepage-footer-inner" style={{display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:'16px', alignItems:'center'}}>
             <div>
               <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.15rem', color:'white', marginBottom:'4px'}}>Soko<span style={{color:'#4ade80'}}>Deal</span></div>
@@ -1019,7 +1027,7 @@ export default function Home() {
         </footer>
       )}
       </main>
-      <BottomNav withSpacer />
+      <BottomNav />
     </>
   )
 }

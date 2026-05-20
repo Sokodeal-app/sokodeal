@@ -134,8 +134,8 @@
   --sd-content-padding: 16px;
   --sd-page-padding-x: clamp(16px, 4vw, 32px);
   --sd-page-padding-top: clamp(16px, 3vw, 32px);
-  --sd-page-padding-bottom: clamp(24px, 4vw, 48px);
-  --sd-page-bottom-gap: clamp(24px, 5vw, 40px);
+  --sd-page-padding-bottom: clamp(20px, 3vw, 32px);
+  --sd-page-bottom-gap: clamp(16px, 4vw, 24px);
   --sd-section-gap: clamp(24px, 4vw, 40px);
   --sd-mobile-max: 480px;
   --sd-tablet-breakpoint: 768px;
@@ -205,7 +205,7 @@
 html {
   min-width: 320px;
   overflow-x: hidden;
-  background: var(--sd-bg);
+  background: var(--sd-beige);
   color: var(--sd-text);
   font-family: var(--sd-font-body), var(--soko-font-sans);
   text-size-adjust: 100%;
@@ -721,6 +721,7 @@ nav.bottom-nav {
   display: block;
   height: var(--sd-bottom-safe-padding);
   flex: 0 0 auto;
+  background: var(--sd-bg);
 }
 
 .price-text,
@@ -752,8 +753,8 @@ nav.bottom-nav {
 @media (min-width: 768px) {
   :root {
     --sd-page-padding-top: 32px;
-    --sd-page-padding-bottom: 32px;
-    --sd-page-bottom-gap: 32px;
+    --sd-page-padding-bottom: 24px;
+    --sd-page-bottom-gap: 24px;
   }
 
   html,
