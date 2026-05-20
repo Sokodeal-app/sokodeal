@@ -71,8 +71,8 @@ export function BottomNav({ withSpacer = false }: BottomNavProps) {
 
   return (
     <Fragment>
-      <nav className={styles.nav} aria-label="Navigation principale mobile">
-        <div className={styles.inner}>
+      <nav className={cx("bottom-nav", styles.nav)} aria-label="Navigation principale mobile">
+        <div className={cx("bottom-nav__inner", styles.inner)}>
           {NAV_ITEMS.map((item) => {
             const active = item.match(pathname);
 
@@ -81,9 +81,12 @@ export function BottomNav({ withSpacer = false }: BottomNavProps) {
                 key={item.href}
                 href={item.href}
                 className={cx(
+                  "bottom-nav__item",
                   styles.item,
                   active && styles.active,
+                  active && "is-active",
                   item.isPrimary && styles.primary,
+                  item.isPrimary && "is-primary",
                 )}
                 aria-current={active ? "page" : undefined}
               >

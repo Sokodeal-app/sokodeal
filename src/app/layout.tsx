@@ -45,9 +45,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com"/>
         <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
       </head>
-      <body className="sd-app-body">
+      <body className="app-body sd-app-body">
         <AuthProvider>
-          <div className="sd-app-shell">{children}</div>
+          <div className="app-shell sd-app-shell">
+            <div className="app-main">{children}</div>
+          </div>
         </AuthProvider>
       </body>
     </html>

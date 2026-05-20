@@ -132,9 +132,15 @@
   --sd-header-height: 56px;
   --sd-bottom-nav-height: 64px;
   --sd-content-padding: 16px;
-  --sd-max-width: 480px;
-  --sd-page-max: var(--sd-max-width);
-  --sd-desktop-max: var(--sd-max-width);
+  --sd-mobile-max: 480px;
+  --sd-tablet-breakpoint: 768px;
+  --sd-desktop-breakpoint: 1024px;
+  --sd-wide-breakpoint: 1280px;
+  --sd-content-max: 1120px;
+  --sd-shell-max: 1280px;
+  --sd-max-width: var(--sd-mobile-max);
+  --sd-page-max: var(--sd-content-max);
+  --sd-desktop-max: var(--sd-content-max);
   --sd-bottom-safe-padding: calc(var(--sd-bottom-nav-height) + 24px + env(safe-area-inset-bottom));
 
   --sd-duration-fast: 120ms;
@@ -218,17 +224,19 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+body.app-body,
 body.sd-app-body {
   margin: 0;
-  padding: 0 0 env(safe-area-inset-bottom);
+  padding: 0;
   max-width: 100vw;
 }
 
+.app-shell,
 .sd-app-shell {
   min-height: 100vh;
   min-height: 100dvh;
   width: 100%;
-  max-width: var(--sd-max-width);
+  max-width: var(--sd-shell-max);
   margin-inline: auto;
   overflow-x: clip;
   background: var(--sd-bg);
@@ -236,9 +244,16 @@ body.sd-app-body {
 }
 
 @supports not (overflow: clip) {
+  .app-shell,
   .sd-app-shell {
     overflow-x: hidden;
   }
+}
+
+.app-main {
+  min-width: 0;
+  min-height: inherit;
+  width: 100%;
 }
 
 a {
@@ -324,7 +339,7 @@ video {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: var(--sd-max-width);
+  max-width: var(--sd-shell-max);
   height: var(--sd-header-height, 56px);
   margin-inline: auto;
   padding-inline: var(--sd-space-3);
@@ -513,7 +528,7 @@ video {
 .sd-container,
 .page-shell {
   width: 100%;
-  max-width: var(--sd-max-width);
+  max-width: var(--sd-page-max);
   margin-right: auto;
   margin-left: auto;
 }
@@ -530,12 +545,32 @@ video {
   background: var(--sd-bg);
 }
 
+.page-shell--mobile {
+  max-width: var(--sd-mobile-max);
+}
+
+.page-shell--desktop {
+  max-width: var(--sd-desktop-max);
+}
+
+.page-shell--full {
+  max-width: none;
+}
+
+.page-shell--auth,
+.page-shell--plain {
+  border-right: 0;
+  border-left: 0;
+  box-shadow: none;
+}
+
 .safe-bottom {
   padding-bottom: max(24px, env(safe-area-inset-bottom));
 }
 
+main.with-bottom-nav,
 .with-bottom-nav {
-  padding-bottom: var(--sd-bottom-safe-padding);
+  padding-bottom: calc(var(--sd-bottom-nav-height) + 24px + env(safe-area-inset-bottom));
 }
 
 .no-scrollbar {
@@ -583,8 +618,55 @@ video {
   border: 0;
 }
 
-.bottom-nav {
-  padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
+nav.bottom-nav {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--sd-z-bottom-nav);
+  width: 100%;
+  max-width: var(--sd-shell-max);
+  margin-inline: auto;
+  padding:
+    var(--sd-space-2)
+    max(var(--sd-space-3), env(safe-area-inset-right))
+    max(var(--sd-space-2), env(safe-area-inset-bottom))
+    max(var(--sd-space-3), env(safe-area-inset-left));
+  border-top: 1px solid var(--sd-border);
+  background: var(--sd-surface);
+  box-shadow: var(--sd-shadow-sticky);
+}
+
+.bottom-nav .bottom-nav__inner {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--sd-space-1);
+  min-height: var(--sd-bottom-nav-height);
+  align-items: center;
+}
+
+.bottom-nav .bottom-nav__item {
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--sd-radius-md);
+  color: var(--sd-muted);
+  font-family: var(--sd-font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.bottom-nav .bottom-nav__item.is-active {
+  background: var(--sd-active-bg);
+  color: var(--sd-active-text);
+}
+
+.bottom-nav .bottom-nav__item.is-primary {
+  background: var(--sd-primary);
+  color: var(--sd-surface);
 }
 
 .price-text,
@@ -619,25 +701,50 @@ video {
     background: var(--sd-beige);
   }
 
+  .app-shell,
   .sd-app-shell {
     background: var(--sd-bg);
   }
 
   .page-shell {
-    max-width: var(--sd-max-width);
+    max-width: var(--sd-page-max);
     border-right: 1px solid var(--sd-border);
     border-left: 1px solid var(--sd-border);
     box-shadow: var(--sd-shadow-card);
+  }
+
+  .page-shell--mobile {
+    max-width: var(--sd-mobile-max);
+  }
+
+  .page-shell--auth,
+  .page-shell--plain {
+    border-right: 0;
+    border-left: 0;
+    box-shadow: none;
   }
 
   .bottom-nav {
     display: none !important;
   }
 
+  main.with-bottom-nav,
   .with-bottom-nav {
     padding-bottom: var(--sd-space-8);
   }
 
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --sd-content-padding: 24px;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --sd-content-padding: 32px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

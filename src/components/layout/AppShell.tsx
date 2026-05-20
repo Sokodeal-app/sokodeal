@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { BottomNav } from "@/components/navigation";
 import styles from "./AppShell.module.css";
 
@@ -23,9 +23,19 @@ export function AppShell({
   withBottomNav = false,
   className,
 }: AppShellProps) {
+  const shellStyle = {
+    "--sd-page-max": maxWidth === "mobile" ? "var(--sd-mobile-max)" : "var(--sd-content-max)",
+    "--sd-desktop-max": maxWidth === "full" ? "none" : "var(--sd-content-max)",
+  } as CSSProperties;
+
   return (
     <main
+      style={shellStyle}
       className={cx(
+        "page-shell",
+        `page-shell--${maxWidth}`,
+        `page-shell--${variant}`,
+        withBottomNav && "with-bottom-nav",
         styles.shell,
         styles[maxWidth],
         styles[variant],
