@@ -132,6 +132,11 @@
   --sd-header-height: 56px;
   --sd-bottom-nav-height: 64px;
   --sd-content-padding: 16px;
+  --sd-page-padding-x: clamp(16px, 4vw, 32px);
+  --sd-page-padding-top: clamp(16px, 3vw, 32px);
+  --sd-page-padding-bottom: clamp(24px, 4vw, 48px);
+  --sd-page-bottom-gap: clamp(24px, 5vw, 40px);
+  --sd-section-gap: clamp(24px, 4vw, 40px);
   --sd-mobile-max: 480px;
   --sd-tablet-breakpoint: 768px;
   --sd-desktop-breakpoint: 1024px;
@@ -141,7 +146,7 @@
   --sd-max-width: var(--sd-mobile-max);
   --sd-page-max: var(--sd-content-max);
   --sd-desktop-max: var(--sd-content-max);
-  --sd-bottom-safe-padding: calc(var(--sd-bottom-nav-height) + 24px + env(safe-area-inset-bottom));
+  --sd-bottom-safe-padding: calc(var(--sd-bottom-nav-height) + var(--sd-page-bottom-gap) + env(safe-area-inset-bottom));
 
   --sd-duration-fast: 120ms;
   --sd-duration-default: 180ms;
@@ -254,6 +259,7 @@ body.sd-app-body {
   min-width: 0;
   min-height: inherit;
   width: 100%;
+  padding-bottom: var(--sd-page-padding-bottom);
 }
 
 a {
@@ -526,6 +532,7 @@ video {
 }
 
 .sd-container,
+.sd-page,
 .page-shell {
   width: 100%;
   max-width: var(--sd-page-max);
@@ -534,8 +541,16 @@ video {
 }
 
 .sd-container {
-  padding-right: var(--sd-content-padding);
-  padding-left: var(--sd-content-padding);
+  padding-right: var(--sd-page-padding-x);
+  padding-left: var(--sd-page-padding-x);
+}
+
+.sd-page,
+main.page-shell {
+  padding-top: var(--sd-page-padding-top);
+  padding-right: max(var(--sd-page-padding-x), env(safe-area-inset-right));
+  padding-bottom: var(--sd-page-padding-bottom);
+  padding-left: max(var(--sd-page-padding-x), env(safe-area-inset-left));
 }
 
 .page-shell {
@@ -543,6 +558,26 @@ video {
   min-height: 100dvh;
   overflow-x: hidden;
   background: var(--sd-bg);
+}
+
+.sd-page {
+  overflow-x: clip;
+}
+
+@supports not (overflow: clip) {
+  .sd-page {
+    overflow-x: hidden;
+  }
+}
+
+.sd-page--full {
+  max-width: none;
+}
+
+.sd-page--bleed {
+  padding-top: 0;
+  padding-right: 0;
+  padding-left: 0;
 }
 
 .page-shell--mobile {
@@ -568,9 +603,22 @@ video {
   padding-bottom: max(24px, env(safe-area-inset-bottom));
 }
 
+.sd-page--with-bottom-nav,
 main.with-bottom-nav,
 .with-bottom-nav {
-  padding-bottom: calc(var(--sd-bottom-nav-height) + 24px + env(safe-area-inset-bottom));
+  padding-bottom: var(--sd-bottom-safe-padding);
+}
+
+.sd-section {
+  margin-block: 0;
+}
+
+.sd-section + .sd-section {
+  margin-top: var(--sd-section-gap);
+}
+
+.sd-section:last-child {
+  margin-bottom: 0;
 }
 
 .no-scrollbar {
@@ -669,6 +717,12 @@ nav.bottom-nav {
   color: var(--sd-surface);
 }
 
+.bottom-nav__spacer {
+  display: block;
+  height: var(--sd-bottom-safe-padding);
+  flex: 0 0 auto;
+}
+
 .price-text,
 .tabular-nums,
 .numeric-text {
@@ -696,6 +750,12 @@ nav.bottom-nav {
 }
 
 @media (min-width: 768px) {
+  :root {
+    --sd-page-padding-top: 32px;
+    --sd-page-padding-bottom: 32px;
+    --sd-page-bottom-gap: 32px;
+  }
+
   html,
   body {
     background: var(--sd-beige);
@@ -728,9 +788,14 @@ nav.bottom-nav {
     display: none !important;
   }
 
+  .bottom-nav__spacer {
+    display: none;
+  }
+
+  .sd-page--with-bottom-nav,
   main.with-bottom-nav,
   .with-bottom-nav {
-    padding-bottom: var(--sd-space-8);
+    padding-bottom: var(--sd-page-padding-bottom);
   }
 
 }

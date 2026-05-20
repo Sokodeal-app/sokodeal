@@ -759,7 +759,7 @@ export default function ProfilPage() {
           .mon-compte-label { display: none !important; }
           .deposer-btn { padding: 6px 8px !important; font-size: 0.75rem !important; }
           .deposer-text { display: none !important; }
-          .profile-shell { padding: 0 5% !important; }
+          .profile-shell { padding-inline: var(--sd-page-padding-x) !important; }
           .profile-tabs-row { flex-direction: column !important; align-items: stretch !important; }
           .profile-hero-inner { align-items: flex-start !important; }
           .profile-hero-avatar { width: 72px !important; height: 72px !important; font-size: 2rem !important; }
@@ -776,7 +776,7 @@ export default function ProfilPage() {
           .profile-bottom-spacer { display: none !important; }
         }
         @media (max-width: 480px) {
-          .profile-hero-shell { padding: 18px 5% 0 !important; }
+          .profile-hero-shell { padding: var(--sd-page-padding-top) var(--sd-page-padding-x) 0 !important; }
           .profile-hero-card { padding: 22px 18px !important; }
           .profile-hero-inner { flex-direction: column !important; gap: 14px !important; align-items: center !important; text-align: center !important; }
           .profile-hero-stats { justify-content: center !important; width: 100% !important; min-width: 0 !important; }
@@ -887,7 +887,7 @@ export default function ProfilPage() {
         </div>
       </header>
 
-      <div className="profile-hero-shell profile-shell" style={{padding:'20px 5% 0', maxWidth:'1300px', margin:'0 auto', width:'100%', boxSizing:'border-box'}}>
+      <div className="profile-hero-shell profile-shell sd-page" style={{paddingBottom:0, boxSizing:'border-box'}}>
         <div className="profile-hero-card" style={{background:'linear-gradient(135deg, #0f5233 0%, #1a7a4a 100%)', padding:'20px 22px', borderRadius:'16px', overflow:'hidden', position:'relative', boxShadow:'0 2px 8px rgba(0,0,0,0.06)', border:'1px solid rgba(255,255,255,0.14)'}}>
           <div style={{position:'absolute', width:'180px', height:'180px', borderRadius:'50%', background:'rgba(255,255,255,0.014)', top:'-108px', right:'-54px'}} />
           <div style={{position:'absolute', width:'130px', height:'130px', borderRadius:'50%', background:'rgba(255,255,255,0.012)', bottom:'-86px', left:'16%'}} />
@@ -931,7 +931,7 @@ export default function ProfilPage() {
         </div>
       </div>
 
-      <div className="profile-shell" style={{maxWidth:'1300px', margin:'24px auto 0', padding:'0 5% 40px', boxSizing:'border-box'}}>
+      <div className="profile-shell sd-page sd-page--with-bottom-nav" style={{paddingTop:0, marginTop:'var(--sd-section-gap)', boxSizing:'border-box'}}>
         <div style={{marginBottom:'18px'}}>
           <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'12px', marginBottom:'12px'}}>
             <h2 style={{fontFamily:'Syne, sans-serif', fontWeight:800, fontSize:'1rem', color:'#111a14', margin:0}}>Aperçu des performances</h2>

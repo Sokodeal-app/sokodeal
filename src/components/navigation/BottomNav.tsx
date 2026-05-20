@@ -96,7 +96,7 @@ export function BottomNav({ withSpacer = false }: BottomNavProps) {
           })}
         </div>
       </nav>
-      {withSpacer ? <div className={styles.spacer} aria-hidden="true" /> : null}
+      {withSpacer ? <div className={cx("bottom-nav__spacer", styles.spacer)} aria-hidden="true" /> : null}
     </Fragment>
   );
 }

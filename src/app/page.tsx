@@ -497,9 +497,9 @@ export default function Home() {
           box-sizing: border-box;
         }
         .homepage-footer {
-          padding: 40px 0 calc(104px + env(safe-area-inset-bottom)) !important;
+          padding: var(--sd-section-gap) 0 var(--sd-page-bottom-gap) !important;
         }
-        .homepage-content-safe { padding-bottom: 0; }
+        .homepage-content-safe { padding-bottom: var(--sd-bottom-safe-padding); }
         @media (min-width: 480px) {
           .homepage-spec-shell,
           .homepage-footer-inner,
@@ -630,7 +630,7 @@ export default function Home() {
         )}
       </header>
 
-      <main className="homepage-content-safe">
+      <main className="sd-page sd-page--full sd-page--bleed sd-page--with-bottom-nav homepage-content-safe">
         {!search.startsWith('@') && activeSection === 'main' && !search && !filterCat && (
           <div className="homepage-spec-shell" style={{paddingTop:'16px', display:'flex', flexDirection:'column', gap:'16px'}}>
             <SearchBar />
@@ -1002,7 +1002,7 @@ export default function Home() {
 
       {/* ── FOOTER ── */}
       {!isImmoMode && (
-        <footer className="homepage-footer" style={{background:'#111a14', color:'rgba(255,255,255,0.5)', padding:'40px 5% calc(104px + env(safe-area-inset-bottom))', marginTop:'40px'}}>
+        <footer className="homepage-footer" style={{background:'#111a14', color:'rgba(255,255,255,0.5)', padding:'var(--sd-section-gap) 5% var(--sd-page-bottom-gap)', marginTop:'var(--sd-section-gap)'}}>
           <div className="homepage-footer-inner" style={{display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:'16px', alignItems:'center'}}>
             <div>
               <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.15rem', color:'white', marginBottom:'4px'}}>Soko<span style={{color:'#4ade80'}}>Deal</span></div>
@@ -1019,7 +1019,7 @@ export default function Home() {
         </footer>
       )}
       </main>
-      <BottomNav withSpacer={isImmoMode} />
+      <BottomNav withSpacer />
     </>
   )
 }

@@ -33,8 +33,10 @@ export function AppShell({
       style={shellStyle}
       className={cx(
         "page-shell",
+        "sd-page",
         `page-shell--${maxWidth}`,
         `page-shell--${variant}`,
+        withBottomNav && "sd-page--with-bottom-nav",
         withBottomNav && "with-bottom-nav",
         styles.shell,
         styles[maxWidth],
