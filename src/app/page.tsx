@@ -516,6 +516,9 @@ export default function Home() {
           }
         }
         @media (min-width: 768px) {
+          .app-main:has(.homepage-footer) {
+            padding-bottom: 0;
+          }
           .homepage-footer {
             padding-bottom: var(--sd-page-bottom-gap) !important;
           }
