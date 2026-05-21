@@ -419,10 +419,10 @@ export default function Home() {
         * { box-sizing: border-box; }
         body { line-height: 1.4; }
         html, body { overflow-x: hidden; max-width: 100vw; }
-        html { background: var(--sd-beige); }
+        html { background: var(--sd-bg); }
         body { background: var(--sd-bg); }
         @media (min-width: 768px) {
-          body { background: var(--sd-beige); }
+          body { background: var(--sd-bg); }
         }
         @media (max-width: 768px) {
           .hero-title { font-size: 2rem !important; line-height: 1.02 !important; }
