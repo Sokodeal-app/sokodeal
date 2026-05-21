@@ -1296,7 +1296,7 @@ export default function ProfilPage() {
         )}
 
       </div>
-      <BottomNav withSpacer />
+      <BottomNav />
     </div>
   )
 }

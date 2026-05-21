@@ -505,6 +505,7 @@ export default function Home() {
           padding: var(--sd-section-gap) 0 var(--sd-bottom-safe-padding) !important;
         }
         .homepage-content-safe { padding-bottom: 0; }
+        .homepage-content-safe--with-reserve { padding-bottom: var(--sd-bottom-safe-padding); }
         @media (min-width: 480px) {
           .homepage-spec-shell,
           .homepage-footer-inner,
@@ -517,6 +518,9 @@ export default function Home() {
         @media (min-width: 768px) {
           .homepage-footer {
             padding-bottom: var(--sd-page-bottom-gap) !important;
+          }
+          .homepage-content-safe--with-reserve {
+            padding-bottom: var(--sd-page-padding-bottom);
           }
           .homepage-spec-shell,
           .homepage-footer-inner,
@@ -638,7 +642,7 @@ export default function Home() {
         )}
       </header>
 
-      <main className="sd-page sd-page--full sd-page--bleed sd-page--with-bottom-nav homepage-content-safe">
+      <main className={`sd-page sd-page--full sd-page--bleed sd-page--with-bottom-nav homepage-content-safe${isImmoMode ? ' homepage-content-safe--with-reserve' : ''}`}>
         {!search.startsWith('@') && activeSection === 'main' && !search && !filterCat && (
           <div className="homepage-spec-shell" style={{paddingTop:'16px', display:'flex', flexDirection:'column', gap:'16px'}}>
             <SearchBar />

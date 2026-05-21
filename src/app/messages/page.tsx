@@ -511,7 +511,7 @@ export default function MessagesPage() {
           </div>
         </div>
       </div>
-      <BottomNav withSpacer />
+      <BottomNav />
     </div>
   )
 }
