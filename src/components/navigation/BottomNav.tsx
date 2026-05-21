@@ -41,6 +41,10 @@ const NAV_ITEMS: NavItem[] = [
   },
 ];
 
+function matchesRoute(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 function shouldHideBottomNav(pathname: string) {
   return (
     pathname.startsWith("/annonce/") ||
@@ -74,7 +78,7 @@ export function BottomNav({ withSpacer = false }: BottomNavProps) {
       <nav className={cx("bottom-nav", styles.nav)} aria-label="Navigation principale mobile">
         <div className={cx("bottom-nav__inner", styles.inner)}>
           {NAV_ITEMS.map((item) => {
-            const active = item.match(pathname);
+            const active = item.href === "/" ? item.match(pathname) : matchesRoute(pathname, item.href);
 
             return (
               <Link
