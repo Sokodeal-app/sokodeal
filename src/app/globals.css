@@ -241,7 +241,7 @@ body.sd-app-body {
   min-height: 100vh;
   min-height: 100dvh;
   width: 100%;
-  max-width: var(--sd-shell-max);
+  max-width: none;
   margin-inline: auto;
   overflow-x: clip;
   background: var(--sd-bg);
@@ -260,6 +260,7 @@ body.sd-app-body {
   min-height: inherit;
   width: 100%;
   padding-bottom: var(--sd-page-padding-bottom);
+  background: var(--sd-bg);
 }
 
 a {
@@ -575,6 +576,21 @@ video {
   padding-left: var(--sd-page-padding-x);
 }
 
+.sd-full-bleed {
+  width: 100%;
+  max-width: none;
+}
+
+.sd-full-bleed-inner {
+  box-sizing: border-box;
+  width: min(100%, var(--sd-content-max));
+  max-width: var(--sd-content-max);
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: max(var(--sd-page-padding-x), env(safe-area-inset-right));
+  padding-left: max(var(--sd-page-padding-x), env(safe-area-inset-left));
+}
+
 .sd-page,
 main.page-shell {
   padding-top: var(--sd-page-padding-top);
@@ -854,9 +870,9 @@ nav.bottom-nav {
 
   .page-shell {
     max-width: var(--sd-page-max);
-    border-right: 1px solid var(--sd-border);
-    border-left: 1px solid var(--sd-border);
-    box-shadow: var(--sd-shadow-card);
+    border-right: 0;
+    border-left: 0;
+    box-shadow: none;
   }
 
   .page-shell--mobile {

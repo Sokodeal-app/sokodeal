@@ -554,8 +554,8 @@ export default function Home() {
       )}
 
       {/* ── HEADER ── */}
-      <header style={{background:'#faf9f7', position:'sticky', top:0, zIndex:100, borderBottom:'1px solid #e8e4de', paddingTop:'env(safe-area-inset-top)'}}>
-        <div className="header-inner homepage-header-inner" style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 5%', height:'62px', gap:'14px', maxWidth:'1300px', margin:'0 auto'}}>
+      <header className="sd-full-bleed" style={{background:'#faf9f7', position:'sticky', top:0, zIndex:100, borderBottom:'1px solid #e8e4de', paddingTop:'env(safe-area-inset-top)'}}>
+        <div className="header-inner homepage-header-inner sd-full-bleed-inner" style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 5%', height:'62px', gap:'14px', maxWidth:'1300px', margin:'0 auto'}}>
           <a href="/" style={{display:'flex', alignItems:'center', gap:'8px', textDecoration:'none', flexShrink:0}}>
             <div className="header-logo-mark" style={{width:'34px', height:'34px', background:'#1a7a4a', borderRadius:'9px', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'17px', color:'white'}}>S</div>
             <span className="header-logo-name" style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.25rem', color:'#111a14'}}>Soko<span style={{color:'#1a7a4a'}}>Deal</span></span>
@@ -1017,8 +1017,8 @@ export default function Home() {
 
       {/* ── FOOTER ── */}
       {!isImmoMode && (
-        <footer className="homepage-footer" style={{background:'#111a14', color:'rgba(255,255,255,0.5)', padding:'var(--sd-section-gap) 5% var(--sd-bottom-safe-padding)', marginTop:'var(--sd-section-gap)'}}>
-          <div className="homepage-footer-inner" style={{display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:'16px', alignItems:'center'}}>
+        <footer className="homepage-footer sd-full-bleed" style={{background:'#111a14', color:'rgba(255,255,255,0.5)', padding:'var(--sd-section-gap) 5% var(--sd-bottom-safe-padding)', marginTop:'var(--sd-section-gap)'}}>
+          <div className="homepage-footer-inner sd-full-bleed-inner" style={{display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:'16px', alignItems:'center'}}>
             <div>
               <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.15rem', color:'white', marginBottom:'4px'}}>Soko<span style={{color:'#4ade80'}}>Deal</span></div>
               <p style={{fontSize:'0.8rem', color:'rgba(255,255,255,0.5)', maxWidth:'240px', lineHeight:1.6}}>La première plateforme d’annonces d’Afrique.</p>

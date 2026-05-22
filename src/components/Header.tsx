@@ -42,8 +42,8 @@ export default function Header() {
   }
 
   return (
-    <header className="sd-header">
-      <div className="sd-header__inner">
+    <header className="sd-header sd-full-bleed">
+      <div className="sd-header__inner sd-full-bleed-inner">
         <Link href="/" className="sd-header__brand" aria-label={UI_TEXT.home}>
           <span className="sd-header__brand-mark" aria-hidden="true">S</span>
           <span className="sd-header__brand-text">
