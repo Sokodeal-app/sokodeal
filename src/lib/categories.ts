@@ -12,7 +12,27 @@ export const CATEGORY_SLUGS = {
   OTHER: 'other',
 } as const
 
+export const CATEGORY_KEYS = {
+  REAL_ESTATE: 'immobilier',
+  VEHICLES: 'vehicules',
+  ELECTRONICS: 'electronique',
+  HOME: 'maison',
+  FASHION: 'mode',
+  SERVICES: 'services',
+  MOTO: 'moto',
+  OTHER: 'autre',
+} as const
+
 export type CategorySlug = (typeof CATEGORY_SLUGS)[keyof typeof CATEGORY_SLUGS]
+export type CategoryKey = (typeof CATEGORY_KEYS)[keyof typeof CATEGORY_KEYS]
+
+export type CategoryDefinition = {
+  key: CategoryKey
+  slug: CategoryKey
+  label: string
+  navbar?: boolean
+  aliases?: string[]
+}
 
 export type CategoryOption = {
   value: string
@@ -29,6 +49,65 @@ export const DS_CATEGORIES: CategoryOption[] = [
   { value: CATEGORY_SLUGS.FASHION, label: 'Mode', navbar: true },
   { value: CATEGORY_SLUGS.SERVICES, label: 'Services', navbar: true },
   { value: CATEGORY_SLUGS.OTHER, label: 'Autre', navbar: true },
+]
+
+export const CATEGORIES: CategoryDefinition[] = [
+  {
+    key: CATEGORY_KEYS.REAL_ESTATE,
+    slug: CATEGORY_KEYS.REAL_ESTATE,
+    label: 'Immobilier',
+    navbar: true,
+    aliases: ['immo', 'immo-vente', 'immo-location', 'immo-terrain', 'real_estate', 'real-estate'],
+  },
+  {
+    key: CATEGORY_KEYS.VEHICLES,
+    slug: CATEGORY_KEYS.VEHICLES,
+    label: 'V\u00e9hicules',
+    navbar: true,
+    aliases: ['voiture', 'voitures', 'vehicle', 'vehicles', 'auto', 'autos'],
+  },
+  {
+    key: CATEGORY_KEYS.ELECTRONICS,
+    slug: CATEGORY_KEYS.ELECTRONICS,
+    label: '\u00c9lectronique',
+    navbar: true,
+    aliases: ['electronics', 'tech', 'telephone', 'ordinateur'],
+  },
+  {
+    key: CATEGORY_KEYS.HOME,
+    slug: CATEGORY_KEYS.HOME,
+    label: 'Maison',
+    navbar: true,
+    aliases: ['home', 'maison-jardin', 'jardin'],
+  },
+  {
+    key: CATEGORY_KEYS.FASHION,
+    slug: CATEGORY_KEYS.FASHION,
+    label: 'Mode',
+    navbar: true,
+    aliases: ['fashion', 'beaute', 'mode-beaute'],
+  },
+  {
+    key: CATEGORY_KEYS.MOTO,
+    slug: CATEGORY_KEYS.MOTO,
+    label: 'Motos',
+    navbar: true,
+    aliases: ['motos', 'scooter', 'scooters'],
+  },
+  {
+    key: CATEGORY_KEYS.SERVICES,
+    slug: CATEGORY_KEYS.SERVICES,
+    label: 'Services',
+    navbar: true,
+    aliases: ['emploi', 'job', 'jobs', 'service'],
+  },
+  {
+    key: CATEGORY_KEYS.OTHER,
+    slug: CATEGORY_KEYS.OTHER,
+    label: 'Autre',
+    navbar: true,
+    aliases: ['other', 'agriculture', 'materiaux', 'sante', 'sport', 'education', 'animaux'],
+  },
 ]
 
 export const LEGACY_CATEGORY_ALIASES: Record<string, CategorySlug> = {
@@ -64,6 +143,48 @@ export function normalizeCategorySlug(value: string | null | undefined): Categor
   return LEGACY_CATEGORY_ALIASES[key] || CATEGORY_SLUGS.OTHER
 }
 // Fichier partagé — importer dans page.tsx et publier/page.tsx
+
+function normalizeCategoryToken(value: string | null | undefined) {
+  return String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[_\s]+/g, '-')
+}
+
+const CATEGORY_KEY_ALIASES: Record<string, CategoryKey> = CATEGORIES.reduce(
+  (aliases, category) => {
+    aliases[category.key] = category.key
+    aliases[category.slug] = category.key
+    category.aliases?.forEach((alias) => {
+      aliases[normalizeCategoryToken(alias)] = category.key
+      aliases[alias] = category.key
+    })
+    return aliases
+  },
+  {} as Record<string, CategoryKey>,
+)
+
+export function normalizeCategoryKey(value: string | null | undefined): CategoryKey {
+  const key = normalizeCategoryToken(value)
+  if (!key) return CATEGORY_KEYS.OTHER
+
+  return CATEGORY_KEY_ALIASES[key] || CATEGORY_KEYS.OTHER
+}
+
+export function getCategoryByKey(value: string | null | undefined): CategoryDefinition {
+  const key = normalizeCategoryKey(value)
+  return CATEGORIES.find((category) => category.key === key) || CATEGORIES[CATEGORIES.length - 1]
+}
+
+export function getCategoryBySlug(value: string | null | undefined): CategoryDefinition {
+  return getCategoryByKey(value)
+}
+
+export function getCategoryLabel(value: string | null | undefined): string {
+  return getCategoryByKey(value).label
+}
 
 export const SUBCATEGORIES: Record<string, { value: string; label: string }[]> = {
   voiture: [
