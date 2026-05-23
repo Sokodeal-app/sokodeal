@@ -1,5 +1,6 @@
 ﻿'use client'
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { supabasePublic } from '@/lib/supabase-public'
@@ -15,13 +16,79 @@ import { getApproxCoords } from '@/lib/locations'
 import { LAUNCH_CITIES, LAUNCH_SUBCATEGORIES, matchesCategoryGroup } from '@/lib/market-config'
 import { generateSlug } from '@/lib/slug'
 import { formatPrice, formatRelativeTime } from '@/lib/format'
+import { adaptListingToCardViewModel } from '@/lib/listingAdapter'
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
+const NEW_LISTING_WINDOW_MS = 7 * 24 * 60 * 60 * 1000
+
+type HomeAd = {
+  id: string
+  title: string
+  description?: string | null
+  price: number
+  images?: string[] | null
+  province?: string | null
+  district?: string | null
+  category: string
+  subcategory?: string | null
+  created_at: string
+  is_active?: boolean | null
+  is_sold?: boolean | null
+  is_boosted?: boolean | null
+  sold_at?: string | null
+  deleted_at?: string | null
+  surface?: number | null
+  chambres?: number | string | null
+  salles_de_bain?: number | string | null
+  immo_type?: string | null
+  user_id?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  _coords?: { lat: number; lng: number } | null
+}
+
+type ProfileResult = {
+  id: string
+  username: string
+  full_name?: string | null
+  bio?: string | null
+}
+
+type ToastState = {
+  icon?: string
+  text: string
+  href?: string
+} | null
+
+function isRecentListing(createdAt: string | null | undefined, referenceTime: number) {
+  if (!createdAt) return false
+
+  const createdTime = new Date(createdAt).getTime()
+  return Number.isFinite(createdTime) && referenceTime - createdTime < NEW_LISTING_WINDOW_MS
+}
+
+function adaptHomeAdToCardViewModel(ad: HomeAd, isFavorite = false) {
+  return adaptListingToCardViewModel({
+    ...ad,
+    category: ad.subcategory || ad.category,
+    isFavorite,
+  })
+}
+
+function getHomeAdHref(ad: HomeAd) {
+  return '/annonce/' + generateSlug({
+    id: ad.id,
+    title: ad.title,
+    category: ad.category || undefined,
+    province: ad.province || undefined,
+  })
+}
 
 export default function Home() {
   const router = useRouter()
+  const [renderedAt] = useState(() => Date.now())
   const [activeSection, setActiveSection] = useState('main')
-  const [ads, setAds] = useState<any[]>([])
+  const [ads, setAds] = useState<HomeAd[]>([])
   const [loading, setLoading] = useState(true)
   const [hasLoadedAds, setHasLoadedAds] = useState(false)
   const { user } = useAuth()
@@ -36,16 +103,16 @@ export default function Home() {
   const [filterType, setFilterType] = useState('')
   const [sortBy, setSortBy] = useState('recent')
   const [showFilters, setShowFilters] = useState(false)
-  const [toast, setToast] = useState<any>(null)
-  const [profileResults, setProfileResults] = useState<any[]>([])
+  const [toast, setToast] = useState<ToastState>(null)
+  const [profileResults, setProfileResults] = useState<ProfileResult[]>([])
   const [searchingProfiles, setSearchingProfiles] = useState(false)
   const [searchSaved, setSearchSaved] = useState(false)
-  const [selectedImmoAd, setSelectedImmoAd] = useState<any>(null)
+  const [selectedImmoAd, setSelectedImmoAd] = useState<HomeAd | null>(null)
   const [showMap, setShowMap] = useState(false) // mobile map toggle
   const [mapReady, setMapReady] = useState(false)
-  const mapRef = useRef<any>(null)
-  const mapInstanceRef = useRef<any>(null)
-  const markersRef = useRef<any[]>([])
+  const mapRef = useRef<HTMLDivElement | null>(null)
+  const mapInstanceRef = useRef<import('mapbox-gl').Map | null>(null)
+  const markersRef = useRef<import('mapbox-gl').Marker[]>([])
   const adsLengthRef = useRef(0)
   const hasLoadedAdsRef = useRef(false)
   const { unreadCount } = useUnreadCount()
@@ -55,14 +122,14 @@ export default function Home() {
 
   const villes = LAUNCH_CITIES
 
-  const catEmoji: any = {
+  const catEmoji: Record<string, string> = {
     'immo-vente':'🏡','immo-location':'🏢','immo-terrain':'🌿',
     'voiture':'🚗','moto':'🛵','electronique':'📱','mode':'👗',
     'maison':'🛋️','emploi':'💼','animaux':'🐄','services':'🏗️',
     'agriculture':'🌾','materiaux':'🧱','sante':'💊','sport':'⚽','education':'📚'
   }
 
-  const catLabel: any = {
+  const catLabel: Record<string, string> = {
     'immo-vente':'Vente','immo-location':'Location','immo-terrain':'Terrain',
   }
 
@@ -97,8 +164,10 @@ export default function Home() {
       }
 
       if (data) {
+        const fetchedAds = data as HomeAd[]
+
         if (!FEATURE_FLAGS.boostedListings) {
-          const regularAds = data.map(ad => ({
+          const regularAds = fetchedAds.map(ad => ({
             ...ad,
             is_boosted: false,
             _coords: getApproxCoords(ad.province, ad.district, ad.id),
@@ -108,8 +177,8 @@ export default function Home() {
         }
         const now = new Date().toISOString()
         const { data: boosts } = await supabase.from('boosts').select('ad_id').eq('is_active', true).gt('ends_at', now)
-        const boostedIds = new Set((boosts || []).map((b: any) => b.ad_id))
-        const adsWithBoost = data.map(ad => ({
+        const boostedIds = new Set((boosts || []).map((boost) => String((boost as { ad_id: string }).ad_id)))
+        const adsWithBoost = fetchedAds.map(ad => ({
           ...ad,
           is_boosted: boostedIds.has(ad.id),
           _coords: getApproxCoords(ad.province, ad.district, ad.id),
@@ -233,6 +302,7 @@ export default function Home() {
   // ── Initialisation Mapbox ──
   useEffect(() => {
     if (!isImmoMode || !mapRef.current || mapInstanceRef.current) return
+    const mapContainer = mapRef.current
     if (!MAPBOX_TOKEN) return
     const isMobileMapPanel = window.matchMedia('(max-width: 900px)').matches
     if (isMobileMapPanel && !showMap) return
@@ -242,7 +312,7 @@ export default function Home() {
       mapboxgl.accessToken = MAPBOX_TOKEN!
 
       const map = new mapboxgl.Map({
-        container: mapRef.current,
+        container: mapContainer,
         style: 'mapbox://styles/mapbox/light-v11',
         center: [30.0619, -1.9441], // Kigali
         zoom: 12,
@@ -284,6 +354,7 @@ export default function Home() {
   // ── Mise à jour des pins sur la map ──
   useEffect(() => {
     if (!isImmoMode || !mapReady || !mapInstanceRef.current) return
+    const mapInstance = mapInstanceRef.current
 
     // Supprimer les anciens markers
     markersRef.current.forEach(m => m.remove())
@@ -325,7 +396,7 @@ export default function Home() {
           anchor: 'bottom',
         })
           .setLngLat([coords.lng, coords.lat])
-          .addTo(mapInstanceRef.current)
+          .addTo(mapInstance)
 
         markersRef.current.push(marker)
       })
@@ -450,7 +521,7 @@ export default function Home() {
           .search-bar { display: none !important; }
           .mobile-top-search { display: block !important; }
           .main-cat-nav { justify-content: flex-start !important; gap: 8px !important; padding: 8px 5% 10px !important; scroll-padding-left: 5%; }
-          .main-cat-nav .nav-cat { background: white !important; border: 1px solid #e8e4de !important; border-radius: 999px !important; padding: 8px 13px !important; font-size: 0.8rem !important; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+          .main-cat-nav .nav-cat { background: var(--sd-surface) !important; border: 1px solid var(--sd-border) !important; border-radius: var(--sd-radius-pill) !important; padding: 8px 13px !important; font-size: 0.8rem !important; box-shadow: var(--sd-shadow-sm); }
           .main-cat-nav .cat-separator { display: none !important; }
           .save-search-btn { display: none !important; }
           .home-results-wrap { margin-top: 20px !important; }
@@ -484,21 +555,23 @@ export default function Home() {
         .profile-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important; transform: translateY(-1px); }
         .profile-card { transition: box-shadow 0.18s, transform 0.18s; }
         .nav-cat { transition: all 0.15s; }
-        .nav-cat:hover { color: #1a7a4a !important; }
-        .immo-card:hover { border-color: #1a7a4a !important; }
+        .nav-cat:hover { color: var(--sd-primary) !important; }
+        .immo-card:hover { border-color: var(--sd-primary) !important; }
         .immo-card { transition: border-color 0.15s, box-shadow 0.15s; }
         .homepage-spec-shell,
         .homepage-footer-inner {
           width: 100%;
           max-width: 480px;
           margin: 0 auto;
-          padding: 0 16px;
+          padding-right: max(var(--sd-page-padding-x), env(safe-area-inset-right));
+          padding-left: max(var(--sd-page-padding-x), env(safe-area-inset-left));
           box-sizing: border-box;
         }
         .homepage-header-inner {
           width: 100%;
           max-width: 480px !important;
-          padding: 0 16px !important;
+          padding-right: max(var(--sd-page-padding-x), env(safe-area-inset-right)) !important;
+          padding-left: max(var(--sd-page-padding-x), env(safe-area-inset-left)) !important;
           box-sizing: border-box;
         }
         .homepage-footer {
@@ -511,8 +584,8 @@ export default function Home() {
           .homepage-footer-inner,
           .homepage-header-inner {
             max-width: 640px !important;
-            padding-right: 24px !important;
-            padding-left: 24px !important;
+            padding-right: max(var(--sd-page-padding-x), env(safe-area-inset-right)) !important;
+            padding-left: max(var(--sd-page-padding-x), env(safe-area-inset-left)) !important;
           }
         }
         @media (min-width: 768px) {
@@ -529,8 +602,8 @@ export default function Home() {
           .homepage-footer-inner,
           .homepage-header-inner {
             max-width: 1120px !important;
-            padding-right: 32px !important;
-            padding-left: 32px !important;
+            padding-right: max(var(--sd-page-padding-x), env(safe-area-inset-right)) !important;
+            padding-left: max(var(--sd-page-padding-x), env(safe-area-inset-left)) !important;
           }
         }
         @media (min-width: 1280px) {
@@ -543,7 +616,7 @@ export default function Home() {
       `}</style>
 
       {toast && (
-        <div style={{position:'fixed', bottom:'20px', right:'20px', zIndex:9999, background:'#0f5233', color:'white', padding:'12px 18px', borderRadius:'12px', boxShadow:'0 8px 32px rgba(0,0,0,0.18)', display:'flex', alignItems:'center', gap:'10px', fontFamily:'DM Sans,sans-serif', fontSize:'0.88rem', animation:'fadeUp 0.3s ease', maxWidth:'260px'}}>
+        <div style={{position:'fixed', bottom:'20px', right:'20px', zIndex:'var(--sd-z-toast)', background:'var(--sd-primary-dark)', color:'var(--sd-surface)', padding:'12px 18px', borderRadius:'var(--sd-radius-lg)', boxShadow:'var(--sd-shadow-floating)', display:'flex', alignItems:'center', gap:'10px', fontFamily:'DM Sans,sans-serif', fontSize:'0.88rem', animation:'fadeUp 0.3s ease', maxWidth:'260px'}}>
           <span style={{fontSize:'1.2rem'}}>{toast.icon}</span>
           <div>
             <div style={{fontWeight:700, marginBottom:'4px'}}>{toast.text}</div>
@@ -554,12 +627,12 @@ export default function Home() {
       )}
 
       {/* ── HEADER ── */}
-      <header className="sd-full-bleed" style={{background:'#faf9f7', position:'sticky', top:0, zIndex:100, borderBottom:'1px solid #e8e4de', paddingTop:'env(safe-area-inset-top)'}}>
+      <header className="sd-full-bleed" style={{background:'var(--sd-surface)', position:'sticky', top:0, zIndex:'var(--sd-z-header)', borderBottom:'1px solid var(--sd-border)', paddingTop:'env(safe-area-inset-top)'}}>
         <div className="header-inner homepage-header-inner sd-full-bleed-inner" style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 5%', height:'62px', gap:'14px', maxWidth:'1300px', margin:'0 auto'}}>
-          <a href="/" style={{display:'flex', alignItems:'center', gap:'8px', textDecoration:'none', flexShrink:0}}>
+          <Link href="/" style={{display:'flex', alignItems:'center', gap:'8px', textDecoration:'none', flexShrink:0}}>
             <div className="header-logo-mark" style={{width:'34px', height:'34px', background:'#1a7a4a', borderRadius:'9px', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'17px', color:'white'}}>S</div>
             <span className="header-logo-name" style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.25rem', color:'#111a14'}}>Soko<span style={{color:'#1a7a4a'}}>Deal</span></span>
-          </a>
+          </Link>
 
           <div style={{display:'flex', alignItems:'center', gap:'8px', flexShrink:0}}>
             {user ? (
@@ -647,16 +720,16 @@ export default function Home() {
 
       <main className={`sd-page sd-page--full sd-page--bleed sd-page--with-bottom-nav homepage-content-safe${isImmoMode ? ' homepage-content-safe--with-reserve' : ''}`}>
         {!search.startsWith('@') && activeSection === 'main' && !search && !filterCat && (
-          <div className="homepage-spec-shell" style={{paddingTop:'16px', display:'flex', flexDirection:'column', gap:'16px'}}>
+          <section className="homepage-spec-shell sd-section" style={{paddingTop:'16px', display:'flex', flexDirection:'column', gap:'16px'}}>
             <SearchBar />
             <CategoryBar />
             <HeroBanner />
-          </div>
+          </section>
         )}
 
       {/* ── RECHERCHE @USERNAME ── */}
       {search.startsWith('@') && (
-        <div style={{maxWidth:'1300px', margin:'0 auto', padding:'24px 5%'}}>
+        <section className="homepage-spec-shell sd-section">
           <div style={{marginBottom:'14px'}}>
             <SectionHeader title={`Profils pour "${search}"`} />
           </div>
@@ -665,11 +738,11 @@ export default function Home() {
           ) : profileResults.length === 0 ? (
             <div style={{background:'white', borderRadius:'12px', padding:'40px', textAlign:'center', border:'1px solid #e8e4de'}}>
               <div style={{fontSize:'2rem', marginBottom:'8px'}}>😕</div>
-              <p style={{color:'#6b7c6e', fontSize:'0.88rem'}}>Aucun profil trouvé pour "{search}"</p>
+              <p style={{color:'#6b7c6e', fontSize:'0.88rem'}}>Aucun profil trouvé pour &quot;{search}&quot;</p>
             </div>
           ) : (
             <div style={{display:'flex', flexDirection:'column', gap:'10px'}}>
-              {profileResults.map((profile: any) => (
+              {profileResults.map((profile) => (
                 <div key={profile.id} className="profile-card"
                   onClick={() => window.location.href='/u/' + profile.username}
                   style={{background:'white', borderRadius:'12px', padding:'16px 20px', border:'1px solid #e8e4de', display:'flex', alignItems:'center', gap:'14px', cursor:'pointer'}}>
@@ -686,20 +759,17 @@ export default function Home() {
               ))}
             </div>
           )}
-        </div>
+        </section>
       )}
 
       {/* MODE IMMO - Layout 2 colonnes */}
       {!search.startsWith('@') && activeSection === 'main' && isImmoMode && (
-        <div style={{
-          maxWidth: '1300px',
-          margin: '0 auto',
-          padding: '16px 5%',
+        <section style={{
           display: 'grid',
           gridTemplateColumns: '1fr 380px',
           gap: '20px',
           alignItems: 'start',
-        }} className="immo-layout">
+        }} className="homepage-spec-shell sd-section immo-layout">
 
           {/* Colonne gauche - liste annonces */}
           <div className={`immo-list-panel ${showMap ? 'hide' : ''}`}
@@ -733,9 +803,9 @@ export default function Home() {
                   Voir tout
                 </button>
               </div>
-            ) : immoAds.map((ad: any) => (
+            ) : immoAds.map((ad) => (
               <div key={ad.id} className="immo-card"
-                onClick={() => { setSelectedImmoAd(ad); router.push('/annonce/' + generateSlug(ad)) }}
+                onClick={() => { setSelectedImmoAd(ad); router.push(getHomeAdHref(ad)) }}
                 style={{background:'white', borderRadius:'14px', overflow:'hidden', cursor:'pointer', border: selectedImmoAd?.id === ad.id ? '2px solid #1a7a4a' : (FEATURE_FLAGS.boostedListings && ad.is_boosted ? '1.5px solid #1a7a4a' : '1px solid #e8e4de'), boxShadow: selectedImmoAd?.id === ad.id ? '0 4px 20px rgba(26,122,74,0.15)' : '0 1px 4px rgba(0,0,0,0.06)', display:'grid', gridTemplateColumns:'140px 1fr'}}>
 
                 <div style={{height:'130px', background:'#faf9f7', overflow:'hidden', position:'relative', flexShrink:0}}>
@@ -826,7 +896,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div style={{display:'flex', flexDirection:'column', gap:'5px', flexShrink:0}}>
-                  <button onClick={() => router.push('/annonce/' + generateSlug(selectedImmoAd))}
+                  <button onClick={() => router.push(getHomeAdHref(selectedImmoAd))}
                     style={{padding:'6px 10px', background:'#1a7a4a', border:'none', borderRadius:'7px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.72rem', color:'white', cursor:'pointer'}}>
                     Voir
                   </button>
@@ -838,12 +908,12 @@ export default function Home() {
               </div>
             )}
           </div>
-        </div>
+        </section>
       )}
 
       {/* ── MODE NORMAL — Grid annonces ── */}
       {!search && !filterCat && !isImmoMode && user && ads.length > 0 && (
-        <div className="homepage-spec-shell" style={{marginTop:'40px', paddingTop:'32px'}}>
+        <section className="homepage-spec-shell sd-section">
           <div style={{marginBottom:'16px'}}>
             <SectionHeader
               title="Recommandé pour vous"
@@ -853,32 +923,27 @@ export default function Home() {
             />
           </div>
           <div style={{display:'flex', gap:'16px', overflowX:'auto', scrollbarWidth:'none', paddingBottom:'10px', WebkitOverflowScrolling:'touch'}}>
-            {[...ads].sort((a, b) => (favorites?.includes(b.id) ? 1 : 0) - (favorites?.includes(a.id) ? 1 : 0)).slice(0, 8).map((ad: any) => (
-              <div key={ad.id} style={{flexShrink:0, width:'180px'}}>
-                <ListingCard
-                  id={ad.id}
-                  title={ad.title}
-                  price={ad.price}
-                  currency="RWF"
-                  city={ad.province}
-                  district={ad.district}
-                  category={ad.category}
-                  images={ad.images}
-                  createdAt={ad.created_at}
-                  isSold={ad.is_sold}
-                  isNew={(Date.now() - new Date(ad.created_at).getTime()) / (1000*60*60*24) < 7}
-                  isFavorited={false}
-                  href={'/annonce/' + generateSlug(ad)}
-                  variant="compact"
-                />
-              </div>
-            ))}
+            {[...ads].sort((a, b) => (favorites?.includes(b.id) ? 1 : 0) - (favorites?.includes(a.id) ? 1 : 0)).slice(0, 8).map((ad) => {
+              const viewModel = adaptHomeAdToCardViewModel(ad)
+
+              return (
+                <div key={ad.id} style={{flexShrink:0, width:'180px'}}>
+                  <ListingCard
+                    viewModel={viewModel}
+                    isNew={isRecentListing(ad.created_at, renderedAt)}
+                    isFavorited={false}
+                    href={getHomeAdHref(ad)}
+                    variant="compact"
+                  />
+                </div>
+              )
+            })}
           </div>
-        </div>
+        </section>
       )}
 
       {!search.startsWith('@') && activeSection === 'main' && !search && !filterCat && !isImmoMode && (
-        <section id="explore-rapidement" className="homepage-spec-shell" style={{marginTop:'32px'}}>
+        <section id="explore-rapidement" className="homepage-spec-shell sd-section">
           <div style={{marginBottom:'16px'}}>
             <SectionHeader title="Explorer rapidement" />
           </div>
@@ -887,7 +952,7 @@ export default function Home() {
       )}
 
       {!search.startsWith('@') && activeSection === 'main' && !isImmoMode && (
-        <div className="home-results-wrap homepage-spec-shell" style={{paddingBottom:'24px', marginTop:'32px'}}>
+        <section className="home-results-wrap homepage-spec-shell sd-section">
           <div className="home-filter-card" style={{background:'white', borderRadius:'12px', padding:'12px 16px', marginBottom:'20px', border:'1px solid #e8e4de'}}>
             <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'10px', flexWrap:'wrap'}}>
               <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
@@ -964,33 +1029,24 @@ export default function Home() {
             </div>
           ) : (
             <ListingGrid columns={3} gap="md">
-              {displayAds.map((ad: any) => (
+              {displayAds.map((ad) => (
                 <ListingCard
                   key={ad.id}
-                  id={ad.id}
-                  title={ad.title}
-                  price={ad.price}
-                  currency="RWF"
-                  city={ad.province}
-                  district={ad.district}
-                  category={ad.subcategory ? ad.subcategory : ad.category}
-                  images={ad.images}
-                  createdAt={ad.created_at}
-                  isSold={ad.is_sold}
+                  viewModel={adaptHomeAdToCardViewModel(ad)}
                   isFavorited={false}
-                  href={'/annonce/' + generateSlug(ad)}
+                  href={getHomeAdHref(ad)}
                   variant="grid"
                   onLoginRequired={() => router.push('/auth?mode=login')}
                 />
               ))}
             </ListingGrid>
           )}
-        </div>
+        </section>
       )}
 
       {/* ── JOBS ── */}
       {activeSection === 'jobs' && (
-        <div style={{padding:'32px 5%', maxWidth:'1300px', margin:'0 auto'}}>
+        <section className="homepage-spec-shell sd-section">
           <div style={{marginBottom:'20px'}}>
             <SectionHeader title="Offres d’emploi" />
           </div>
@@ -1012,7 +1068,7 @@ export default function Home() {
               </div>
             </div>
           ))}
-        </div>
+        </section>
       )}
 
       {/* ── FOOTER ── */}
