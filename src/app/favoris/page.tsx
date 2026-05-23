@@ -8,6 +8,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { useFavorites } from "@/hooks/useFavorites";
 import { supabase } from "@/lib/supabase";
 import { generateSlug } from "@/lib/slug";
+import { adaptListingToCardViewModel } from "@/lib/listingAdapter";
 
 type FavoriteAd = {
   id: string;
@@ -84,13 +85,14 @@ export default function FavorisPage() {
 
   return (
     <AppShell maxWidth="desktop" withBottomNav>
-      <div style={{ padding: "32px 0" }}>
+      <section className="sd-section">
         <SectionHeader
           title="Mes favoris"
           description="Retrouvez ici les annonces que vous souhaitez garder sous la main."
         />
-      </div>
+      </section>
 
+      <section className="sd-section" aria-busy={loading} aria-label="Annonces favorites">
       {authLoading ? (
         <ListingGrid columns={3} gap="md">
           {skeletonItems.map((_, index) => (
@@ -129,32 +131,33 @@ export default function FavorisPage() {
         </EmptyState>
       ) : (
         <ListingGrid columns={3} gap="md">
-          {favoriteAds.map((ad) => (
-            <ListingCard
-              key={ad.id}
-              id={ad.id}
-              title={ad.title}
-              price={ad.price}
-              currency="RWF"
-              city={ad.province}
-              district={ad.district}
-              category={ad.subcategory || ad.category}
-              images={ad.images}
-              createdAt={ad.created_at}
-              isSold={!!ad.is_sold}
-              isFavorited={isFavorite(ad.id)}
-              onFavoriteToggle={toggleFavorite}
-              href={`/annonce/${generateSlug({
-                id: ad.id,
-                title: ad.title,
-                category: ad.category || undefined,
-                province: ad.province || undefined,
-              })}`}
-              variant="grid"
-            />
-          ))}
+          {favoriteAds.map((ad) => {
+            const favorited = isFavorite(ad.id);
+            const viewModel = adaptListingToCardViewModel({
+              ...ad,
+              category: ad.subcategory || ad.category,
+              isFavorite: favorited,
+            });
+
+            return (
+              <ListingCard
+                key={ad.id}
+                viewModel={viewModel}
+                isFavorited={favorited}
+                onFavoriteToggle={toggleFavorite}
+                href={`/annonce/${generateSlug({
+                  id: ad.id,
+                  title: ad.title,
+                  category: ad.category || undefined,
+                  province: ad.province || undefined,
+                })}`}
+                variant="grid"
+              />
+            );
+          })}
         </ListingGrid>
       )}
+      </section>
     </AppShell>
   );
 }
