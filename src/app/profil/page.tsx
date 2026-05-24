@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
 import { AppShell } from '@/components/layout'
+import { ProfileListingCard } from '@/components/listings/ProfileListingCard'
 import { useFavorites } from '@/hooks/useFavorites'
 import FavoriteButton from '@/components/FavoriteButton'
 import { FEATURE_FLAGS } from '@/lib/feature-flags'
@@ -1070,45 +1071,14 @@ export default function ProfilPage() {
             ) : (
               <div className="ads-grid-3" style={{display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:'12px'}}>
                 {mesAnnonces.map((ad: any) => (
-                  <div key={ad.id} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.08)' }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)' }} style={{background:'white', borderRadius:'16px', overflow:'visible', cursor:'pointer', border:'1px solid #e8e4de', boxShadow:'0 2px 8px rgba(0,0,0,0.06)', transition:'all 0.18s ease'}} onClick={() => router.push('/annonce/' + generateSlug(ad))}>
-                    <div style={{height:'140px', background:'#faf9f7', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2.45rem', overflow:'hidden', position:'relative', borderRadius:'16px 16px 0 0'}}>
-                      {ad.images && ad.images.length > 0 ? (
-                        <img src={ad.images[0]} alt={ad.title} width={300} height={140} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
-                      ) : (
-                        <span style={{opacity:0.45}}>{catEmoji[ad.category] || ''}</span>
-                      )}
-                      <span style={{position:'absolute', top:'10px', left:'10px', background: ad.is_sold ? '#f59e0b' : '#1a7a4a', color:'white', fontSize:'0.68rem', fontWeight:800, padding:'3px 9px', borderRadius:'6px', fontFamily:'DM Sans, sans-serif'}}>
-                        {ad.is_sold ? 'VENDU' : 'Active'}
-                      </span>
-                    </div>
-                    <div style={{padding:'9px'}}>
-                      <div style={{fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:'0.88rem', color:'#111a14', marginBottom:'5px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
-                        {ad.title}
-                      </div>
-                      <div style={{fontFamily:"'DM Sans', sans-serif", fontWeight:800, fontSize:'1rem', color:'#0f5233', marginBottom:'6px', fontVariantNumeric:'lining-nums tabular-nums', fontFeatureSettings:'"lnum" 1, "tnum" 1, "onum" 0', letterSpacing:'-0.01em', lineHeight:1.15}}>
-                        {Number(ad.price).toLocaleString()} RWF
-                      </div>
-                      <div style={{display:'flex', gap:'10px', alignItems:'center', marginBottom:'8px', fontFamily:'DM Sans, sans-serif'}}>
-                        <span style={{fontSize:'0.68rem', color:'#6b7c6e', fontWeight:600}}>👁 0</span>
-                        <span style={{fontSize:'0.68rem', color:'#6b7c6e', fontWeight:600}}>💬 0</span>
-                      </div>
-                      <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
-                        <button onClick={e => { e.stopPropagation(); router.push('/modifier/' + ad.id) }} style={{flex:1, height:'32px', padding:'0 10px', background:'#f0f7f3', color:'#1a7a4a', border:'1px solid #d4e6da', borderRadius:'8px', fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:'0.78rem', cursor:'pointer'}}>
-                          Modifier
-                        </button>
-                        <details onClick={e => e.stopPropagation()} style={{position:'relative'}}>
-                          <summary style={{listStyle:'none', cursor:'pointer', width:'32px', height:'32px', borderRadius:'8px', border:'1px solid #e8e4de', background:'white', color:'#6b7c6e', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800}}>...</summary>
-                          <div style={{position:'absolute', right:0, top:'34px', background:'white', border:'1px solid #e8e4de', borderRadius:'10px', boxShadow:'0 8px 24px rgba(0,0,0,0.10)', padding:'6px', zIndex:10, minWidth:'140px'}}>
-                            <button onClick={() => router.push('/annonce/' + generateSlug(ad))} style={{width:'100%', padding:'7px 9px', background:'transparent', border:'none', textAlign:'left', fontFamily:'DM Sans, sans-serif', fontSize:'0.78rem', color:'#111a14', cursor:'pointer'}}>Voir</button>
-                            {!ad.is_sold && (
-                              <button onClick={() => handleMarkSold(ad.id)} style={{width:'100%', padding:'7px 9px', background:'transparent', border:'none', textAlign:'left', fontFamily:'DM Sans, sans-serif', fontSize:'0.78rem', color:'#78350f', cursor:'pointer'}}>Marquer vendu</button>
-                            )}
-                            <button onClick={() => handleDeleteAd(ad.id)} style={{width:'100%', padding:'7px 9px', background:'transparent', border:'none', textAlign:'left', fontFamily:'DM Sans, sans-serif', fontSize:'0.78rem', color:'#c0392b', cursor:'pointer'}}>Supprimer</button>
-                          </div>
-                        </details>
-                      </div>
-                    </div>
-                  </div>
+                  <ProfileListingCard
+                    key={ad.id}
+                    ad={ad}
+                    onOpen={() => router.push('/annonce/' + generateSlug(ad))}
+                    onEdit={() => router.push('/modifier/' + ad.id)}
+                    onMarkSold={!ad.is_sold ? () => handleMarkSold(ad.id) : undefined}
+                    onDelete={() => handleDeleteAd(ad.id)}
+                  />
                 ))}
               </div>
             )}
