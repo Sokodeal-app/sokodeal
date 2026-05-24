@@ -333,7 +333,7 @@ export default function MessagesPage() {
 
   if (loadError) return (
     <div className="messages-page" style={{ minHeight: '100vh', background: 'var(--sd-bg)', display: 'flex', flexDirection: 'column' }}>
-      <style>{`.messages-page .sd-header__logout-button { display: none; }`}</style>
+      <style>{`.messages-page .sd-header__icon-button, .messages-page .sd-header__logout-button { display: none; }`}</style>
       <Header />
       <div className="sd-page" style={{ maxWidth: '520px', width: '100%', margin: '80px auto', textAlign: 'center' }}>
         <p style={{ fontFamily: 'Syne,sans-serif', color: '#1a7a4a', fontWeight: 700 }}>{loadError}</p>
@@ -344,6 +344,7 @@ export default function MessagesPage() {
   return (
     <div className="messages-page" style={{ minHeight: '100vh', background: 'var(--sd-bg)', display: 'flex', flexDirection: 'column' }}>
       <style>{`
+        .messages-page .sd-header__icon-button { display: none; }
         .messages-page .sd-header__logout-button { display: none; }
         .messages-shell { display: flex; flex-direction: column; min-height: calc(100dvh - var(--sd-header-height)); }
         @media (max-width: 768px) {

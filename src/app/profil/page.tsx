@@ -754,8 +754,78 @@ export default function ProfilPage() {
       <style>{`
         html, body { background: var(--sd-bg); }
         .profile-page-main { min-height: calc(100dvh - var(--sd-header-height)); }
+        .profile-local-header .header-inner { padding-inline: max(var(--sd-page-padding-x), env(safe-area-inset-left)) max(var(--sd-page-padding-x), env(safe-area-inset-right)) !important; }
+        .profile-hero-card {
+          background: var(--sd-surface) !important;
+          border: 1px solid var(--sd-border) !important;
+          box-shadow: var(--sd-shadow-card) !important;
+        }
+        .profile-hero-card > div[style*="border-radius"] { display: none !important; }
+        .profile-hero-avatar {
+          background: var(--sd-primary-soft) !important;
+          color: var(--sd-primary-dark) !important;
+          border: 1px solid var(--sd-primary-muted) !important;
+          box-shadow: none !important;
+        }
+        .profile-hero-name { color: var(--sd-text) !important; font-weight: 800 !important; }
+        .profile-hero-email,
+        .profile-hero-card p { color: var(--sd-muted) !important; }
+        .profile-hero-badges button {
+          min-height: 40px !important;
+          background: var(--sd-primary-soft) !important;
+          color: var(--sd-primary-dark) !important;
+          border: 1px solid var(--sd-primary-muted) !important;
+          box-shadow: none !important;
+        }
+        .profile-hero-stats {
+          gap: var(--sd-space-3) !important;
+          width: min(100%, 360px) !important;
+          min-width: 0 !important;
+        }
+        .profile-hero-stats > div {
+          padding: var(--sd-space-3) !important;
+          border: 1px solid var(--sd-border) !important;
+          border-radius: var(--sd-radius-lg) !important;
+          background: var(--sd-bg) !important;
+        }
+        .profile-hero-stats > div > div:first-child {
+          color: var(--sd-primary-dark) !important;
+          font-size: 1.35rem !important;
+        }
+        .profile-hero-stats > div > div:last-child { color: var(--sd-muted) !important; }
+        .perf-grid > div,
+        .ads-grid-3 > div,
+        .fav-grid > div,
+        .profile-bottom-grid > div:not(.profile-bottom-spacer),
+        .profile-card-surface {
+          background: var(--sd-surface) !important;
+          border: 1px solid var(--sd-border) !important;
+          border-radius: var(--sd-radius-xl) !important;
+          box-shadow: var(--sd-shadow-card) !important;
+        }
+        .perf-grid > div {
+          padding: var(--sd-space-5) !important;
+        }
+        .perf-grid > div > div:nth-child(2) {
+          color: var(--sd-primary-dark) !important;
+          font-size: clamp(1.35rem, 2vw, 1.65rem) !important;
+        }
+        .perf-grid > div > div:nth-child(3) { color: var(--sd-text) !important; }
+        .perf-grid > div > div:nth-child(4) { color: var(--sd-muted) !important; }
+        .profile-tabs-row button {
+          min-height: 40px;
+          border-radius: var(--sd-radius-lg) !important;
+          box-shadow: none !important;
+        }
+        .profile-page input,
+        .profile-page select,
+        .profile-page textarea {
+          border-color: var(--sd-border) !important;
+          background: var(--sd-surface) !important;
+          color: var(--sd-text) !important;
+        }
         @media (max-width: 768px) {
-          .header-inner { padding: 0 4% !important; height: 56px !important; }
+          .header-inner { padding-inline: max(var(--sd-page-padding-x), env(safe-area-inset-left)) max(var(--sd-page-padding-x), env(safe-area-inset-right)) !important; height: var(--sd-header-height) !important; }
           .header-search { display: none !important; }
           .mon-compte-label { display: none !important; }
           .deposer-btn { padding: 6px 8px !important; font-size: 0.75rem !important; }
@@ -844,9 +914,9 @@ export default function ProfilPage() {
       <header className="profile-local-header sd-full-bleed" style={{background:'var(--sd-surface)', position:'sticky', top:0, zIndex:'var(--sd-z-header)', borderBottom:'1px solid var(--sd-border)', paddingTop:'env(safe-area-inset-top)'}}>
         <div className="header-inner sd-full-bleed-inner" style={{display:'flex', alignItems:'center', justifyContent:'space-between', height:'var(--sd-header-height)', gap:'14px'}}>
           <a href="/" style={{display:'flex', alignItems:'center', gap:'8px', textDecoration:'none', flexShrink:0}}>
-            <div style={{width:'34px', height:'34px', background:'#1a7a4a', borderRadius:'9px', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'17px', color:'white'}}>S</div>
-            <span style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.25rem', color:'#111a14'}}>
-              Soko<span style={{color:'#1a7a4a'}}>Deal</span>
+            <div style={{width:'34px', height:'34px', background:'var(--sd-primary)', borderRadius:'var(--sd-radius-md)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'17px', color:'var(--sd-surface)'}}>S</div>
+            <span style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.25rem', color:'var(--sd-text)'}}>
+              Soko<span style={{color:'var(--sd-primary)'}}>Deal</span>
             </span>
           </a>
 
@@ -872,16 +942,16 @@ export default function ProfilPage() {
           </div>
 
           <div style={{display:'flex', alignItems:'center', gap:'6px', flexShrink:0}}>
-            <button onClick={() => router.push('/profil')} style={{display:'flex', alignItems:'center', gap:'7px', padding:'7px 14px', background:'white', border:'1px solid #e8e4de', borderRadius:'9px', color:'#111a14', fontFamily:'DM Sans,sans-serif', fontSize:'0.85rem', cursor:'pointer'}}>
-              <div style={{width:'24px', height:'24px', borderRadius:'50%', background:'#EAB308', border:'1px solid rgba(17,26,20,0.10)', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:'0.78rem', color:'#111a14'}}>
+            <button onClick={() => router.push('/profil')} style={{display:'flex', alignItems:'center', gap:'7px', padding:'7px 14px', background:'var(--sd-surface)', border:'1px solid var(--sd-border)', borderRadius:'var(--sd-radius-md)', color:'var(--sd-text)', fontFamily:'DM Sans,sans-serif', fontSize:'0.85rem', cursor:'pointer'}}>
+              <div style={{width:'24px', height:'24px', borderRadius:'50%', background:'var(--sd-primary-soft)', border:'1px solid var(--sd-primary-muted)', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:'0.78rem', color:'var(--sd-primary-dark)'}}>
                 {(profileForm.full_name || user?.email || 'U')[0].toUpperCase()}
               </div>
               <span className="mon-compte-label">Mon compte</span>
             </button>
-            <button onClick={handleLogout} disabled={logoutLoading} style={{padding:'7px 12px', background:'white', border:'1px solid #e8e4de', borderRadius:'9px', color:'#6b7c6e', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:'0.82rem', cursor: logoutLoading ? 'not-allowed' : 'pointer', whiteSpace:'nowrap'}}>
+            <button onClick={handleLogout} disabled={logoutLoading} style={{padding:'7px 12px', background:'var(--sd-surface)', border:'1px solid var(--sd-border)', borderRadius:'var(--sd-radius-md)', color:'var(--sd-muted)', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:'0.82rem', cursor: logoutLoading ? 'not-allowed' : 'pointer', whiteSpace:'nowrap'}}>
               {logoutLoading ? 'Sortie...' : 'Se déconnecter'}
             </button>
-            <button className="deposer-btn" onClick={() => router.push('/publier')} style={{padding:'8px 18px', background:'#1a7a4a', border:'none', borderRadius:'9px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'white', cursor:'pointer', whiteSpace:'nowrap'}}>
+            <button className="deposer-btn" onClick={() => router.push('/publier')} style={{padding:'8px 18px', background:'var(--sd-primary)', border:'none', borderRadius:'var(--sd-radius-md)', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'var(--sd-surface)', cursor:'pointer', whiteSpace:'nowrap'}}>
               +<span className="deposer-text"> Publier</span>
             </button>
           </div>
@@ -964,24 +1034,24 @@ export default function ProfilPage() {
           <div style={{display:'flex', gap:'8px', overflowX:'auto', paddingBottom:'4px', scrollbarWidth:'none'}}>
             {tabs.map(tab => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
-                padding:'6px 13px', border: activeTab === tab.id ? '1px solid #1a7a4a' : '1px solid #e8e4de',
+                padding:'6px 13px', border: activeTab === tab.id ? '1px solid var(--sd-primary-muted)' : '1px solid var(--sd-border)',
                 borderRadius:'10px', cursor:'pointer', fontFamily:'DM Sans, sans-serif',
                 fontWeight:700, fontSize:'0.78rem', whiteSpace:'nowrap',
-                background: activeTab === tab.id ? '#1a7a4a' : 'white',
-                color: activeTab === tab.id ? 'white' : '#6b7c6e',
-                boxShadow: activeTab === tab.id ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
+                background: activeTab === tab.id ? 'var(--sd-active-bg)' : 'var(--sd-surface)',
+                color: activeTab === tab.id ? 'var(--sd-active-text)' : 'var(--sd-muted)',
+                boxShadow: 'none',
                 transition:'all 0.18s ease',
               }}>
                 {tab.label}
                 {tab.count !== null && (
-                  <span style={{marginLeft:'4px', color: activeTab === tab.id ? 'rgba(255,255,255,0.86)' : '#6b7c6e', fontSize:'0.72rem', fontWeight:700}}>
+                  <span style={{marginLeft:'4px', color: activeTab === tab.id ? 'var(--sd-active-text)' : 'var(--sd-muted)', fontSize:'0.72rem', fontWeight:700}}>
                     ({tab.count})
                   </span>
                 )}
               </button>
             ))}
           </div>
-          <button onClick={() => router.push('/publier')} style={{padding:'8px 15px', background:'#1a7a4a', color:'white', border:'none', borderRadius:'10px', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.84rem', cursor:'pointer', whiteSpace:'nowrap', transition:'all 0.18s ease'}}>
+          <button onClick={() => router.push('/publier')} style={{padding:'8px 15px', background:'var(--sd-primary)', color:'var(--sd-surface)', border:'none', borderRadius:'var(--sd-radius-lg)', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.84rem', cursor:'pointer', whiteSpace:'nowrap', transition:'all 0.18s ease'}}>
             + Nouvelle annonce
           </button>
         </div>
@@ -989,7 +1059,7 @@ export default function ProfilPage() {
         {activeTab === 'annonces' && (
           <div>
             {mesAnnonces.length === 0 ? (
-              <div style={{background:'white', borderRadius:'18px', padding:'48px', textAlign:'center', border:'1px solid #e8e4de', boxShadow:'0 4px 14px rgba(17,24,39,0.05)'}}>
+              <div className="profile-card-surface" style={{background:'white', borderRadius:'18px', padding:'48px', textAlign:'center', border:'1px solid #e8e4de', boxShadow:'0 4px 14px rgba(17,24,39,0.05)'}}>
                 <div style={{fontSize:'2.5rem', marginBottom:'12px'}}></div>
                 <h3 style={{fontFamily:'Syne, sans-serif', fontWeight:800, marginBottom:'8px', color:'#111a14'}}>Aucune annonce</h3>
                 <p style={{color:'#6b7c6e', marginBottom:'20px', fontSize:'0.88rem', fontFamily:'DM Sans, sans-serif'}}>Publiez votre premiere annonce gratuitement</p>
@@ -1088,7 +1158,7 @@ export default function ProfilPage() {
             {favLoading ? (
               <div style={{textAlign:'center', padding:'60px', color:'#6b7c6e'}}>Chargement...</div>
             ) : favoriteAds.length === 0 ? (
-              <div style={{background:'white', borderRadius:'14px', padding:'48px', textAlign:'center', border:'1px solid #e8e4de'}}>
+              <div className="profile-card-surface" style={{background:'white', borderRadius:'14px', padding:'48px', textAlign:'center', border:'1px solid #e8e4de'}}>
                 <div style={{fontSize:'2.5rem', marginBottom:'12px'}}></div>
                 <h3 style={{fontFamily:'DM Sans, sans-serif', fontWeight:800, marginBottom:'8px', color:'#111a14'}}>Aucun favori</h3>
                 <p style={{color:'#6b7c6e', marginBottom:'20px', fontSize:'0.88rem'}}>Cliquez sur le coeur d une annonce pour la sauvegarder</p>
@@ -1123,7 +1193,7 @@ export default function ProfilPage() {
         )}
 
         {activeTab === 'profil' && (
-          <div style={{background:'white', borderRadius:'14px', padding:'24px', border:'1px solid #e8e4de'}}>
+          <div className="profile-card-surface" style={{background:'white', borderRadius:'14px', padding:'24px', border:'1px solid #e8e4de'}}>
             <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'20px'}}>
               <h2 style={{fontFamily:'DM Sans, sans-serif', fontWeight:800, fontSize:'1.1rem', color:'#111a14'}}>Informations personnelles</h2>
               <button onClick={() => setEditMode(!editMode)} style={{padding:'7px 16px', background: editMode ? '#fff1f0' : '#f5f7f5', color: editMode ? '#c0392b' : '#111a14', border:'1px solid ' + (editMode ? '#ffd6d6' : '#e8e4de'), borderRadius:'8px', fontFamily:'DM Sans, sans-serif', fontWeight:600, fontSize:'0.82rem', cursor:'pointer'}}>
@@ -1268,7 +1338,7 @@ export default function ProfilPage() {
           <div>
             <h2 style={{fontFamily:'DM Sans, sans-serif', fontWeight:800, fontSize:'1.1rem', marginBottom:'14px', color:'#111a14'}}>Articles vendus</h2>
             {vendues.length === 0 ? (
-              <div style={{background:'white', borderRadius:'14px', padding:'40px', border:'1px solid #e8e4de', textAlign:'center'}}>
+              <div className="profile-card-surface" style={{background:'white', borderRadius:'14px', padding:'40px', border:'1px solid #e8e4de', textAlign:'center'}}>
                 <div style={{fontSize:'2.5rem', marginBottom:'12px'}}></div>
                 <h3 style={{fontFamily:'DM Sans, sans-serif', fontWeight:800, fontSize:'1.1rem', marginBottom:'8px', color:'#111a14'}}>Aucune vente</h3>
                 <p style={{color:'#6b7c6e', fontSize:'0.88rem'}}>Vos articles vendus apparaitront ici</p>
