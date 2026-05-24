@@ -11,6 +11,16 @@ import { FEATURE_FLAGS } from '@/lib/feature-flags'
 import { LAUNCH_CITIES } from '@/lib/market-config'
 import { generateSlug } from '@/lib/slug'
 
+function LogOutIcon() {
+  return (
+    <svg aria-hidden="true" fill="none" focusable="false" height="20" viewBox="0 0 24 24" width="20">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+      <path d="M16 17l5-5-5-5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+      <path d="M21 12H9" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+    </svg>
+  )
+}
+
 function AlertesTab({ userId }: { userId: string }) {
   const [searches, setSearches] = useState<any[]>([])
   const [history, setHistory] = useState<any[]>([])
@@ -949,8 +959,14 @@ export default function ProfilPage() {
               </div>
               <span className="mon-compte-label">Mon compte</span>
             </button>
-            <button onClick={handleLogout} disabled={logoutLoading} style={{padding:'7px 12px', background:'var(--sd-surface)', border:'1px solid var(--sd-border)', borderRadius:'var(--sd-radius-md)', color:'var(--sd-muted)', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:'0.82rem', cursor: logoutLoading ? 'not-allowed' : 'pointer', whiteSpace:'nowrap'}}>
-              {logoutLoading ? 'Sortie...' : 'Se déconnecter'}
+            <button
+              aria-label="Se déconnecter"
+              title="Se déconnecter"
+              onClick={handleLogout}
+              disabled={logoutLoading}
+              style={{width:'44px', height:'44px', padding:0, display:'inline-flex', alignItems:'center', justifyContent:'center', background:'var(--sd-surface)', border:'1px solid var(--sd-border)', borderRadius:'var(--sd-radius-md)', color: logoutLoading ? 'var(--sd-muted)' : 'var(--sd-text)', cursor: logoutLoading ? 'not-allowed' : 'pointer', flexShrink:0, opacity: logoutLoading ? 0.64 : 1}}
+            >
+              <LogOutIcon />
             </button>
             <button className="deposer-btn" onClick={() => router.push('/publier')} style={{padding:'8px 18px', background:'var(--sd-primary)', border:'none', borderRadius:'var(--sd-radius-md)', fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.85rem', color:'var(--sd-surface)', cursor:'pointer', whiteSpace:'nowrap'}}>
               +<span className="deposer-text"> Publier</span>
