@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
 import Header from '@/components/Header'
-import { BottomNav } from '@/components/navigation'
+import { AppShell } from '@/components/layout'
 
 export default function MessagesPage() {
   const { user: authUser, session, loading: authLoading } = useAuth()
@@ -326,23 +326,26 @@ export default function MessagesPage() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f7f5' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--sd-bg)' }}>
       <p style={{ fontFamily: 'Syne,sans-serif', color: '#1a7a4a', fontWeight: 700 }}>⏳ Chargement...</p>
     </div>
   )
 
   if (loadError) return (
-    <div style={{ minHeight: '100vh', background: '#f5f7f5', display: 'flex', flexDirection: 'column' }}>
+    <div className="messages-page" style={{ minHeight: '100vh', background: 'var(--sd-bg)', display: 'flex', flexDirection: 'column' }}>
+      <style>{`.messages-page .sd-header__logout-button { display: none; }`}</style>
       <Header />
-      <div style={{ maxWidth: '520px', width: '100%', margin: '80px auto', padding: '0 5%', textAlign: 'center' }}>
+      <div className="sd-page" style={{ maxWidth: '520px', width: '100%', margin: '80px auto', textAlign: 'center' }}>
         <p style={{ fontFamily: 'Syne,sans-serif', color: '#1a7a4a', fontWeight: 700 }}>{loadError}</p>
       </div>
     </div>
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f7f5', display: 'flex', flexDirection: 'column' }}>
+    <div className="messages-page" style={{ minHeight: '100vh', background: 'var(--sd-bg)', display: 'flex', flexDirection: 'column' }}>
       <style>{`
+        .messages-page .sd-header__logout-button { display: none; }
+        .messages-shell { display: flex; flex-direction: column; min-height: calc(100dvh - var(--sd-header-height)); }
         @media (max-width: 768px) {
           .msg-layout { grid-template-columns: 1fr !important; }
           .conv-panel { display: ${activeConv ? 'none' : 'flex'} !important; }
@@ -355,9 +358,9 @@ export default function MessagesPage() {
 
       <Header />
 
-      <div className="messages-shell sd-page sd-page--with-bottom-nav" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <AppShell maxWidth="desktop" withBottomNav className="messages-shell">
         <h1 style={{ fontFamily: 'Syne,sans-serif', fontWeight: 800, fontSize: '1.3rem', marginBottom: '16px', color: '#111a14' }}>
-          💬 Messages
+          Messages
         </h1>
 
         <div className="msg-layout" style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '16px', flex: 1, minHeight: '600px' }}>
@@ -510,8 +513,7 @@ export default function MessagesPage() {
             )}
           </div>
         </div>
-      </div>
-      <BottomNav />
+      </AppShell>
     </div>
   )
 }

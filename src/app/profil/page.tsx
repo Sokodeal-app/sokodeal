@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
-import { BottomNav } from '@/components/navigation'
+import { AppShell } from '@/components/layout'
 import { useFavorites } from '@/hooks/useFavorites'
 import FavoriteButton from '@/components/FavoriteButton'
 import { FEATURE_FLAGS } from '@/lib/feature-flags'
@@ -744,15 +744,16 @@ export default function ProfilPage() {
   ]
 
   if (loading) return (
-    <div style={{minHeight:'100vh', background:'#f5f7f5', display:'flex', alignItems:'center', justifyContent:'center'}}>
+    <div style={{minHeight:'100vh', background:'var(--sd-bg)', display:'flex', alignItems:'center', justifyContent:'center'}}>
       <p style={{fontFamily:'Syne,sans-serif', color:'#1a7a4a', fontWeight:700}}>Chargement...</p>
     </div>
   )
 
   return (
-    <div style={{minHeight:'100vh', background:'#faf9f7'}}>
+    <div className="profile-page" style={{minHeight:'100vh', background:'var(--sd-bg)'}}>
       <style>{`
-        html, body { background: #faf9f7; }
+        html, body { background: var(--sd-bg); }
+        .profile-page-main { min-height: calc(100dvh - var(--sd-header-height)); }
         @media (max-width: 768px) {
           .header-inner { padding: 0 4% !important; height: 56px !important; }
           .header-search { display: none !important; }
@@ -776,7 +777,7 @@ export default function ProfilPage() {
           .profile-bottom-spacer { display: none !important; }
         }
         @media (max-width: 480px) {
-          .profile-hero-shell { padding: var(--sd-page-padding-top) var(--sd-page-padding-x) 0 !important; }
+          .profile-hero-shell { padding: 0 !important; }
           .profile-hero-card { padding: 22px 18px !important; }
           .profile-hero-inner { flex-direction: column !important; gap: 14px !important; align-items: center !important; text-align: center !important; }
           .profile-hero-stats { justify-content: center !important; width: 100% !important; min-width: 0 !important; }
@@ -840,8 +841,8 @@ export default function ProfilPage() {
         </div>
       )}
 
-      <header style={{background:'#faf9f7', position:'sticky', top:0, zIndex:100, borderBottom:'1px solid #e8e4de', paddingTop:'env(safe-area-inset-top)'}}>
-        <div className="header-inner" style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 5%', height:'62px', gap:'14px', maxWidth:'1300px', margin:'0 auto'}}>
+      <header className="profile-local-header sd-full-bleed" style={{background:'var(--sd-surface)', position:'sticky', top:0, zIndex:'var(--sd-z-header)', borderBottom:'1px solid var(--sd-border)', paddingTop:'env(safe-area-inset-top)'}}>
+        <div className="header-inner sd-full-bleed-inner" style={{display:'flex', alignItems:'center', justifyContent:'space-between', height:'var(--sd-header-height)', gap:'14px'}}>
           <a href="/" style={{display:'flex', alignItems:'center', gap:'8px', textDecoration:'none', flexShrink:0}}>
             <div style={{width:'34px', height:'34px', background:'#1a7a4a', borderRadius:'9px', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'17px', color:'white'}}>S</div>
             <span style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.25rem', color:'#111a14'}}>
@@ -887,7 +888,8 @@ export default function ProfilPage() {
         </div>
       </header>
 
-      <div className="profile-hero-shell profile-shell sd-page" style={{paddingBottom:0, boxSizing:'border-box'}}>
+      <AppShell maxWidth="desktop" withBottomNav className="profile-shell profile-page-main">
+      <section className="profile-hero-shell sd-section" style={{paddingBottom:0, boxSizing:'border-box'}}>
         <div className="profile-hero-card" style={{background:'linear-gradient(135deg, #0f5233 0%, #1a7a4a 100%)', padding:'20px 22px', borderRadius:'16px', overflow:'hidden', position:'relative', boxShadow:'0 2px 8px rgba(0,0,0,0.06)', border:'1px solid rgba(255,255,255,0.14)'}}>
           <div style={{position:'absolute', width:'180px', height:'180px', borderRadius:'50%', background:'rgba(255,255,255,0.014)', top:'-108px', right:'-54px'}} />
           <div style={{position:'absolute', width:'130px', height:'130px', borderRadius:'50%', background:'rgba(255,255,255,0.012)', bottom:'-86px', left:'16%'}} />
@@ -929,9 +931,9 @@ export default function ProfilPage() {
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="profile-shell sd-page sd-page--with-bottom-nav" style={{paddingTop:0, marginTop:'var(--sd-section-gap)', boxSizing:'border-box'}}>
+      <section className="sd-section" style={{paddingTop:0, boxSizing:'border-box'}}>
         <div style={{marginBottom:'18px'}}>
           <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'12px', marginBottom:'12px'}}>
             <h2 style={{fontFamily:'Syne, sans-serif', fontWeight:800, fontSize:'1rem', color:'#111a14', margin:0}}>Aperçu des performances</h2>
@@ -1295,8 +1297,8 @@ export default function ProfilPage() {
           </div>
         )}
 
-      </div>
-      <BottomNav />
+      </section>
+      </AppShell>
     </div>
   )
 }
