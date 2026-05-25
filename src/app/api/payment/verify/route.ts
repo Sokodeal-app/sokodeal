@@ -1,31 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import {
+  createPaymentSupabaseClient,
+  getPaymentErrorMessage,
+  getPaypackToken,
+  type PaymentSupabaseClient,
+} from '../server'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
-async function getPaypackToken() {
-  const res = await fetch('https://payments.paypack.rw/api/auth/agents/authorize', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({
-      client_id: process.env.PAYPACK_CLIENT_ID,
-      client_secret: process.env.PAYPACK_CLIENT_SECRET,
-    }),
-  })
-  const data = await res.json()
-  return data.access
+type PaymentRecord = {
+  id: string
+  user_id: string
+  amount: number
+  flw_ref?: string | null
+  status?: string | null
+  metadata?: {
+    type?: string
+    ad_id?: string
+    duration_days?: string | number
+    plan?: string
+  } | null
 }
 
-async function activatePayment(payment: any) {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+async function activatePayment(payment: PaymentRecord, supabase: PaymentSupabaseClient) {
   const type = payment.metadata?.type
   const userId = payment.user_id
 
   if (type === 'boost') {
     const adId = payment.metadata?.ad_id
-    const days = parseInt(payment.metadata?.duration_days)
+    const days = Number.parseInt(String(payment.metadata?.duration_days), 10)
     const endsAt = new Date()
     endsAt.setDate(endsAt.getDate() + days)
     const { data: boost } = await supabase.from('boosts').insert([{
@@ -51,10 +56,14 @@ async function activatePayment(payment: any) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { payment_id, ref } = await req.json()
+    const body: unknown = await req.json()
+    const payload = isRecord(body) ? body : {}
+    const paymentId = typeof payload.payment_id === 'string' ? payload.payment_id : ''
+    const ref = typeof payload.ref === 'string' ? payload.ref : ''
+    const supabase = createPaymentSupabaseClient()
 
     let query = supabase.from('payments').select('*')
-    if (payment_id) query = query.eq('id', payment_id)
+    if (paymentId) query = query.eq('id', paymentId)
     else if (ref) query = query.eq('flw_ref', ref)
     else return NextResponse.json({ error: 'payment_id ou ref requis' }, { status: 400 })
 
@@ -70,18 +79,19 @@ export async function POST(req: NextRequest) {
     const verifyRes = await fetch(`https://payments.paypack.rw/api/transactions/find/${paypackRef}`, {
       headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' },
     })
-    const verifyData = await verifyRes.json()
+    const verifyData: unknown = await verifyRes.json()
+    const verifyStatus = isRecord(verifyData) && typeof verifyData.status === 'string' ? verifyData.status : ''
 
-    if (verifyData.status === 'successful') {
-      await activatePayment(payment)
+    if (verifyStatus === 'successful') {
+      await activatePayment(payment as PaymentRecord, supabase)
       return NextResponse.json({ success: true, type: payment.metadata?.type })
-    } else if (verifyData.status === 'failed') {
+    } else if (verifyStatus === 'failed') {
       await supabase.from('payments').update({ status: 'failed' }).eq('id', payment.id)
       return NextResponse.json({ success: false, status: 'failed' })
     } else {
       return NextResponse.json({ success: false, status: 'pending', message: 'En attente de confirmation MoMo' })
     }
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message })
+  } catch (err: unknown) {
+    return NextResponse.json({ success: false, error: getPaymentErrorMessage(err) })
   }
 }

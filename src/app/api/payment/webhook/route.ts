@@ -1,25 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createPaymentSupabaseClient, getPaymentErrorMessage } from '../server'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
-    const { kind, data } = body
+    const body: unknown = await req.json()
+    const payload = isRecord(body) ? body : {}
+    const data = isRecord(payload.data) ? payload.data : {}
 
-    if (kind !== 'CASHIN' || data?.status !== 'successful') {
+    if (payload.kind !== 'CASHIN' || data.status !== 'successful') {
       return NextResponse.json({ status: 'ignored' })
     }
 
-    const ref = data?.ref
+    const ref = typeof data.ref === 'string' ? data.ref : ''
     if (!ref) return NextResponse.json({ status: 'no_ref' })
 
+    const supabase = createPaymentSupabaseClient()
     const { data: payment } = await supabase
-      .from('payments').select('*').eq('flw_ref', ref).eq('status', 'pending').single()
+      .from('payments')
+      .select('*')
+      .eq('flw_ref', ref)
+      .eq('status', 'pending')
+      .single()
     if (!payment) return NextResponse.json({ status: 'not_found' })
 
     const type = payment.metadata?.type
@@ -27,7 +32,7 @@ export async function POST(req: NextRequest) {
 
     if (type === 'boost') {
       const adId = payment.metadata?.ad_id
-      const days = parseInt(payment.metadata?.duration_days)
+      const days = Number.parseInt(String(payment.metadata?.duration_days), 10)
       const endsAt = new Date()
       endsAt.setDate(endsAt.getDate() + days)
       const { data: boost } = await supabase.from('boosts').insert([{
@@ -51,7 +56,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ status: 'success' })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (err: unknown) {
+    return NextResponse.json({ error: getPaymentErrorMessage(err) }, { status: 500 })
   }
 }

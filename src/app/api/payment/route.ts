@@ -1,60 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createPaymentSupabaseClient, getPaypackToken, getPaymentErrorMessage } from './server'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+const BOOST_PRICES: Record<string, number> = { '1': 500, '3': 1000, '7': 2000, '30': 6000 }
+const SUBSCRIPTION_PRICES: Record<string, number> = { pro: 8000, agence: 25000 }
 
-async function getPaypackToken() {
-  const res = await fetch('https://payments.paypack.rw/api/auth/agents/authorize', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({
-      client_id: process.env.PAYPACK_CLIENT_ID,
-      client_secret: process.env.PAYPACK_CLIENT_SECRET,
-    }),
-  })
-  const data = await res.json()
-  return data.access
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
-    const { type, plan, ad_id, duration_days, user_id, phone } = body
+    const body: unknown = await req.json()
+    const payload = isRecord(body) ? body : {}
+    const type = typeof payload.type === 'string' ? payload.type : ''
+    const plan = typeof payload.plan === 'string' ? payload.plan : ''
+    const adId = typeof payload.ad_id === 'string' ? payload.ad_id : ''
+    const durationDays = typeof payload.duration_days === 'string' || typeof payload.duration_days === 'number'
+      ? String(payload.duration_days)
+      : ''
+    const userId = typeof payload.user_id === 'string' ? payload.user_id : ''
+    const phone = typeof payload.phone === 'string' ? payload.phone : ''
 
-    if (!type || !user_id || !phone) {
-      return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 })
+    if (!type || !userId || !phone) {
+      return NextResponse.json({ error: 'Parametres manquants' }, { status: 400 })
     }
 
     const cleanPhone = phone.replace(/\s+/g, '').replace('+250', '0').replace('250', '0')
     if (!/^07[0-9]{8}$/.test(cleanPhone)) {
-      return NextResponse.json({ error: 'Numéro invalide (format: 07XXXXXXXX)' }, { status: 400 })
+      return NextResponse.json({ error: 'Numero invalide (format: 07XXXXXXXX)' }, { status: 400 })
     }
 
     let amount = 0
-    let meta: any = { type, user_id }
+    const meta: Record<string, unknown> = { type, user_id: userId }
 
     if (type === 'boost') {
-      const prices: any = { '1': 500, '3': 1000, '7': 2000, '30': 6000 }
-      if (!prices[duration_days] || !ad_id) return NextResponse.json({ error: 'Boost invalide' }, { status: 400 })
-      amount = prices[duration_days]
-      meta.ad_id = ad_id
-      meta.duration_days = duration_days
+      if (!BOOST_PRICES[durationDays] || !adId) return NextResponse.json({ error: 'Boost invalide' }, { status: 400 })
+      amount = BOOST_PRICES[durationDays]
+      meta.ad_id = adId
+      meta.duration_days = durationDays
     } else if (type === 'subscription') {
-      const prices: any = { pro: 8000, agence: 25000 }
-      if (!prices[plan]) return NextResponse.json({ error: 'Plan invalide' }, { status: 400 })
-      amount = prices[plan]
+      if (!SUBSCRIPTION_PRICES[plan]) return NextResponse.json({ error: 'Plan invalide' }, { status: 400 })
+      amount = SUBSCRIPTION_PRICES[plan]
       meta.plan = plan
     } else {
       return NextResponse.json({ error: 'Type invalide' }, { status: 400 })
     }
 
+    const supabase = createPaymentSupabaseClient()
     const { data: payment, error: paymentError } = await supabase
       .from('payments')
-      .insert([{ user_id, type, amount, status: 'pending', metadata: meta }])
-      .select().single()
+      .insert([{ user_id: userId, type, amount, status: 'pending', metadata: meta }])
+      .select()
+      .single()
     if (paymentError) throw paymentError
 
     const token = await getPaypackToken()
@@ -80,10 +77,10 @@ export async function POST(req: NextRequest) {
       success: true,
       payment_id: payment.id,
       ref: paypackData.ref,
-      message: 'Confirmez le paiement sur votre téléphone Mobile Money',
+      message: 'Confirmez le paiement sur votre telephone Mobile Money',
     })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Payment error:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: getPaymentErrorMessage(err) }, { status: 500 })
   }
 }
