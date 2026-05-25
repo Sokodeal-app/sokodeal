@@ -122,32 +122,11 @@ export default function Home() {
 
   const villes = LAUNCH_CITIES
 
-  const catEmoji: Record<string, string> = {
-    'immo-vente':'🏡','immo-location':'🏢','immo-terrain':'🌿',
-    'voiture':'🚗','moto':'🛵','electronique':'📱','mode':'👗',
-    'maison':'🛋️','emploi':'💼','animaux':'🐄','services':'🏗️',
-    'agriculture':'🌾','materiaux':'🧱','sante':'💊','sport':'⚽','education':'📚'
-  }
-
   const catLabel: Record<string, string> = {
     'immo-vente':'Vente','immo-location':'Location','immo-terrain':'Terrain',
   }
 
   const subcats = LAUNCH_SUBCATEGORIES[filterCat] || SUBCATEGORIES[filterCat] || []
-
-  const handleNavCat = (cat: string) => {
-    setFilterCat(cat)
-    setFilterSubcat('')
-    setFilterChambres('')
-    setFilterType('')
-    setFilterVille('')
-    setFilterPriceMin('')
-    setFilterPriceMax('')
-    setSortBy('recent')
-    setSearch('')
-    setActiveSection('main')
-    setSelectedImmoAd(null)
-  }
 
   const fetchAds = useCallback(async () => {
     try {
@@ -196,8 +175,11 @@ export default function Home() {
 
   // ── Chargement des annonces ──
   useEffect(() => {
-    fetchAds()
+    const timer = window.setTimeout(() => {
+      void fetchAds()
+    }, 0)
 
+    return () => window.clearTimeout(timer)
   }, [fetchAds])
 
   useEffect(() => {
@@ -406,10 +388,10 @@ export default function Home() {
   }, [filteredAds, isImmoMode, selectedImmoAd?.id, mapReady])
 
   // ── Filtrage ──
-  const saveToHistory = async (q: string, cat: string, ville: string) => {
+  const saveToHistory = useCallback(async (q: string, cat: string, ville: string) => {
     if (!user || (!q && !cat && !ville)) return
     await supabase.from('search_history').insert([{ user_id: user.id, query: q || null, category: cat || null, province: ville || null }])
-  }
+  }, [user])
 
   const handleSaveSearch = async () => {
     if (!user) {
@@ -436,19 +418,34 @@ export default function Home() {
   }
 
   useEffect(() => {
-    if (search.startsWith('@')) {
+    let cancelled = false
+
+    const timer = window.setTimeout(() => {
+      if (!search.startsWith('@')) {
+        setProfileResults([])
+        setSearchingProfiles(false)
+        return
+      }
+
       const q = search.slice(1).toLowerCase()
       if (q.length >= 1) {
         setSearchingProfiles(true)
         supabase.from('users').select('*').ilike('username', q + '%').limit(5).then(({ data }) => {
+          if (cancelled) return
           setProfileResults(data || [])
           setSearchingProfiles(false)
         })
-      } else { setProfileResults([]) }
-      return
-    }
+        return
+      }
 
-    setProfileResults([])
+      setProfileResults([])
+      setSearchingProfiles(false)
+    }, 0)
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
   }, [search])
 
   useEffect(() => {
@@ -467,7 +464,7 @@ export default function Home() {
       if (cleanSearch || filterCat || filterVille) saveToHistory(cleanSearch, filterCat, filterVille)
     }, 1500)
     return () => clearTimeout(timer)
-  }, [search, filterCat, filterVille])
+  }, [search, filterCat, filterVille, saveToHistory])
 
   const resetFilters = () => {
     setSearch(''); setFilterCat(''); setFilterSubcat(''); setFilterVille('')
