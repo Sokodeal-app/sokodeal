@@ -10,6 +10,79 @@ import { getApproxCoords } from '@/lib/locations'
 import { extractIdFromSlug, generateSlug, isFullUUID } from '@/lib/slug'
 import { formatPrice } from '@/lib/format'
 
+type AdRecord = {
+  id: string
+  user_id: string | null
+  title: string
+  category: string
+  price: string | number | null
+  description?: string | null
+  images?: string[] | null
+  province?: string | null
+  district?: string | null
+  created_at: string
+  whatsapp?: string | null
+  phone?: string | null
+  hide_phone?: boolean | null
+  is_active?: boolean | null
+  immo_type?: string | null
+  surface?: string | number | null
+  surface_terrain?: string | number | null
+  chambres?: string | number | null
+  salles_de_bain?: string | number | null
+  etage?: string | number | null
+  etat?: string | null
+  meuble?: boolean | null
+  charges_incluses?: boolean | null
+}
+
+type SellerRecord = {
+  id: string
+  username?: string | null
+  full_name?: string | null
+  is_verified?: boolean | null
+  bio?: string | null
+  created_at: string
+  ads_count?: number | null
+}
+
+type UserRecord = {
+  id: string
+  email?: string
+}
+
+type CategoryMap = Record<string, string>
+
+type ListingSchema = {
+  '@context': 'https://schema.org'
+  '@type': 'Vehicle' | 'RealEstateListing' | 'Product'
+  name: string
+  description: string
+  image: string[]
+  offers: {
+    '@type': 'Offer'
+    price: string | number | null
+    priceCurrency: 'RWF'
+    availability: 'https://schema.org/InStock'
+    url: string
+  }
+  seller: {
+    '@type': 'Person'
+    name: string
+  }
+  locationCreated?: {
+    '@type': 'Place'
+    name: string
+  }
+}
+
+const getSlugSource = (ad: AdRecord) => ({
+  id: ad.id,
+  title: ad.title,
+  category: ad.category,
+  province: ad.province || undefined,
+})
+
 function ReportButton({ adId, userId }: { adId: string, userId?: string }) {
   const [showForm, setShowForm] = useState(false)
   const [reason, setReason] = useState('')
@@ -74,12 +147,11 @@ function ReportButton({ adId, userId }: { adId: string, userId?: string }) {
 
 export default function AnnonceDetail() {
   const { id } = useParams()
-  const [ad, setAd] = useState<any>(null)
-  const [seller, setSeller] = useState<any>(null)  // ✅ profil vendeur
-  const [user, setUser] = useState<any>(null)
+  const [ad, setAd] = useState<AdRecord | null>(null)
+  const [seller, setSeller] = useState<SellerRecord | null>(null)  // ✅ profil vendeur
+  const [user, setUser] = useState<UserRecord | null>(null)
   const [loading, setLoading] = useState(true)
   const [activePhoto, setActivePhoto] = useState(0)
-  const [msgSent, setMsgSent] = useState(false)
   const [message, setMessage] = useState('Bonjour, cette annonce est-elle disponible ?')
   const [messageTouched, setMessageTouched] = useState(false)
   const [sending, setSending] = useState(false)
@@ -88,14 +160,14 @@ export default function AnnonceDetail() {
   const [descriptionExpanded, setDescriptionExpanded] = useState(false)
   const [showMessageComposer, setShowMessageComposer] = useState(false)
 
-  const catEmoji: any = {
+  const catEmoji: CategoryMap = {
     'immo-vente':'🏡','immo-location':'🏢','immo-terrain':'🌿','voiture':'🚗',
     'moto':'🛵','electronique':'📱','mode':'👗','maison':'🛋️','emploi':'💼',
     'animaux':'🐄','services':'🏗️','agriculture':'🌾','materiaux':'🧱',
     'sante':'💊','sport':'⚽','education':'📚'
   }
 
-  const catLabel: any = {
+  const catLabel: CategoryMap = {
     'immo-vente':'Immobilier Vente','immo-location':'Immobilier Location',
     'immo-terrain':'Terrain','voiture':'Voitures','moto':'Motos',
     'electronique':'Electronique','mode':'Mode','maison':'Maison',
@@ -108,13 +180,13 @@ export default function AnnonceDetail() {
     const init = async () => {
       try {
       const rawId = Array.isArray(id) ? id[0] : String(id || '')
-      let data: any = null
+      let data: AdRecord | null = null
 
       if (isFullUUID(rawId)) {
         const result = await supabase.from('ads').select('*').eq('id', rawId).single()
-        data = result.data
+        data = result.data as AdRecord | null
         if (data) {
-          window.location.replace('/annonce/' + generateSlug(data))
+          window.location.replace('/annonce/' + generateSlug(getSlugSource(data)))
           return
         }
       } else {
@@ -126,7 +198,8 @@ export default function AnnonceDetail() {
           .select('*')
           .limit(1000)
 
-        data = fallbackData?.find((item: any) =>
+        const fallbackRecords = fallbackData as AdRecord[] | null
+        data = fallbackRecords?.find((item) =>
           String(item.id || '').replace(/-/g, '').startsWith(shortId)
         ) || null
       }
@@ -140,7 +213,7 @@ export default function AnnonceDetail() {
             .select('id, username, full_name, is_verified, bio, created_at, ads_count')
             .eq('id', data.user_id)
             .single()
-          setSeller(sellerData)
+          setSeller(sellerData as SellerRecord | null)
         }
       } else {
         return
@@ -236,7 +309,7 @@ export default function AnnonceDetail() {
       canonical.rel = 'canonical'
       document.head.appendChild(canonical)
     }
-    canonical.href = window.location.origin + '/annonce/' + generateSlug(ad)
+    canonical.href = window.location.origin + '/annonce/' + generateSlug(getSlugSource(ad))
   }, [ad])
 
   useEffect(() => {
@@ -245,7 +318,7 @@ export default function AnnonceDetail() {
     const isVehicle = ['voiture', 'moto'].includes(ad.category)
     const isRealEstate = ['immo-vente', 'immo-location', 'immo-terrain'].includes(ad.category)
 
-    const schema: any = {
+    const schema: ListingSchema = {
       '@context': 'https://schema.org',
       '@type': isVehicle ? 'Vehicle' : isRealEstate ? 'RealEstateListing' : 'Product',
       name: ad.title,
@@ -292,6 +365,7 @@ export default function AnnonceDetail() {
 
   // ✅ Contact → redirige directement vers la messagerie
   const handleContact = async () => {
+    if (!ad) return
     if (!message.trim()) return
     if (!user) {
       sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
@@ -316,7 +390,7 @@ export default function AnnonceDetail() {
 
   const getShareUrl = () => {
     if (typeof window !== 'undefined') return window.location.href
-    return ad ? 'https://sokodeal.app/annonce/' + generateSlug(ad) : 'https://sokodeal.app'
+    return ad ? 'https://sokodeal.app/annonce/' + generateSlug(getSlugSource(ad)) : 'https://sokodeal.app'
   }
 
   const shareText = ad ? ad.title + ' - ' + Number(ad.price).toLocaleString() + ' RWF sur SokoDeal' : ''
@@ -348,12 +422,13 @@ export default function AnnonceDetail() {
       <div style={{textAlign:'center'}}>
         <div style={{fontSize:'3rem', marginBottom:'12px'}}>😕</div>
         <h2 style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:800, marginBottom:'8px', color:'#111827'}}>Annonce introuvable</h2>
-        <a href="/" style={{color:'#15803D', fontWeight:600, textDecoration:'none'}}>Retour</a>
+        <Link href="/" style={{color:'#15803D', fontWeight:600, textDecoration:'none'}}>Retour</Link>
       </div>
     </div>
   )
 
-  const hasPhotos = ad.images && ad.images.length > 0
+  const images = ad.images || []
+  const hasPhotos = images.length > 0
   const waPhone = (ad.whatsapp || ad.phone || '').replace(/\s+/g, '').replace('+', '')
   const waText = encodeURIComponent('Bonjour, annonce SokoDeal : ' + ad.title + ' ' + getShareUrl())
   const fbUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(getShareUrl())
@@ -910,7 +985,7 @@ export default function AnnonceDetail() {
 
       <div className="detail-breadcrumb" style={{background:'white', borderBottom:'1px solid #f0f4f1', padding:'10px 5%'}}>
         <div style={{maxWidth:'1100px', margin:'0 auto', fontSize:'0.78rem', color:'#6F6B63', display:'flex', alignItems:'center', gap:'6px'}}>
-          <a href="/" style={{color:'#15803D', textDecoration:'none', fontWeight:600}}>Accueil</a>
+          <Link href="/" style={{color:'#15803D', textDecoration:'none', fontWeight:600}}>Accueil</Link>
           <span>/</span>
           <span>{catLabel[ad.category] || ad.category}</span>
           <span>/</span>
@@ -927,7 +1002,7 @@ export default function AnnonceDetail() {
             <div className="main-photo-frame" style={{height:'auto', aspectRatio:'4/3', background:'#111827', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'5rem', position:'relative', overflow:'hidden', cursor:'grab'}}>
               {hasPhotos ? (
                 <img
-                  src={ad.images[activePhoto]}
+                  src={images[activePhoto]}
                   alt={ad.title}
                   width={760}
                   height={300}
@@ -961,13 +1036,13 @@ export default function AnnonceDetail() {
               </div>
               {hasPhotos && (
                 <div className="mobile-photo-count">
-                  {activePhoto + 1} / {ad.images.length}
+                  {activePhoto + 1} / {images.length}
                 </div>
               )}
             </div>
-            {hasPhotos && ad.images.length > 1 && (
+            {hasPhotos && images.length > 1 && (
               <div className="thumb-strip" style={{display:'flex', gap:'6px', padding:'10px 14px', overflowX:'auto'}}>
-                {ad.images.map((img: string, i: number) => (
+                {images.map((img: string, i: number) => (
                   <div className={`thumb-item ${activePhoto === i ? 'thumb-item-active' : ''}`} key={i} onClick={() => setActivePhoto(i)} style={{width:'60px', height:'60px', flexShrink:0, borderRadius:'8px', overflow:'hidden', cursor:'pointer', border: activePhoto === i ? '2px solid #15803D' : '2px solid transparent', opacity: activePhoto === i ? 1 : 0.6}}>
                     <img src={img} alt="" width={60} height={60} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}} />
                   </div>
