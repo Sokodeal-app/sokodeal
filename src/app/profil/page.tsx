@@ -1,6 +1,8 @@
 ﻿'use client'
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import type { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
 import { AppShell } from '@/components/layout'
@@ -10,6 +12,85 @@ import FavoriteButton from '@/components/FavoriteButton'
 import { FEATURE_FLAGS } from '@/lib/feature-flags'
 import { LAUNCH_CITIES } from '@/lib/market-config'
 import { generateSlug } from '@/lib/slug'
+
+type AlertSubTab = 'alertes' | 'historique'
+
+type SavedSearch = {
+  id: string
+  query?: string | null
+  category?: string | null
+  province?: string | null
+  price_min?: number | string | null
+  price_max?: number | string | null
+  alert_enabled?: boolean | null
+  created_at?: string | null
+}
+
+type SearchHistory = {
+  id: string
+  query?: string | null
+  category?: string | null
+  province?: string | null
+  created_at?: string | null
+}
+
+type SearchEntry = {
+  id?: string
+  query?: string | null
+  category?: string | null
+  province?: string | null
+  price_min?: number | string | null
+  price_max?: number | string | null
+  created_at?: string | null
+}
+
+type ProfileForm = {
+  full_name: string
+  phone: string
+  location: string
+  username: string
+}
+
+type ProfileField = {
+  label: string
+  key: keyof ProfileForm
+  placeholder: string
+  icon: string
+}
+
+type ProfileAd = {
+  id: string
+  title?: string | null
+  price?: number | string | null
+  images?: string[] | null
+  category?: string | null
+  province?: string | null
+  district?: string | null
+  created_at?: string | null
+  is_active?: boolean | null
+  is_sold?: boolean | null
+  deleted_at?: string | null
+  sold_at?: string | null
+  views_count?: number
+  messages_count?: number
+  [key: string]: unknown
+}
+
+type AdView = {
+  id?: string
+  ad_id?: string | null
+  viewer_id?: string | null
+  created_at?: string | null
+}
+
+type BoostSelection = {
+  name: string
+  price: string
+  icon: string
+  color: string
+  features: string[]
+  popular?: boolean
+}
 
 function LogOutIcon() {
   return (
@@ -22,10 +103,10 @@ function LogOutIcon() {
 }
 
 function AlertesTab({ userId }: { userId: string }) {
-  const [searches, setSearches] = useState<any[]>([])
-  const [history, setHistory] = useState<any[]>([])
+  const [searches, setSearches] = useState<SavedSearch[]>([])
+  const [history, setHistory] = useState<SearchHistory[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeSubTab, setActiveSubTab] = useState<'alertes' | 'historique'>('alertes')
+  const [activeSubTab, setActiveSubTab] = useState<AlertSubTab>('alertes')
   const [showNewAlert, setShowNewAlert] = useState(false)
   const [alertForm, setAlertForm] = useState({ query: '', category: '', province: '', price_min: '', price_max: '' })
   const [savingAlert, setSavingAlert] = useState(false)
@@ -58,10 +139,10 @@ function AlertesTab({ userId }: { userId: string }) {
           supabase.from('saved_searches').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
           supabase.from('search_history').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(30)
         ])
-        if (alertsData) setSearches(alertsData)
+        if (alertsData) setSearches(alertsData as SavedSearch[])
         if (histData) {
-          const seen = new Set()
-          const unique = histData.filter((h: any) => {
+          const seen = new Set<string>()
+          const unique = (histData as SearchHistory[]).filter((h) => {
             const key = (h.query || '') + (h.category || '') + (h.province || '')
             if (seen.has(key)) return false
             seen.add(key)
@@ -112,13 +193,13 @@ function AlertesTab({ userId }: { userId: string }) {
     }
 
     if (data) {
-      setSearches(prev => [data, ...prev])
+      setSearches(prev => [data as SavedSearch, ...prev])
       setShowNewAlert(false)
       setAlertForm({ query: '', category: '', province: '', price_min: '', price_max: '' })
     }
   }
 
-  const handleAlertFromHistory = async (h: any) => {
+  const handleAlertFromHistory = async (h: SearchHistory) => {
     await supabase.from('saved_searches').insert([{
       user_id: userId,
       query: h.query || null,
@@ -127,7 +208,7 @@ function AlertesTab({ userId }: { userId: string }) {
       alert_enabled: true,
     }])
     const { data } = await supabase.from('saved_searches').select('*').eq('user_id', userId).order('created_at', { ascending: false })
-    if (data) setSearches(data)
+    if (data) setSearches(data as SavedSearch[])
     setActiveSubTab('alertes')
   }
 
@@ -152,7 +233,7 @@ function AlertesTab({ userId }: { userId: string }) {
     setHistory(prev => prev.filter(h => h.id !== id))
   }
 
-  const renderTags = (s: any) => (
+  const renderTags = (s: SearchEntry) => (
     <div style={{display:'flex', alignItems:'center', gap:'6px', flexWrap:'wrap'}}>
       {s.query && <span style={{background:'#e8f5ee', color:'#1a7a4a', padding:'2px 8px', borderRadius:'6px', fontSize:'0.72rem', fontWeight:600}}> {s.query}</span>}
       {s.category && <span style={{background:'#f5f7f5', color:'#6b7c6e', padding:'2px 8px', borderRadius:'6px', fontSize:'0.72rem', fontWeight:600}}>{s.category}</span>}
@@ -167,11 +248,11 @@ function AlertesTab({ userId }: { userId: string }) {
   return (
     <div>
       <div style={{display:'flex', gap:'6px', marginBottom:'16px'}}>
-        {[
+        {([
           { id:'alertes', label:' Mes alertes', count: searches.length },
           { id:'historique', label:' Historique', count: history.length },
-        ].map(tab => (
-          <button key={tab.id} onClick={() => setActiveSubTab(tab.id as any)} style={{
+        ] satisfies Array<{ id: AlertSubTab; label: string; count: number }>).map(tab => (
+          <button key={tab.id} onClick={() => setActiveSubTab(tab.id)} style={{
             padding:'8px 16px', border: activeSubTab === tab.id ? 'none' : '1px solid #e8ede9',
             borderRadius:'9px', cursor:'pointer', fontFamily:'DM Sans,sans-serif',
             fontWeight:600, fontSize:'0.82rem',
@@ -254,17 +335,17 @@ function AlertesTab({ userId }: { userId: string }) {
             </div>
           ) : (
             <div style={{display:'flex', flexDirection:'column', gap:'10px'}}>
-              {searches.map((s: any) => (
+              {searches.map((s) => (
                 <div key={s.id} style={{background:'white', borderRadius:'12px', padding:'16px 20px', border:'1px solid #e8ede9'}}>
                   <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'12px', flexWrap:'wrap'}}>
                     <div style={{flex:1, minWidth:0}}>
                       {renderTags(s)}
                       <div style={{fontSize:'0.7rem', color:'#9ca3af', marginTop:'6px'}}>
-                        Creee le {new Date(s.created_at).toLocaleDateString('fr-FR', {day:'numeric', month:'long'})}
+                        Creee le {s.created_at ? new Date(s.created_at).toLocaleDateString('fr-FR', {day:'numeric', month:'long'}) : ''}
                       </div>
                     </div>
                     <div style={{display:'flex', alignItems:'center', gap:'6px', flexShrink:0}}>
-                      <button onClick={() => toggleAlert(s.id, s.alert_enabled)} style={{
+                      <button onClick={() => toggleAlert(s.id, Boolean(s.alert_enabled))} style={{
                         padding:'5px 10px', borderRadius:'7px',
                         border:'1px solid ' + (s.alert_enabled ? '#b7dfca' : '#e8ede9'),
                         background: s.alert_enabled ? '#e8f5ee' : '#f5f7f5',
@@ -307,12 +388,12 @@ function AlertesTab({ userId }: { userId: string }) {
             </div>
           ) : (
             <div style={{display:'flex', flexDirection:'column', gap:'8px'}}>
-              {history.map((h: any) => (
+              {history.map((h) => (
                 <div key={h.id} style={{background:'white', borderRadius:'12px', padding:'14px 16px', border:'1px solid #e8ede9', display:'flex', alignItems:'center', gap:'12px'}}>
                   <div style={{flex:1, minWidth:0}}>
                     {renderTags(h)}
                     <div style={{fontSize:'0.7rem', color:'#9ca3af', marginTop:'4px'}}>
-                      {new Date(h.created_at).toLocaleDateString('fr-FR', {day:'numeric', month:'long'})}
+                      {h.created_at ? new Date(h.created_at).toLocaleDateString('fr-FR', {day:'numeric', month:'long'}) : ''}
                     </div>
                   </div>
                   <div style={{display:'flex', gap:'6px', flexShrink:0}}>
@@ -333,10 +414,11 @@ function AlertesTab({ userId }: { userId: string }) {
   )
 }
 
-function StatsTab({ userId, ads }: { userId: string, ads: any[] }) {
-  const [views, setViews] = useState<any[]>([])
+function StatsTab({ userId, ads }: { userId: string, ads: ProfileAd[] }) {
+  const [views, setViews] = useState<AdView[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [statsNow] = useState(() => Date.now())
 
   useEffect(() => {
     const loadStats = async () => {
@@ -362,7 +444,7 @@ function StatsTab({ userId, ads }: { userId: string, ads: any[] }) {
           return
         }
 
-        setViews(data || [])
+        setViews((data || []) as AdView[])
       } catch (err) {
         console.error('stats load error:', err)
         setError('Les statistiques de vues ne sont pas encore disponibles.')
@@ -390,7 +472,7 @@ function StatsTab({ userId, ads }: { userId: string, ads: any[] }) {
   const visitorIds = new Set(views.map(view => view.viewer_id).filter(Boolean))
   const anonymousViews = views.filter(view => !view.viewer_id).length
   const uniqueVisitors = visitorIds.size + anonymousViews
-  const lastSevenDays = Date.now() - 7 * 24 * 60 * 60 * 1000
+  const lastSevenDays = statsNow - 7 * 24 * 60 * 60 * 1000
   const recentViews = views.filter(view => view.created_at && new Date(view.created_at).getTime() >= lastSevenDays).length
   const averageViews = visibleAds.length > 0 ? Math.round(totalViews / visibleAds.length) : 0
   const soldRate = visibleAds.length > 0 ? Math.round((soldAds.length / visibleAds.length) * 100) : 0
@@ -458,7 +540,7 @@ function StatsTab({ userId, ads }: { userId: string, ads: any[] }) {
                 <div key={ad.id} style={{display:'flex', alignItems:'center', gap:'12px', padding:'10px', borderRadius:'10px', background:'#f5f7f5', border:'1px solid #e8ede9'}}>
                   <div style={{width:'54px', height:'54px', borderRadius:'8px', overflow:'hidden', background:'white', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0}}>
                     {ad.images?.[0] ? (
-                      <img src={ad.images[0]} alt={ad.title} width={260} height={140} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}} />
+                      <img src={ad.images[0]} alt={ad.title || 'Annonce'} width={260} height={140} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}} />
                     ) : (
                       <span style={{fontSize:'1.4rem'}}></span>
                     )}
@@ -498,31 +580,36 @@ function StatsTab({ userId, ads }: { userId: string, ads: any[] }) {
 export default function ProfilPage() {
   const router = useRouter()
   const { user: authUser, loading: authLoading } = useAuth()
-  const [user, setUser] = useState<any>(null)
-  const [ads, setAds] = useState<any[]>([])
+  const [user, setUser] = useState<User | null>(null)
+  const [ads, setAds] = useState<ProfileAd[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('annonces')
   const [editMode, setEditMode] = useState(false)
-  const [profileForm, setProfileForm] = useState({ full_name: '', phone: '', location: '', username: '' })
+  const [profileForm, setProfileForm] = useState<ProfileForm>({ full_name: '', phone: '', location: '', username: '' })
   const [msg, setMsg] = useState('')
   const [usernameError, setUsernameError] = useState('')
-  const [selectedBoost, setSelectedBoost] = useState<any>(null)
-  const [selectedAd, setSelectedAd] = useState<any>(null)
+  const [selectedBoost, setSelectedBoost] = useState<BoostSelection | null>(null)
+  const [selectedAd, setSelectedAd] = useState<ProfileAd | null>(null)
   const [boostMsg, setBoostMsg] = useState('')
   const [boostLoading, setBoostLoading] = useState(false)
-  const [favoriteAds, setFavoriteAds] = useState<any[]>([])
+  const [favoriteAds, setFavoriteAds] = useState<ProfileAd[]>([])
   const [favLoading, setFavLoading] = useState(false)
   const [logoutLoading, setLogoutLoading] = useState(false)
   const [logoutError, setLogoutError] = useState('')
   const [hideReadReceipts, setHideReadReceipts] = useState(false)
+  const [renderedAt] = useState(() => Date.now())
 
   const { favorites } = useFavorites()
 
   useEffect(() => {
-    const tab = new URLSearchParams(window.location.search).get('tab')
-    if (tab && ['annonces', 'favoris', 'profil', 'abonnement', 'boosts', 'alertes', 'stats', 'vendus'].includes(tab)) {
-      setActiveTab(tab)
-    }
+    const timer = window.setTimeout(() => {
+      const tab = new URLSearchParams(window.location.search).get('tab')
+      if (tab && ['annonces', 'favoris', 'profil', 'abonnement', 'boosts', 'alertes', 'stats', 'vendus'].includes(tab)) {
+        setActiveTab(tab)
+      }
+    }, 0)
+
+    return () => window.clearTimeout(timer)
   }, [])
 
   useEffect(() => {
@@ -559,7 +646,7 @@ export default function ProfilPage() {
         if (adsError) {
           console.error('PROFILE ads error', adsError)
         } else if (userAds) {
-          setAds(userAds)
+          setAds(userAds as ProfileAd[])
         }
       } catch (err) {
         console.error('PROFILE init catch', err)
@@ -569,9 +656,12 @@ export default function ProfilPage() {
     }
 
     if (authLoading) {
-      setLoading(true)
+      const timer = window.setTimeout(() => {
+        if (!cancelled) setLoading(true)
+      }, 0)
       return () => {
         cancelled = true
+        window.clearTimeout(timer)
       }
     }
 
@@ -580,37 +670,54 @@ export default function ProfilPage() {
         url: window.location.pathname,
         state: {}
       }))
-      setLoading(false)
-      router.push('/auth?mode=login')
+      const timer = window.setTimeout(() => {
+        if (cancelled) return
+        setLoading(false)
+        router.push('/auth?mode=login')
+      }, 0)
       return () => {
         cancelled = true
+        window.clearTimeout(timer)
       }
     }
 
-    init(authUser)
+    const timer = window.setTimeout(() => {
+      void init(authUser)
+    }, 0)
 
     return () => {
       cancelled = true
+      window.clearTimeout(timer)
     }
   }, [authLoading, authUser, router])
 
   useEffect(() => {
-    if (activeTab !== 'favoris' || favorites.length === 0) {
-      if (activeTab === 'favoris') setFavoriteAds([])
-      return
-    }
+    let cancelled = false
+    const timer = window.setTimeout(() => {
+      if (activeTab !== 'favoris' || favorites.length === 0) {
+        if (activeTab === 'favoris') setFavoriteAds([])
+        return
+      }
+
     const fetchFavAds = async () => {
       try {
         setFavLoading(true)
         const { data } = await supabase.from('ads').select('*').in('id', favorites).eq('is_active', true).is('deleted_at', null)
-        if (data) setFavoriteAds(data)
+        if (!cancelled && data) setFavoriteAds(data as ProfileAd[])
       } catch (err) {
         console.error('favorites fetch error:', err)
       } finally {
-        setFavLoading(false)
+        if (!cancelled) setFavLoading(false)
       }
     }
-    fetchFavAds()
+
+      void fetchFavAds()
+    }, 0)
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
   }, [activeTab, favorites])
 
   useEffect(() => {
@@ -645,6 +752,8 @@ export default function ProfilPage() {
   }
 
   const handleSaveProfile = async () => {
+    if (!user) return
+
     const uErr = validateUsername(profileForm.username)
     if (uErr) { setUsernameError(uErr); return }
 
@@ -678,6 +787,8 @@ export default function ProfilPage() {
   }
 
   const handleDeleteAd = async (id: string) => {
+    if (!user) return
+
     if (!confirm('Supprimer cette annonce ?')) return
     await supabase.from('ads').update({
       is_active: false,
@@ -688,6 +799,8 @@ export default function ProfilPage() {
   }
 
   const handleMarkSold = async (id: string) => {
+    if (!user) return
+
     if (!confirm("Marquer comme vendue ? L'annonce restera visible 24h puis se déplacera dans \"Vendus\".")) return
     const soldAt = new Date().toISOString()
     await supabase.from('ads').update({
@@ -698,7 +811,7 @@ export default function ProfilPage() {
   }
 
   const handleBoost = async () => {
-    if (!selectedBoost || !selectedAd) return
+    if (!user || !selectedBoost || !selectedAd) return
     setBoostLoading(true)
     const days = selectedBoost.name.includes('3') ? 3 : selectedBoost.name.includes('7') ? 7 : 30
     const ends = new Date()
@@ -714,18 +827,19 @@ export default function ProfilPage() {
     setTimeout(() => { setSelectedBoost(null); setSelectedAd(null); setBoostMsg('') }, 2000)
   }
 
-  const catEmoji: any = {
+  const catEmoji: Record<string, string> = {
     'immo-vente':'','immo-location':'','immo-terrain':'','voiture':'',
     'moto':'','electronique':'','mode':'','maison':'','emploi':'',
     'animaux':'','services':'','agriculture':'','materiaux':'',
     'sante':'','sport':'','education':''
   }
 
-  const boostPlans = [
-    { name:'Boost 3 jours', price:'2 000', icon:'', color:'#f59e0b', features:['Top 3 jours','Badge Booste','2x vues'] },
-    { name:'Boost 7 jours', price:'4 000', icon:'', color:'#1a7a4a', features:['Top 7 jours','Badge Booste','5x vues'], popular:true },
-    { name:'Boost 30 jours', price:'12 000', icon:'', color:'#0f5233', features:['Top 30 jours','Badge Premium','10x vues'] },
-  ]
+  const getAdSlug = (ad: ProfileAd) => generateSlug({
+    id: ad.id,
+    title: ad.title || 'Annonce',
+    category: ad.category || undefined,
+    province: ad.province || undefined,
+  })
 
   const HEURES_24 = 24 * 60 * 60 * 1000
 
@@ -733,7 +847,7 @@ export default function ProfilPage() {
     if (a.deleted_at) return false
     if (!a.is_sold) return true
     if (!a.sold_at) return true
-    return (Date.now() - new Date(a.sold_at).getTime()) < HEURES_24
+    return (renderedAt - new Date(a.sold_at).getTime()) < HEURES_24
   })
 
   const vendues = ads.filter(a => a.is_sold && !a.deleted_at)
@@ -752,6 +866,12 @@ export default function ProfilPage() {
       { id:'stats', label:'Stats', count: null },
     ] : []),
     { id:'vendus', label:'Vendus', count: soldCount },
+  ]
+
+  const profileFields: ProfileField[] = [
+    { label:'Nom complet', key:'full_name', placeholder:'Votre nom', icon:'' },
+    { label:'Telephone', key:'phone', placeholder:'+250 780 000 000', icon:'' },
+    { label:'Localisation', key:'location', placeholder:'Kigali, Rwanda', icon:'' },
   ]
 
   if (loading) return (
@@ -903,9 +1023,9 @@ export default function ProfilPage() {
                 <div style={{display:'flex', flexDirection:'column', gap:'8px', marginBottom:'14px', maxHeight:'220px', overflowY:'auto'}}>
                   {ads.length === 0 ? (
                     <p style={{color:'#6b7c6e', fontSize:'0.82rem'}}>Aucune annonce disponible.</p>
-                  ) : ads.map((ad: any) => (
-                    <div key={ad.id} onClick={() => setSelectedAd(ad)} style={{display:'flex', alignItems:'center', gap:'10px', padding:'10px 12px', background:'#f5f7f5', borderRadius:'9px', cursor:'pointer', border: selectedAd?.id === ad.id ? '1.5px solid #1a7a4a' : '1px solid #e8e4de'}}>
-                      <span style={{fontSize:'1.2rem'}}>{catEmoji[ad.category] || ''}</span>
+                  ) : ads.map((ad) => (
+                    <div key={ad.id} onClick={() => setSelectedAd(ad)} style={{display:'flex', alignItems:'center', gap:'10px', padding:'10px 12px', background:'#f5f7f5', borderRadius:'9px', cursor:'pointer', border:'1px solid #e8e4de'}}>
+                      <span style={{fontSize:'1.2rem'}}>{catEmoji[String(ad.category || '')] || ''}</span>
                       <div>
                         <div style={{fontFamily:'DM Sans, sans-serif', fontWeight:700, fontSize:'0.85rem', color:'#111a14'}}>{ad.title}</div>
                         <div style={{fontSize:'0.72rem', color:'#6b7c6e'}}>{Number(ad.price).toLocaleString()} RWF</div>
@@ -924,12 +1044,12 @@ export default function ProfilPage() {
 
       <header className="profile-local-header sd-full-bleed" style={{background:'var(--sd-surface)', position:'sticky', top:0, zIndex:'var(--sd-z-header)', borderBottom:'1px solid var(--sd-border)', paddingTop:'env(safe-area-inset-top)'}}>
         <div className="header-inner sd-full-bleed-inner" style={{display:'flex', alignItems:'center', justifyContent:'space-between', height:'var(--sd-header-height)', gap:'14px'}}>
-          <a href="/" style={{display:'flex', alignItems:'center', gap:'8px', textDecoration:'none', flexShrink:0}}>
+          <Link href="/" style={{display:'flex', alignItems:'center', gap:'8px', textDecoration:'none', flexShrink:0}}>
             <div style={{width:'34px', height:'34px', background:'var(--sd-primary)', borderRadius:'var(--sd-radius-md)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'17px', color:'var(--sd-surface)'}}>S</div>
             <span style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.25rem', color:'var(--sd-text)'}}>
               Soko<span style={{color:'var(--sd-primary)'}}>Deal</span>
             </span>
-          </a>
+          </Link>
 
           <div className="header-search" style={{flex:1, maxWidth:'480px', position:'relative'}}>
             <div style={{display:'flex', background:'white', borderRadius:'9px', overflow:'hidden', border:'1px solid #e8e4de'}}>
@@ -1086,11 +1206,11 @@ export default function ProfilPage() {
               </div>
             ) : (
               <div className="ads-grid-3" style={{display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:'12px'}}>
-                {mesAnnonces.map((ad: any) => (
+                {mesAnnonces.map((ad) => (
                   <ProfileListingCard
                     key={ad.id}
                     ad={ad}
-                    onOpen={() => router.push('/annonce/' + generateSlug(ad))}
+                    onOpen={() => router.push('/annonce/' + getAdSlug(ad))}
                     onEdit={() => router.push('/modifier/' + ad.id)}
                     onMarkSold={!ad.is_sold ? () => handleMarkSold(ad.id) : undefined}
                     onDelete={() => handleDeleteAd(ad.id)}
@@ -1119,7 +1239,7 @@ export default function ProfilPage() {
 
               <div style={{background:'white', border:'1px solid #e8e4de', borderRadius:'14px', padding:'18px', boxShadow:'0 2px 8px rgba(0,0,0,0.04)'}}>
                 <div style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'0.98rem', color:'#111a14', marginBottom:'8px'}}>
-                  Besoin d'aide ?
+                  Besoin d&apos;aide ?
                 </div>
                 <p style={{fontSize:'0.82rem', color:'#6b7c6e', lineHeight:1.6, fontFamily:'DM Sans,sans-serif', marginBottom:'14px'}}>
                   Une question ou un problème ? Notre équipe SokoDeal est là pour vous aider.
@@ -1154,13 +1274,13 @@ export default function ProfilPage() {
               </div>
             ) : (
               <div className="fav-grid" style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'12px'}}>
-                {favoriteAds.map((ad: any) => (
-                  <div key={ad.id} style={{background:'white', borderRadius:'12px', overflow:'hidden', border:'1px solid #e8e4de', cursor:'pointer'}} onClick={() => router.push('/annonce/' + generateSlug(ad))}>
+                {favoriteAds.map((ad) => (
+                  <div key={ad.id} style={{background:'white', borderRadius:'12px', overflow:'hidden', border:'1px solid #e8e4de', cursor:'pointer'}} onClick={() => router.push('/annonce/' + getAdSlug(ad))}>
                     <div style={{height:'140px', background:'#f5f7f5', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2.5rem', position:'relative', overflow:'hidden'}}>
                       {ad.images && ad.images.length > 0 ? (
-                        <img src={ad.images[0]} alt={ad.title} width={300} height={140} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
+                        <img src={ad.images[0]} alt={ad.title || 'Annonce'} width={300} height={140} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
                       ) : (
-                        <span style={{opacity:0.5}}>{catEmoji[ad.category] || ''}</span>
+                        <span style={{opacity:0.5}}>{catEmoji[String(ad.category || '')] || ''}</span>
                       )}
                       <div style={{position:'absolute', top:'8px', right:'8px'}} onClick={e => e.stopPropagation()}>
                         <FavoriteButton adId={ad.id} size="sm" onLogin={() => {}} />
@@ -1209,23 +1329,19 @@ export default function ProfilPage() {
                 )}
               </div>
 
-              {[
-                { label:'Nom complet', key:'full_name', placeholder:'Votre nom', icon:'' },
-                { label:'Telephone', key:'phone', placeholder:'+250 780 000 000', icon:'' },
-                { label:'Localisation', key:'location', placeholder:'Kigali, Rwanda', icon:'' },
-              ].map(field => (
+              {profileFields.map(field => (
                 <div key={field.key} style={{gridColumn: field.key === 'full_name' ? 'span 2' : 'span 1'}}>
                   <label style={{display:'block', fontSize:'0.72rem', fontWeight:600, color:'#6b7c6e', marginBottom:'5px', textTransform:'uppercase', letterSpacing:'0.04em'}}>
                     {field.icon} {field.label}
                   </label>
                   {editMode ? (
-                    <input type="text" value={(profileForm as any)[field.key]} placeholder={field.placeholder}
+                    <input type="text" value={profileForm[field.key]} placeholder={field.placeholder}
                       onChange={e => setProfileForm({...profileForm, [field.key]: e.target.value})}
                       style={{width:'100%', padding:'10px 12px', border:'1px solid #e8e4de', borderRadius:'8px', fontFamily:'DM Sans, sans-serif', fontSize:'0.88rem', outline:'none', background:'#fafaf9', color:'#111a14'}}
                     />
                   ) : (
-                    <div style={{padding:'10px 12px', background:'#f5f7f5', borderRadius:'8px', fontSize:'0.88rem', color:(profileForm as any)[field.key] ? '#111a14' : '#aaa', border:'1px solid #e8e4de'}}>
-                      {(profileForm as any)[field.key] || field.placeholder}
+                    <div style={{padding:'10px 12px', background:'#f5f7f5', borderRadius:'8px', fontSize:'0.88rem', color:profileForm[field.key] ? '#111a14' : '#aaa', border:'1px solid #e8e4de'}}>
+                      {profileForm[field.key] || field.placeholder}
                     </div>
                   )}
                 </div>
@@ -1261,13 +1377,14 @@ export default function ProfilPage() {
                       Accusés de lecture
                     </div>
                     <div style={{fontSize:'0.72rem', color:'#6b7c6e', marginTop:'2px'}}>
-                      Afficher "Vu" quand vous lisez un message
+                      Afficher &quot;Vu&quot; quand vous lisez un message
                     </div>
                   </div>
                   <input
                     type="checkbox"
                     checked={!hideReadReceipts}
                     onChange={async (e) => {
+                      if (!user) return
                       const hide = !e.target.checked
                       setHideReadReceipts(hide)
                       await supabase.from('users').update({ hide_read_receipts: hide }).eq('id', user.id)
@@ -1331,13 +1448,13 @@ export default function ProfilPage() {
               </div>
             ) : (
               <div className="ads-grid-3" style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'12px'}}>
-                {vendues.map((ad: any) => (
+                {vendues.map((ad) => (
                   <div key={ad.id} style={{background:'white', borderRadius:'12px', overflow:'hidden', border:'1px solid #e8e4de', opacity:0.8}}>
                     <div style={{height:'120px', background:'#f5f7f5', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'2.5rem', position:'relative', overflow:'hidden'}}>
                       {ad.images && ad.images.length > 0 ? (
-                        <img src={ad.images[0]} alt={ad.title} width={300} height={140} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover', filter:'grayscale(30%)'}}/>
+                        <img src={ad.images[0]} alt={ad.title || 'Annonce'} width={300} height={140} loading="lazy" decoding="async" style={{width:'100%', height:'100%', objectFit:'cover', filter:'grayscale(30%)'}}/>
                       ) : (
-                        <span style={{opacity:0.5}}>{catEmoji[ad.category] || ''}</span>
+                        <span style={{opacity:0.5}}>{catEmoji[String(ad.category || '')] || ''}</span>
                       )}
                       <span style={{position:'absolute', top:'6px', left:'6px', background:'#EAB308', color:'white', fontSize:'0.62rem', fontWeight:700, padding:'2px 7px', borderRadius:'5px'}}>VENDU</span>
                     </div>
