@@ -7,6 +7,8 @@ import { getCurrentUser } from '@/lib/auth'
 import Header from '@/components/Header'
 import FavoriteButton from '@/components/FavoriteButton'
 import ListingAttributes from '@/components/listings/ListingAttributes'
+import ListingContactBar from '@/components/listings/ListingContactBar'
+import ListingSellerCard from '@/components/sellers/ListingSellerCard'
 import SafetyNotice from '@/components/ui/SafetyNotice'
 import ReportButton from '@/components/ui/ReportButton'
 import { getApproxCoords } from '@/lib/locations'
@@ -1055,39 +1057,7 @@ export default function AnnonceDetail() {
             </div>
           </div>
 
-          {seller && (
-            <>
-            <Link href={`/u/${seller.username || seller.id}`} className="mobile-seller-card" style={{textDecoration:'none', color:'inherit'}}>
-              <div style={{background:'#FAF7EF', borderRadius:'20px', padding:'16px', border:'1px solid #E8E0D4', boxShadow:'0 4px 16px rgba(60,40,10,0.05)', display:'flex', flexDirection:'column', gap:'0'}}>
-                <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
-                  <div style={{width:'48px', height:'48px', borderRadius:'50%', background:'#15803D', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:'1.1rem', color:'white', flexShrink:0}}>
-                    {(seller.full_name || seller.username || 'V')[0].toUpperCase()}
-                  </div>
-                  <div style={{flex:1, minWidth:0}}>
-                    <div style={{display:'flex', alignItems:'center', gap:'6px', marginBottom:'2px'}}>
-                      <span style={{fontWeight:700, fontSize:'15px', color:'#111827', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>
-                        {seller.full_name || '@' + seller.username}
-                      </span>
-                      {seller.is_verified && <span style={{fontSize:'11px', color:'#15803D', fontWeight:600, flexShrink:0, background:'#E7F6EC', border:'1px solid #E8E0D4', borderRadius:'999px', padding:'2px 7px'}}>{'V\u00e9rifi\u00e9'}</span>}
-                    </div>
-                    {seller.username && (
-                      <div style={{fontSize:'13px', color:'#15803D', fontWeight:600, marginBottom:'2px'}}>@{seller.username}</div>
-                    )}
-                    <div style={{fontSize:'12px', color:'#6F6B63'}}>
-                      Membre depuis {new Date(seller.created_at).toLocaleDateString('fr-FR', {month:'long', year:'numeric'})}
-                      {seller.ads_count ? ` \u00b7 ${seller.ads_count} annonces` : ''}
-                    </div>
-                  </div>
-                  <span style={{color:'#15803D', fontSize:'18px', fontWeight:600, flexShrink:0}}>{'\u2192'}</span>
-                </div>
-                <div style={{marginTop:'12px', padding:'10px 12px', background:'#E7F6EC', borderRadius:'12px', display:'flex', alignItems:'center', gap:'8px', fontSize:'13px', color:'#15803D', fontWeight:500}}>
-                  <span>{'\u23f1'}</span>
-                  <span>{'R\u00e9pond g\u00e9n\u00e9ralement en moins d\'1h'}</span>
-                </div>
-              </div>
-            </Link>
-            </>
-          )}
+          {seller && <ListingSellerCard seller={seller} variant="mobile" />}
 
           {/* Description */}
           {(ad.description || !ad.description) && (
@@ -1176,33 +1146,7 @@ export default function AnnonceDetail() {
         <div className="detail-right" style={{position:'sticky', top:'78px'}}>
 
           {/* ✅ Profil vendeur */}
-          {seller && (
-            <Link href={`/u/${seller.username || seller.id}`} style={{textDecoration:'none'}}>
-            <div
-              className="desktop-seller-card"
-              style={{background:'white', borderRadius:'14px', padding:'16px 20px', border:'1px solid #E8E0D4', marginBottom:'12px', display:'flex', alignItems:'center', gap:'12px', cursor:'pointer', transition:'box-shadow 0.15s'}}
-              onMouseEnter={e => (e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)')}
-              onMouseLeave={e => (e.currentTarget.style.boxShadow='none')}
-            >
-              <div style={{width:'48px', height:'48px', borderRadius:'50%', background:'#15803D', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Inter, system-ui, sans-serif', fontWeight:800, fontSize:'1.2rem', color:'white', flexShrink:0}}>
-                {(seller.full_name || seller.username || 'V')[0].toUpperCase()}
-              </div>
-              <div style={{flex:1, minWidth:0}}>
-                <div style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'0.9rem', color:'#111827', display:'flex', alignItems:'center', gap:'5px'}}>
-                  {seller.full_name || '@' + seller.username}
-                  {seller.is_verified && <span style={{fontSize:'0.75rem'}}>✅</span>}
-                </div>
-                {seller.username && (
-                  <div style={{fontSize:'0.75rem', color:'#15803D', fontWeight:600}}>@{seller.username}</div>
-                )}
-                <div style={{fontSize:'0.72rem', color:'#6F6B63', marginTop:'2px'}}>
-                  Membre depuis {new Date(seller.created_at).toLocaleDateString('fr-FR', {month:'long', year:'numeric'})}
-                </div>
-              </div>
-              <span style={{color:'#15803D', fontWeight:700, fontSize:'0.85rem', flexShrink:0}}>→</span>
-            </div>
-            </Link>
-          )}
+          {seller && <ListingSellerCard seller={seller} variant="desktop" />}
 
           {/* Contact vendeur */}
           <div className="contact-card" style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #E8E0D4', marginBottom:'12px'}}>
@@ -1306,129 +1250,23 @@ export default function AnnonceDetail() {
         </div>
       </div>
 
-      {!isOwnListing && !isListingContactable && (
-        <p style={{fontSize:'0.875rem', color:'var(--sd-muted)', textAlign:'center', padding:'12px 20px 0'}}>
-          This listing is no longer available.
-        </p>
-      )}
-      {isOwnListing && (
-        <p style={{fontSize:'0.875rem', color:'var(--sd-muted)', textAlign:'center', padding:'12px 20px 0'}}>
-          This is your listing.
-        </p>
-      )}
-      <div className="mobile-action-bar" style={{gridTemplateColumns: canUseWhatsApp && canUsePhone ? 'auto 1fr 44px 44px' : (canUseWhatsApp || canUsePhone) ? 'auto 1fr 44px' : 'auto 1fr'}}>
-        <div className="mobile-favorite-action">
-          <FavoriteButton adId={ad.id} size="sm" onLogin={() => {
-            sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
-              url: window.location.pathname,
-              state: {}
-            }))
-            window.location.href = '/auth?mode=login'
-          }} />
-          <span className="mobile-favorite-label">Favori</span>
-        </div>
-        {!isOwnListing && isListingContactable && (
-          <button
-            onClick={() => {
-              if (!messageTouched && !message.trim()) {
-                setMessage('Bonjour, cette annonce est-elle disponible ?')
-              }
-              setShowMessageComposer(true)
-            }}
-            className="mobile-action-primary"
-          >
-            💬 Message
-          </button>
-        )}
-        {canUseWhatsApp && !isOwnListing && isListingContactable && (
-          user ? (
-            <a
-              href={'https://wa.me/' + waPhone + '?text=' + waText}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                width:'44px', height:'44px',
-                borderRadius:'50%',
-                background:'#25D366',
-                display:'flex', alignItems:'center',
-                justifyContent:'center',
-                flexShrink: 0,
-                textDecoration: 'none'
-              }}
-              aria-label="WhatsApp"
-            >
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.17 1.535 5.943L.057 23.93l6.184-1.622A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.894a9.889 9.889 0 01-5.031-1.378l-.360-.214-3.733.979.996-3.648-.235-.374A9.861 9.861 0 012.106 12C2.106 6.54 6.54 2.106 12 2.106S21.894 6.54 21.894 12 16.46 21.894 12 21.894z"/>
-              </svg>
-            </a>
-          ) : (
-            <button
-              type="button"
-              onClick={redirectToLoginWithMessage}
-              style={{
-                width:'44px', height:'44px',
-                borderRadius:'50%',
-                background:'#25D366',
-                border:'none', cursor:'pointer',
-                display:'flex', alignItems:'center',
-                justifyContent:'center',
-                flexShrink: 0
-              }}
-              aria-label="WhatsApp"
-            >
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.17 1.535 5.943L.057 23.93l6.184-1.622A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.894a9.889 9.889 0 01-5.031-1.378l-.360-.214-3.733.979.996-3.648-.235-.374A9.861 9.861 0 012.106 12C2.106 6.54 6.54 2.106 12 2.106S21.894 6.54 21.894 12 16.46 21.894 12 21.894z"/>
-              </svg>
-            </button>
-          )
-        )}
-        {canUsePhone && !isOwnListing && isListingContactable && (
-          user ? (
-            <a
-              href={'tel:' + ad.phone}
-              style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '50%',
-                border: '1px solid #E8E0D4',
-                background: '#FFFCF7',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                textDecoration: 'none',
-                fontSize: '20px'
-              }}
-              aria-label={'Téléphone'}
-            >
-              {'📞'}
-            </a>
-          ) : (
-            <button
-              type="button"
-              onClick={redirectToLoginWithMessage}
-              style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '50%',
-                border: '1px solid #E8E0D4',
-                background: '#FFFCF7',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                cursor: 'pointer',
-                fontSize: '20px'
-              }}
-              aria-label={'Téléphone'}
-            >
-              {'📞'}
-            </button>
-          )
-        )}
-      </div>
+      <ListingContactBar
+        isOwnListing={isOwnListing}
+        isListingContactable={isListingContactable}
+        canUseWhatsApp={canUseWhatsApp}
+        canUsePhone={canUsePhone}
+        user={user}
+        adId={ad.id}
+        waHref={'https://wa.me/' + waPhone + '?text=' + waText}
+        phoneHref={'tel:' + ad.phone}
+        onMessageClick={() => {
+          if (!messageTouched && !message.trim()) {
+            setMessage('Bonjour, cette annonce est-elle disponible ?')
+          }
+          setShowMessageComposer(true)
+        }}
+        onLoginRequired={redirectToLoginWithMessage}
+      />
 
       <div className={`mobile-message-drawer ${showMessageComposer ? 'is-open' : ''}`}>
         <button
