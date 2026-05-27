@@ -6,6 +6,9 @@ import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
 import Header from '@/components/Header'
 import FavoriteButton from '@/components/FavoriteButton'
+import ListingAttributes from '@/components/listings/ListingAttributes'
+import SafetyNotice from '@/components/ui/SafetyNotice'
+import ReportButton from '@/components/ui/ReportButton'
 import { getApproxCoords } from '@/lib/locations'
 import { extractIdFromSlug, generateSlug, isFullUUID } from '@/lib/slug'
 import { formatPrice } from '@/lib/format'
@@ -82,68 +85,6 @@ const getSlugSource = (ad: AdRecord) => ({
   category: ad.category,
   province: ad.province || undefined,
 })
-
-function ReportButton({ adId, userId }: { adId: string, userId?: string }) {
-  const [showForm, setShowForm] = useState(false)
-  const [reason, setReason] = useState('')
-  const [sending, setSending] = useState(false)
-  const [done, setDone] = useState(false)
-
-  const handleReport = async () => {
-    if (!userId) {
-      sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
-        url: window.location.pathname,
-        state: {}
-      }))
-      window.location.href = '/auth?mode=login'
-      return
-    }
-    if (!reason) return
-    setSending(true)
-    await supabase.from('reports').insert([{ ad_id: adId, reporter_id: userId, reason }])
-    setSending(false)
-    setDone(true)
-    setShowForm(false)
-  }
-
-  if (done) return (
-    <div style={{background:'#e8f5ee', borderRadius:'12px', padding:'12px', border:'1px solid #b7dfca', marginBottom:'12px', textAlign:'center', fontSize:'0.82rem', color:'#15803D', fontWeight:600}}>
-      Signalement envoye. Merci !
-    </div>
-  )
-
-  return (
-    <div style={{marginBottom:'12px'}}>
-      {!showForm ? (
-        <button onClick={() => setShowForm(true)} style={{width:'100%', padding:'10px', background:'transparent', border:'1px solid #E8E0D4', borderRadius:'9px', fontFamily:'Inter, system-ui, sans-serif', fontWeight:600, fontSize:'0.82rem', color:'#6F6B63', cursor:'pointer'}}>
-          Signaler cette annonce
-        </button>
-      ) : (
-        <div style={{background:'#fff1f0', borderRadius:'12px', padding:'14px', border:'1px solid #ffd6d6'}}>
-          <p style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'0.85rem', color:'#c0392b', marginBottom:'10px'}}>Signaler cette annonce</p>
-          <select value={reason} onChange={e => setReason(e.target.value)}
-            style={{width:'100%', padding:'9px 12px', border:'1px solid #ffd6d6', borderRadius:'8px', fontFamily:'Inter, system-ui, sans-serif', fontSize:'0.82rem', outline:'none', color:'#111827', background:'white', marginBottom:'10px'}}>
-            <option value="">Choisir une raison...</option>
-            <option value="arnaque">Arnaque / Fraude</option>
-            <option value="contenu-inapproprie">Contenu inapproprie</option>
-            <option value="faux-produit">Faux produit</option>
-            <option value="prix-abusif">Prix abusif</option>
-            <option value="doublon">Annonce en doublon</option>
-            <option value="autre">Autre</option>
-          </select>
-          <div style={{display:'flex', gap:'8px'}}>
-            <button onClick={handleReport} disabled={sending || !reason} style={{flex:1, padding:'9px', background: !reason ? '#ccc' : '#c0392b', border:'none', borderRadius:'8px', fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'0.82rem', color:'white', cursor: !reason ? 'not-allowed' : 'pointer'}}>
-              {sending ? 'Envoi...' : 'Envoyer'}
-            </button>
-            <button onClick={() => setShowForm(false)} style={{padding:'9px 14px', background:'transparent', border:'1px solid #E8E0D4', borderRadius:'8px', fontFamily:'Inter, system-ui, sans-serif', fontWeight:600, fontSize:'0.82rem', color:'#6F6B63', cursor:'pointer'}}>
-              Annuler
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
 
 export default function AnnonceDetail() {
   const { id } = useParams()
@@ -1192,37 +1133,7 @@ export default function AnnonceDetail() {
           )}
 
           {/* Détails */}
-          <div className="details-card" style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #E8E0D4'}}>
-            <h2 style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'0.95rem', marginBottom:'14px', color:'#111827', textTransform:'uppercase', letterSpacing:'0.04em'}}>Détails</h2>
-            <div className="detail-grid" style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px'}}>
-              {[
-                { label:'Catégorie', value: catLabel[ad.category] || ad.category, icon:'🏷️' },
-                { label:'Prix', value: formatPrice(ad.price), icon:'💰' },
-                { label:'Ville', value: ad.province || '-', icon:'🗺️' },
-                { label:'District', value: ad.district || '-', icon:'📍' },
-                { label:'Publié le', value: new Date(ad.created_at).toLocaleDateString('fr-FR'), icon:'📅' },
-                { label:'Statut', value: ad.is_active ? 'Active' : 'Inactive', icon:'🔘' },
-                ...(ad.immo_type ? [{ label:'Type', value: ad.immo_type, icon:'🏡' }] : []),
-                ...(ad.surface ? [{ label:'Surface habitable', value: ad.surface + ' m²', icon:'📐' }] : []),
-                ...(ad.surface_terrain ? [{ label:'Surface terrain', value: ad.surface_terrain + ' m²', icon:'🌿' }] : []),
-                ...(ad.chambres ? [{ label:'Chambres', value: ad.chambres, icon:'🛏️' }] : []),
-                ...(ad.salles_de_bain ? [{ label:'Salles de bain', value: ad.salles_de_bain, icon:'🚿' }] : []),
-                ...(ad.etage ? [{ label:'Étage', value: ad.etage, icon:'🏢' }] : []),
-                ...(ad.etat ? [{ label:'État', value: ad.etat === 'neuf' ? 'Neuf' : ad.etat === 'bon-etat' ? 'Bon état' : 'À rénover', icon:'✨' }] : []),
-                ...(ad.meuble ? [{ label:'Meublé', value: 'Oui', icon:'🛋️' }] : []),
-                ...(ad.charges_incluses ? [{ label:'Charges', value: 'Incluses', icon:'💡' }] : []),
-              ].map((item, i) => {
-                const valueText = String(item.value)
-                const isLongDetail = valueText.length > 18 || item.label.length > 14
-                return (
-                <div key={i} className={`detail-item ${isLongDetail ? 'detail-item-long' : ''}`} style={{background:'#FAF7EF', borderRadius:'9px', padding:'11px 13px', border:'1px solid #E8E0D4'}}>
-                  <div className="detail-label" style={{fontSize:'0.7rem', color:'#6F6B63', fontWeight:600, marginBottom:'3px', textTransform:'uppercase'}}>{item.icon} {item.label}</div>
-                  <div className="detail-value" style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'0.85rem', color:'#111827'}}>{valueText}</div>
-                </div>
-                )
-              })}
-            </div>
-          </div>
+          <ListingAttributes ad={ad} categoryLabel={catLabel[ad.category] || ad.category} />
 
           <div className="mobile-similar-section">
             <h2 style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:800, fontSize:'0.98rem', color:'#111827', marginBottom:'8px'}}>
@@ -1248,32 +1159,7 @@ export default function AnnonceDetail() {
               border: '1px solid #E8E0D4'
             }}
           >
-            <h3 style={{
-              fontSize: '13px',
-              fontWeight: 600,
-              color: '#111827',
-              marginBottom: '8px'
-            }}>{'Conseils de s\u00e9curit\u00e9'}</h3>
-            {[
-              "Ne payez jamais \u00e0 l'avance sans voir l'article",
-              'Rencontrez le vendeur dans un lieu public',
-              "V\u00e9rifiez l'article avant tout paiement"
-            ].map((tip, i) => (
-              <div key={i} style={{
-                display: 'flex',
-                gap: '6px',
-                marginBottom: '5px',
-                fontSize: '13px',
-                color: '#6F6B63'
-              }}>
-                <span style={{
-                  color: '#15803D',
-                  fontWeight: 700,
-                  flexShrink: 0
-                }}>{'\u2713'}</span>
-                {tip}
-              </div>
-            ))}
+            <SafetyNotice variant="mobile" />
           </div>
         </div>
 
@@ -1393,18 +1279,7 @@ export default function AnnonceDetail() {
           </div>
 
           <div className="safety-card desktop-safety" style={{background:'#fffbeb', borderRadius:'12px', padding:'14px', border:'1px solid #fde68a'}}>
-            <h3 style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'0.82rem', marginBottom:'8px', color:'#78350f', textTransform:'uppercase', letterSpacing:'0.04em'}}>
-              Conseils de sécurité
-            </h3>
-            {[
-              'Ne payez jamais à l’avance sans voir l’article',
-              'Rencontrez le vendeur dans un lieu public',
-              'Vérifiez l’article avant tout paiement'
-            ].map((tip, i) => (
-              <div key={i} style={{display:'flex', gap:'6px', marginBottom:'5px', fontSize:'0.75rem', color:'#78350f'}}>
-                <span style={{fontWeight:700, flexShrink:0}}>✓</span> {tip}
-              </div>
-            ))}
+            <SafetyNotice variant="desktop" />
           </div>
         </div>
       </div>
