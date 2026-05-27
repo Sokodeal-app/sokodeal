@@ -332,6 +332,14 @@ export default function AnnonceDetail() {
     window.location.href = '/messages'
   }
 
+  const openMessageComposer = () => {
+    if (isOwnListing || !isListingContactable) return
+    if (!messageTouched && !message.trim()) {
+      setMessage('Bonjour, cette annonce est-elle disponible ?')
+    }
+    setShowMessageComposer(true)
+  }
+
   const getShareUrl = () => {
     if (typeof window !== 'undefined') return window.location.href
     return ad ? 'https://sokodeal.app/annonce/' + generateSlug(getSlugSource(ad)) : 'https://sokodeal.app'
@@ -1259,12 +1267,7 @@ export default function AnnonceDetail() {
         adId={ad.id}
         waHref={'https://wa.me/' + waPhone + '?text=' + waText}
         phoneHref={'tel:' + ad.phone}
-        onMessageClick={() => {
-          if (!messageTouched && !message.trim()) {
-            setMessage('Bonjour, cette annonce est-elle disponible ?')
-          }
-          setShowMessageComposer(true)
-        }}
+        onMessageClick={openMessageComposer}
         onLoginRequired={redirectToLoginWithMessage}
       />
 
