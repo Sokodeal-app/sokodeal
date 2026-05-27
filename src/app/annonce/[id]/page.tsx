@@ -306,6 +306,7 @@ export default function AnnonceDetail() {
 
   // ✅ Contact → redirige directement vers la messagerie
   const handleContact = async () => {
+    if (isOwnListing || !isListingContactable) return
     if (!ad) return
     if (!message.trim()) return
     if (!user) {
@@ -379,6 +380,14 @@ export default function AnnonceDetail() {
   const coords = getApproxCoords(ad.province, ad.district, ad.id)
   const canUsePhone = !ad.hide_phone && Boolean(ad.phone)
   const canUseWhatsApp = !ad.hide_phone && Boolean(ad.whatsapp || ad.phone)
+  const isOwnListing = Boolean(
+    user &&
+    ad &&
+    ad.user_id === user.id
+  )
+  const isListingContactable = Boolean(
+    ad && ad.is_active !== false
+  )
   const redirectToLoginWithMessage = () => {
     sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
       url: window.location.pathname,
@@ -1199,6 +1208,17 @@ export default function AnnonceDetail() {
           <div className="contact-card" style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #E8E0D4', marginBottom:'12px'}}>
             <h2 style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'0.95rem', marginBottom:'16px', color:'#111827', textTransform:'uppercase', letterSpacing:'0.04em'}}>Contacter le vendeur</h2>
 
+            {isOwnListing && (
+              <p className="text-sm text-[var(--sd-muted)] text-center py-2">
+                This is your listing.
+              </p>
+            )}
+            {!isOwnListing && !isListingContactable && (
+              <p className="text-sm text-[var(--sd-muted)] text-center py-2">
+                This listing is no longer available.
+              </p>
+            )}
+
             {ad.hide_phone && (
               <div style={{background:'#FAF7EF', borderRadius:'9px', padding:'12px', border:'1px solid #E8E0D4', marginBottom:'10px', textAlign:'center'}}>
                 <div style={{fontSize:'1.5rem', marginBottom:'6px'}}>🔒</div>
@@ -1212,16 +1232,18 @@ export default function AnnonceDetail() {
               rows={4}
               style={{width:'100%', padding:'11px 13px', border:'1px solid #E8E0D4', borderRadius:'9px', fontFamily:'Inter, system-ui, sans-serif', fontSize:'0.88rem', outline:'none', resize:'vertical', background:'#FFFCF7', marginBottom:'10px', boxSizing:'border-box', color: messageTouched ? '#111827' : '#9ca3af', cursor:'text'}}
             />
-            <button onClick={handleContact} disabled={sending || !message.trim()} style={{
-              width:'100%', padding:'12px',
-              background: sending || !message.trim() ? '#E8E0D4' : '#15803D',
-              border:'none', borderRadius:'9px', fontFamily:'Inter, system-ui, sans-serif', fontWeight:700,
-              fontSize:'0.9rem', color: sending || !message.trim() ? '#6F6B63' : 'white',
-              cursor: sending || !message.trim() ? 'not-allowed' : 'pointer', marginBottom:'8px'
-            }}>
-              {sending ? 'Envoi...' : '💬 Envoyer le message'}
-            </button>
-            {!user && (
+            {!isOwnListing && isListingContactable && (
+              <button onClick={handleContact} disabled={sending || !message.trim()} style={{
+                width:'100%', padding:'12px',
+                background: sending || !message.trim() ? '#E8E0D4' : '#15803D',
+                border:'none', borderRadius:'9px', fontFamily:'Inter, system-ui, sans-serif', fontWeight:700,
+                fontSize:'0.9rem', color: sending || !message.trim() ? '#6F6B63' : 'white',
+                cursor: sending || !message.trim() ? 'not-allowed' : 'pointer', marginBottom:'8px'
+              }}>
+                {sending ? 'Envoi...' : '💬 Envoyer le message'}
+              </button>
+            )}
+            {!user && !isOwnListing && isListingContactable && (
               <p style={{fontSize:'0.75rem', color:'#6F6B63', textAlign:'center', marginBottom:'8px'}}>
                 <a href="/auth?mode=login" onClick={() => {
                   sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
@@ -1231,7 +1253,7 @@ export default function AnnonceDetail() {
                 }} style={{color:'#15803D', fontWeight:700}}>Connectez-vous</a> pour envoyer un message
               </p>
             )}
-            {!ad.hide_phone && ad.phone && (
+            {!ad.hide_phone && ad.phone && !isOwnListing && isListingContactable && (
               user ? (
                 <a href={'tel:' + ad.phone} style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', width:'100%', padding:'11px', background:'#FAF7EF', borderRadius:'9px', fontFamily:'Inter, system-ui, sans-serif', fontWeight:600, fontSize:'0.88rem', color:'#111827', textDecoration:'none', marginTop:'8px', boxSizing:'border-box', border:'1px solid #E8E0D4'}}>
                   Tel {ad.phone}
@@ -1251,7 +1273,7 @@ export default function AnnonceDetail() {
                 </button>
               )
             )}
-            {!ad.hide_phone && (ad.whatsapp || ad.phone) && (
+            {!ad.hide_phone && (ad.whatsapp || ad.phone) && !isOwnListing && isListingContactable && (
               user ? (
                 <a href={'https://wa.me/' + waPhone + '?text=' + waText} target="_blank" rel="noopener noreferrer"
                   style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', width:'100%', padding:'11px', background:'#25D366', borderRadius:'9px', fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'0.88rem', color:'white', textDecoration:'none', marginTop:'8px', boxSizing:'border-box'}}>
@@ -1284,6 +1306,16 @@ export default function AnnonceDetail() {
         </div>
       </div>
 
+      {!isOwnListing && !isListingContactable && (
+        <p style={{fontSize:'0.875rem', color:'var(--sd-muted)', textAlign:'center', padding:'12px 20px 0'}}>
+          This listing is no longer available.
+        </p>
+      )}
+      {isOwnListing && (
+        <p style={{fontSize:'0.875rem', color:'var(--sd-muted)', textAlign:'center', padding:'12px 20px 0'}}>
+          This is your listing.
+        </p>
+      )}
       <div className="mobile-action-bar" style={{gridTemplateColumns: canUseWhatsApp && canUsePhone ? 'auto 1fr 44px 44px' : (canUseWhatsApp || canUsePhone) ? 'auto 1fr 44px' : 'auto 1fr'}}>
         <div className="mobile-favorite-action">
           <FavoriteButton adId={ad.id} size="sm" onLogin={() => {
@@ -1295,18 +1327,20 @@ export default function AnnonceDetail() {
           }} />
           <span className="mobile-favorite-label">Favori</span>
         </div>
-        <button
-          onClick={() => {
-            if (!messageTouched && !message.trim()) {
-              setMessage('Bonjour, cette annonce est-elle disponible ?')
-            }
-            setShowMessageComposer(true)
-          }}
-          className="mobile-action-primary"
-        >
-          💬 Message
-        </button>
-        {canUseWhatsApp && (
+        {!isOwnListing && isListingContactable && (
+          <button
+            onClick={() => {
+              if (!messageTouched && !message.trim()) {
+                setMessage('Bonjour, cette annonce est-elle disponible ?')
+              }
+              setShowMessageComposer(true)
+            }}
+            className="mobile-action-primary"
+          >
+            💬 Message
+          </button>
+        )}
+        {canUseWhatsApp && !isOwnListing && isListingContactable && (
           user ? (
             <a
               href={'https://wa.me/' + waPhone + '?text=' + waText}
@@ -1350,7 +1384,7 @@ export default function AnnonceDetail() {
             </button>
           )
         )}
-        {canUsePhone && (
+        {canUsePhone && !isOwnListing && isListingContactable && (
           user ? (
             <a
               href={'tel:' + ad.phone}
@@ -1367,9 +1401,9 @@ export default function AnnonceDetail() {
                 textDecoration: 'none',
                 fontSize: '20px'
               }}
-              aria-label={'T\u00e9l\u00e9phone'}
+              aria-label={'Téléphone'}
             >
-              {'\u{1F4DE}'}
+              {'📞'}
             </a>
           ) : (
             <button
@@ -1388,9 +1422,9 @@ export default function AnnonceDetail() {
                 cursor: 'pointer',
                 fontSize: '20px'
               }}
-              aria-label={'T\u00e9l\u00e9phone'}
+              aria-label={'Téléphone'}
             >
-              {'\u{1F4DE}'}
+              {'📞'}
             </button>
           )
         )}
