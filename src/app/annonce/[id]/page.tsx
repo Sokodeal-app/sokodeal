@@ -1162,12 +1162,12 @@ export default function AnnonceDetail() {
 
             {isOwnListing && (
               <p className="text-sm text-[var(--sd-muted)] text-center py-2">
-                This is your listing.
+                Ceci est votre annonce.
               </p>
             )}
             {!isOwnListing && !isListingContactable && (
               <p className="text-sm text-[var(--sd-muted)] text-center py-2">
-                This listing is no longer available.
+                Cette annonce n&apos;est plus disponible.
               </p>
             )}
 
