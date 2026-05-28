@@ -407,7 +407,7 @@ export default function AnnonceDetail() {
   }
 
   return (
-    <div className="ad-detail-page" style={{minHeight:'100vh', background:'#FAF7EF'}}>
+    <div className="ad-detail-page" style={{minHeight:'100vh', background:'var(--sd-bg)'}}>
       <style>{`
         .mobile-photo-count,
         .mobile-seller-card,
@@ -914,7 +914,7 @@ export default function AnnonceDetail() {
             right: 0;
             bottom: 0;
             padding: 16px 4% calc(16px + env(safe-area-inset-bottom));
-            background: #FFFCF7;
+            background: var(--sd-surface);
             border-radius: 24px 24px 0 0;
             box-shadow: 0 -16px 42px rgba(17,26,20,0.18);
             transform: translateY(110%);
@@ -943,8 +943,8 @@ export default function AnnonceDetail() {
         <Header />
       </div>
 
-      <div className="detail-breadcrumb" style={{background:'white', borderBottom:'1px solid #f0f4f1', padding:'10px 5%'}}>
-        <div style={{maxWidth:'1100px', margin:'0 auto', fontSize:'0.78rem', color:'#6F6B63', display:'flex', alignItems:'center', gap:'6px'}}>
+      <div className="detail-breadcrumb" style={{background:'var(--sd-surface)', borderBottom:'1px solid var(--sd-border)', padding:'10px 5%'}}>
+        <div style={{maxWidth:'1100px', margin:'0 auto', fontSize:'0.78rem', color:'var(--sd-muted)', display:'flex', alignItems:'center', gap:'6px'}}>
           <Link href="/" style={{color:'#15803D', textDecoration:'none', fontWeight:600}}>Accueil</Link>
           <span>/</span>
           <span>{catLabel[ad.category] || ad.category}</span>
@@ -958,8 +958,8 @@ export default function AnnonceDetail() {
         {/* COLONNE GAUCHE */}
         <div className="detail-left">
           {/* Photos */}
-          <div className="photo-card" style={{background:'white', borderRadius:'14px', overflow:'hidden', border:'1px solid #E8E0D4', marginBottom:'16px'}}>
-            <div className="main-photo-frame" style={{height:'auto', aspectRatio:'4/3', background:'#111827', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'5rem', position:'relative', overflow:'hidden', cursor:'grab'}}>
+          <div className="photo-card" style={{background:'var(--sd-surface)', borderRadius:'14px', overflow:'hidden', border:'1px solid var(--sd-border)', marginBottom:'20px'}}>
+            <div className="main-photo-frame" style={{height:'auto', aspectRatio:'4/3', background:'var(--sd-muted)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'5rem', position:'relative', overflow:'hidden', cursor:'grab'}}>
               {hasPhotos ? (
                 <img
                   src={images[activePhoto]}
@@ -1012,30 +1012,29 @@ export default function AnnonceDetail() {
           </div>
 
           {/* Titre + Prix + Partage */}
-          <div className="main-info-card" style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #E8E0D4', marginBottom:'16px'}}>
-            <h1 className="ad-title" style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:800, fontSize:'1.3rem', marginBottom:'12px', lineHeight:1.3, color:'#111827'}}>
+          <div className="main-info-card" style={{background:'var(--sd-surface)', borderRadius:'18px', padding:'24px', border:'1px solid var(--sd-border)', marginBottom:'20px'}}>
+            <h1 className="ad-title" style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:800, fontSize:'1.5rem', marginBottom:'14px', lineHeight:1.2, color:'var(--sd-text)'}}>
               {ad.title}
             </h1>
-            <div className="ad-price" style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:800, fontSize:'1.7rem', color:'#15803D'}}>
+            <div className="ad-price" style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:800, fontSize:'2.05rem', color:'var(--sd-primary)', letterSpacing:'-0.03em'}}>
               {formatPrice(ad.price)}
             </div>
-            <div style={{display:'flex', alignItems:'center', gap:'6px', flexWrap:'wrap', fontSize:'13px', color:'#6F6B63', marginTop:'8px'}}>
+            <div style={{display:'flex', alignItems:'center', gap:'8px', flexWrap:'wrap', fontSize:'0.92rem', color:'var(--sd-muted)', marginTop:'12px', lineHeight:1.6}}>
               {ad.province && <span>📍 {ad.province}{ad.district ? ' · ' + ad.district : ''}</span>}
               <span>·</span>
               <span>{new Date(ad.created_at).toLocaleDateString('fr-FR')}</span>
             </div>
 
-            {/* ✅ Bouton partage déplacé ici, bien visible */}
-            <div className="mobile-trust-chips">
+            <div className="mobile-trust-chips" style={{display:'flex', flexWrap:'wrap', gap:'8px', marginTop:'18px'}}>
               {seller?.is_verified && <span className="mobile-trust-chip mobile-trust-chip--green">Vendeur vérifié</span>}
-              <span className="mobile-trust-chip">Répond via SokoDeal</span>
-              <span className="mobile-trust-chip">Conseils sécurité</span>
+              <span className="mobile-trust-chip">Réponse rapide</span>
+              <span className="mobile-trust-chip">Sécurité renforcée</span>
             </div>
 
-            <div className="share-block" style={{marginTop:'14px', position:'relative', display:'inline-block'}} onClick={e => e.stopPropagation()}>
+            <div className="share-block" style={{marginTop:'18px', position:'relative', display:'inline-block'}} onClick={e => e.stopPropagation()}>
               <button onClick={() => setShowShareMenu(!showShareMenu)}
-                style={{display:'flex', alignItems:'center', gap:'6px', padding:'8px 16px', background:'#FAF7EF', border:'1px solid #E8E0D4', borderRadius:'9px', cursor:'pointer', fontFamily:'Inter, system-ui, sans-serif', fontWeight:600, fontSize:'0.82rem', color:'#111827'}}>
-                🔗 {shared ? 'Lien copie !' : 'Partager'}
+                style={{display:'flex', alignItems:'center', gap:'8px', padding:'10px 18px', background:'var(--sd-surface)', border:'1px solid var(--sd-border)', borderRadius:'12px', cursor:'pointer', fontFamily:'Inter, system-ui, sans-serif', fontWeight:600, fontSize:'0.92rem', color:'var(--sd-text)'}}>
+                🔗 {shared ? 'Lien copié !' : 'Partager'}
               </button>
               {showShareMenu && (
                 <div style={{position:'absolute', top:'40px', left:0, background:'white', borderRadius:'10px', border:'1px solid #E8E0D4', boxShadow:'0 8px 24px rgba(0,0,0,0.12)', padding:'6px', minWidth:'180px', zIndex:200}}
@@ -1157,8 +1156,8 @@ export default function AnnonceDetail() {
           {seller && <ListingSellerCard seller={seller} variant="desktop" />}
 
           {/* Contact vendeur */}
-          <div className="contact-card" style={{background:'white', borderRadius:'14px', padding:'20px', border:'1px solid #E8E0D4', marginBottom:'12px'}}>
-            <h2 style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'0.95rem', marginBottom:'16px', color:'#111827', textTransform:'uppercase', letterSpacing:'0.04em'}}>Contacter le vendeur</h2>
+          <div className="contact-card" style={{background:'var(--sd-surface)', borderRadius:'18px', padding:'22px', border:'1px solid var(--sd-border)', marginBottom:'16px'}}>
+            <h2 style={{fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'1rem', marginBottom:'18px', color:'var(--sd-text)', textTransform:'none', letterSpacing:'0.02em'}}>Contacter le vendeur</h2>
 
             {isOwnListing && (
               <p className="text-sm text-[var(--sd-muted)] text-center py-2">
@@ -1172,9 +1171,9 @@ export default function AnnonceDetail() {
             )}
 
             {ad.hide_phone && (
-              <div style={{background:'#FAF7EF', borderRadius:'9px', padding:'12px', border:'1px solid #E8E0D4', marginBottom:'10px', textAlign:'center'}}>
-                <div style={{fontSize:'1.5rem', marginBottom:'6px'}}>🔒</div>
-                <p style={{fontSize:'0.82rem', color:'#6F6B63', fontFamily:'Inter, system-ui, sans-serif'}}>Ce vendeur prefere etre contacte via la messagerie SokoDeal</p>
+              <div style={{background:'var(--sd-surface)', borderRadius:'14px', padding:'14px', border:'1px solid var(--sd-border)', marginBottom:'12px', textAlign:'center'}}>
+                <div style={{fontSize:'1.6rem', marginBottom:'8px'}}>🔒</div>
+                <p style={{fontSize:'0.88rem', color:'var(--sd-muted)', fontFamily:'Inter, system-ui, sans-serif', margin:0}}>Ce vendeur préfère être contacté via la messagerie SokoDeal.</p>
               </div>
             )}
             <textarea
@@ -1182,33 +1181,33 @@ export default function AnnonceDetail() {
               onChange={e => { setMessage(e.target.value); setMessageTouched(true) }}
               onFocus={() => setMessageTouched(true)}
               rows={4}
-              style={{width:'100%', padding:'11px 13px', border:'1px solid #E8E0D4', borderRadius:'9px', fontFamily:'Inter, system-ui, sans-serif', fontSize:'0.88rem', outline:'none', resize:'vertical', background:'#FFFCF7', marginBottom:'10px', boxSizing:'border-box', color: messageTouched ? '#111827' : '#9ca3af', cursor:'text'}}
+              style={{width:'100%', padding:'12px 14px', border:'1px solid var(--sd-border)', borderRadius:'14px', fontFamily:'Inter, system-ui, sans-serif', fontSize:'0.9rem', outline:'none', resize:'vertical', background:'var(--sd-surface)', marginBottom:'12px', boxSizing:'border-box', color: messageTouched ? 'var(--sd-text)' : '#9ca3af', cursor:'text'}}
             />
             {!isOwnListing && isListingContactable && (
               <button onClick={handleContact} disabled={sending || !message.trim()} style={{
-                width:'100%', padding:'12px',
-                background: sending || !message.trim() ? '#E8E0D4' : '#15803D',
-                border:'none', borderRadius:'9px', fontFamily:'Inter, system-ui, sans-serif', fontWeight:700,
-                fontSize:'0.9rem', color: sending || !message.trim() ? '#6F6B63' : 'white',
-                cursor: sending || !message.trim() ? 'not-allowed' : 'pointer', marginBottom:'8px'
+                width:'100%', padding:'14px',
+                background: sending || !message.trim() ? 'var(--sd-border)' : 'var(--sd-primary)',
+                border:'none', borderRadius:'14px', fontFamily:'Inter, system-ui, sans-serif', fontWeight:700,
+                fontSize:'0.95rem', color: sending || !message.trim() ? 'var(--sd-muted)' : 'white',
+                cursor: sending || !message.trim() ? 'not-allowed' : 'pointer', marginBottom:'10px'
               }}>
                 {sending ? 'Envoi...' : '💬 Envoyer le message'}
               </button>
             )}
             {!user && !isOwnListing && isListingContactable && (
-              <p style={{fontSize:'0.75rem', color:'#6F6B63', textAlign:'center', marginBottom:'8px'}}>
+              <p style={{fontSize:'0.82rem', color:'var(--sd-muted)', textAlign:'center', marginBottom:'10px'}}>
                 <a href="/auth?mode=login" onClick={() => {
                   sessionStorage.setItem('sokodeal:redirect', JSON.stringify({
                     url: window.location.pathname,
                     state: { message }
                   }))
-                }} style={{color:'#15803D', fontWeight:700}}>Connectez-vous</a> pour envoyer un message
+                }} style={{color:'var(--sd-primary)', fontWeight:700}}>Connectez-vous</a> pour envoyer un message
               </p>
             )}
             {!ad.hide_phone && ad.phone && !isOwnListing && isListingContactable && (
               user ? (
-                <a href={'tel:' + ad.phone} style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', width:'100%', padding:'11px', background:'#FAF7EF', borderRadius:'9px', fontFamily:'Inter, system-ui, sans-serif', fontWeight:600, fontSize:'0.88rem', color:'#111827', textDecoration:'none', marginTop:'8px', boxSizing:'border-box', border:'1px solid #E8E0D4'}}>
-                  Tel {ad.phone}
+                <a href={'tel:' + ad.phone} style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', width:'100%', padding:'12px', background:'var(--sd-surface)', borderRadius:'14px', fontFamily:'Inter, system-ui, sans-serif', fontWeight:600, fontSize:'0.9rem', color:'var(--sd-text)', textDecoration:'none', marginTop:'8px', boxSizing:'border-box', border:'1px solid var(--sd-border)'}}>
+                  📞 Tel {ad.phone}
                 </a>
               ) : (
                 <button
@@ -1219,7 +1218,7 @@ export default function AnnonceDetail() {
                     }))
                     window.location.href = '/auth?mode=login'
                   }}
-                  style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', width:'100%', padding:'11px', background:'#FAF7EF', borderRadius:'9px', fontFamily:'Inter, system-ui, sans-serif', fontWeight:600, fontSize:'0.88rem', color:'#111827', border:'1px solid #E8E0D4', cursor:'pointer', marginTop:'8px', boxSizing:'border-box'}}
+                  style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', width:'100%', padding:'12px', background:'var(--sd-surface)', borderRadius:'14px', fontFamily:'Inter, system-ui, sans-serif', fontWeight:600, fontSize:'0.9rem', color:'var(--sd-text)', border:'1px solid var(--sd-border)', cursor:'pointer', marginTop:'8px', boxSizing:'border-box'}}
                 >
                   📞 Téléphone
                 </button>
@@ -1228,7 +1227,7 @@ export default function AnnonceDetail() {
             {!ad.hide_phone && (ad.whatsapp || ad.phone) && !isOwnListing && isListingContactable && (
               user ? (
                 <a href={'https://wa.me/' + waPhone + '?text=' + waText} target="_blank" rel="noopener noreferrer"
-                  style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', width:'100%', padding:'11px', background:'#25D366', borderRadius:'9px', fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'0.88rem', color:'white', textDecoration:'none', marginTop:'8px', boxSizing:'border-box'}}>
+                  style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', width:'100%', padding:'12px', background:'#25D366', borderRadius:'14px', fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'0.9rem', color:'white', textDecoration:'none', marginTop:'8px', boxSizing:'border-box'}}>
                   WhatsApp
                 </a>
               ) : (
@@ -1240,7 +1239,7 @@ export default function AnnonceDetail() {
                     }))
                     window.location.href = '/auth?mode=login'
                   }}
-                  style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', width:'100%', padding:'11px', background:'#25D366', borderRadius:'9px', fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'0.88rem', color:'white', border:'none', cursor:'pointer', marginTop:'8px', boxSizing:'border-box', opacity:0.7}}
+                  style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', width:'100%', padding:'12px', background:'#25D366', borderRadius:'14px', fontFamily:'Inter, system-ui, sans-serif', fontWeight:700, fontSize:'0.9rem', color:'white', border:'none', cursor:'pointer', marginTop:'8px', boxSizing:'border-box', opacity:0.7}}
                 >
                   💬 WhatsApp
                 </button>
@@ -1252,7 +1251,7 @@ export default function AnnonceDetail() {
             <ReportButton adId={ad.id} userId={user?.id} />
           </div>
 
-          <div className="safety-card desktop-safety" style={{background:'#fffbeb', borderRadius:'12px', padding:'14px', border:'1px solid #fde68a'}}>
+          <div className="safety-card desktop-safety" style={{background:'var(--sd-surface)', borderRadius:'16px', padding:'18px', border:'1px solid var(--sd-border)'}}>
             <SafetyNotice variant="desktop" />
           </div>
         </div>

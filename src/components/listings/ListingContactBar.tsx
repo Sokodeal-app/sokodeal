@@ -29,16 +29,35 @@ export default function ListingContactBar({
     <>
       {!isOwnListing && !isListingContactable && (
         <p style={{ fontSize: '0.875rem', color: 'var(--sd-muted)', textAlign: 'center', padding: '12px 20px 0' }}>
-          This listing is no longer available.
+          Cette annonce n’est plus disponible.
         </p>
       )}
       {isOwnListing && (
         <p style={{ fontSize: '0.875rem', color: 'var(--sd-muted)', textAlign: 'center', padding: '12px 20px 0' }}>
-          This is your listing.
+          Ceci est votre annonce.
         </p>
       )}
-      <div className="mobile-action-bar" style={{ gridTemplateColumns: canUseWhatsApp && canUsePhone ? 'auto 1fr 44px 44px' : (canUseWhatsApp || canUsePhone) ? 'auto 1fr 44px' : 'auto 1fr' }}>
-        <div className="mobile-favorite-action">
+      <div
+        className="mobile-action-bar"
+        style={{
+          gridTemplateColumns: canUseWhatsApp && canUsePhone ? 'auto 1fr 44px 44px' : (canUseWhatsApp || canUsePhone) ? 'auto 1fr 44px' : 'auto 1fr',
+          borderTop: '1px solid var(--sd-border)',
+          background: 'rgba(255,255,255,0.96)',
+        }}
+      >
+        <div className="mobile-favorite-action" style={{
+          height: '44px',
+          borderRadius: '12px',
+          border: '1px solid var(--sd-border)',
+          background: 'var(--sd-surface)',
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '6px',
+          padding: '0 10px',
+          color: 'var(--sd-text)'
+        }}>
           <FavoriteButton adId={adId} size="sm" onLogin={onLoginRequired} />
           <span className="mobile-favorite-label">Favori</span>
         </div>
@@ -46,6 +65,15 @@ export default function ListingContactBar({
           <button
             onClick={onMessageClick}
             className="mobile-action-primary"
+            style={{
+              background: 'var(--sd-primary)',
+              color: 'white',
+              borderRadius: '12px',
+              height: '44px',
+              fontWeight: 700,
+              fontSize: '0.9rem',
+              border: 'none'
+            }}
           >
             💬 Message
           </button>
@@ -107,14 +135,15 @@ export default function ListingContactBar({
                 width: '44px',
                 height: '44px',
                 borderRadius: '50%',
-                border: '1px solid #E8E0D4',
-                background: '#FFFCF7',
+                border: '1px solid var(--sd-border)',
+                background: 'var(--sd-surface)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
                 textDecoration: 'none',
-                fontSize: '20px'
+                fontSize: '20px',
+                color: 'var(--sd-text)'
               }}
               aria-label={'Téléphone'}
             >
@@ -128,14 +157,15 @@ export default function ListingContactBar({
                 width: '44px',
                 height: '44px',
                 borderRadius: '50%',
-                border: '1px solid #E8E0D4',
-                background: '#FFFCF7',
+                border: '1px solid var(--sd-border)',
+                background: 'var(--sd-surface)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
                 cursor: 'pointer',
-                fontSize: '20px'
+                fontSize: '20px',
+                color: 'var(--sd-text)'
               }}
               aria-label={'Téléphone'}
             >
