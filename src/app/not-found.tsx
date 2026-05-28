@@ -1,5 +1,3 @@
-import Link from 'next/link'
-
 export default function NotFound() {
   return (
     <div style={{minHeight:'100vh', background:'#f5f7f5', display:'flex', alignItems:'center', justifyContent:'center', padding:'20px'}}>

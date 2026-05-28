@@ -340,21 +340,21 @@ export default function VerificationPage() {
                 <input type="checkbox" checked={acceptCGU} onChange={e => setAcceptCGU(e.target.checked)}
                   style={{ width: '16px', height: '16px', accentColor: '#1a7a4a', cursor: 'pointer', marginTop: '2px', flexShrink: 0 }} />
                 <span style={{ fontSize: '0.82rem', color: '#333', lineHeight: 1.5 }}>
-                  J'ai lu et j'accepte les <a href="/cgu" target="_blank" style={{ color: '#1a7a4a', fontWeight: 700 }}>Conditions Generales d'Utilisation</a>
+                  J&apos;ai lu et j&apos;accepte les <a href="/cgu" target="_blank" style={{ color: '#1a7a4a', fontWeight: 700 }}>Conditions Generales d&apos;Utilisation</a>
                 </span>
               </label>
 
               <div style={{ background: '#fffbeb', borderRadius: '10px', padding: '14px', marginBottom: '14px', border: '1px solid #fde68a' }}>
                 <p style={{ fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: '0.82rem', marginBottom: '8px', color: '#78350f' }}>Politique anti-arnaque</p>
                 <p style={{ fontSize: '0.75rem', color: '#78350f', lineHeight: 1.7 }}>
-                  Nous vous conseillons de toujours rencontrer le vendeur dans un lieu public, de verifier l'article avant paiement, et de ne jamais envoyer d'argent a l'avance.
+                  Nous vous conseillons de toujours rencontrer le vendeur dans un lieu public, de verifier l&apos;article avant paiement, et de ne jamais envoyer d&apos;argent a l&apos;avance.
                 </p>
               </div>
               <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', marginBottom: '20px' }}>
                 <input type="checkbox" checked={acceptArnaque} onChange={e => setAcceptArnaque(e.target.checked)}
                   style={{ width: '16px', height: '16px', accentColor: '#1a7a4a', cursor: 'pointer', marginTop: '2px', flexShrink: 0 }} />
                 <span style={{ fontSize: '0.82rem', color: '#333', lineHeight: 1.5 }}>
-                  Je comprends les conseils anti-arnaque et j'accepte d'utiliser la plateforme avec prudence.
+                  Je comprends les conseils anti-arnaque et j&apos;accepte d&apos;utiliser la plateforme avec prudence.
                 </span>
               </label>
 

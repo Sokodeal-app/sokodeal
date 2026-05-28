@@ -97,7 +97,7 @@ export const getCurrentSession = async (): Promise<GetSessionResult> => {
   return currentSessionRequest
 }
 
-export async function waitForCurrentSession(maxAttempts = 4, delayMs = 400, page = 'private'): Promise<GetSessionResult> {
+export async function waitForCurrentSession(maxAttempts = 4, delayMs = 400): Promise<GetSessionResult> {
   let lastResult: GetSessionResult | null = null
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -116,7 +116,7 @@ export async function waitForCurrentSession(maxAttempts = 4, delayMs = 400, page
   return lastResult || getCurrentSession()
 }
 
-export async function waitForCurrentUser(maxAttempts = 4, delayMs = 400, page = 'private'): Promise<GetUserResult> {
+export async function waitForCurrentUser(maxAttempts = 4, delayMs = 400): Promise<GetUserResult> {
   let lastResult: GetUserResult | null = null
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {

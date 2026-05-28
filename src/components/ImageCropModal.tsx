@@ -21,7 +21,6 @@ export default function ImageCropModal({ file, aspect, onConfirm, onCancel }: Im
   const [loaded, setLoaded] = useState(false)
   const [framePos, setFramePos] = useState({ x: 0, y: 0 })
   const [frameSize, setFrameSize] = useState({ w: 0, h: 0 })
-  const [imgDisplaySize, setImgDisplaySize] = useState({ w: 0, h: 0 })
   const [imgSrc, setImgSrc] = useState<string>('')
   const [zoom, setZoom] = useState(1)
   const [minZoom, setMinZoom] = useState(1)
@@ -36,7 +35,6 @@ export default function ImageCropModal({ file, aspect, onConfirm, onCancel }: Im
   }, [file])
 
   const computeFrame = useCallback((displayW: number, displayH: number) => {
-    setImgDisplaySize({ w: displayW, h: displayH })
 
     const frameW = displayW * 0.80
     const frameH = frameW / aspect
@@ -196,7 +194,6 @@ export default function ImageCropModal({ file, aspect, onConfirm, onCancel }: Im
     const offsetX = Math.max(0, (baseW - displayW) / 2)
     const offsetY = Math.max(0, (baseH - displayH) / 2)
 
-    setImgDisplaySize({ w: displayW, h: displayH })
     setFramePos(prev => ({
       x: Math.max(offsetX, Math.min(Math.max(offsetX, offsetX + displayW - frameSize.w), prev.x)),
       y: Math.max(offsetY, Math.min(Math.max(offsetY, offsetY + displayH - frameSize.h), prev.y)),

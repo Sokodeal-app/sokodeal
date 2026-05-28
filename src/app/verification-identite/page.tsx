@@ -122,7 +122,7 @@ export default function VerificationIdentitePage() {
         </div>
 
         <div style={{background:'white', borderRadius:'16px', padding:'28px', border:'1px solid #e8ede9', boxShadow:'0 4px 24px rgba(0,0,0,0.06)'}}>
-          <h1 style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.2rem', marginBottom:'4px', color:'#111a14'}}>Verification d'identite</h1>
+          <h1 style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.2rem', marginBottom:'4px', color:'#111a14'}}>Verification d&apos;identite</h1>
           <p style={{color:'#6b7c6e', fontSize:'0.86rem', lineHeight:1.6, marginBottom:'20px'}}>
             Pour publier une annonce, confirmez votre identite avec votre carte nationale.
           </p>

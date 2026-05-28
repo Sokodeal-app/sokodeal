@@ -227,17 +227,6 @@ export default function MessagesPage() {
     ))
   }
 
-  const markAsRead = async (userId: string) => {
-    if (!activeConv) return
-    await markConversationAsRead(messages)
-    setMessages(prev => prev.map((m: any) =>
-      m.receiver_id === userId ? { ...m, is_read: true, read_at: m.read_at || new Date().toISOString() } : m
-    ))
-    setConversations(prev => prev.map(c =>
-      sameConversation(c, activeConv) ? { ...c, unread: 0 } : c
-    ))
-  }
-
   const sendMessage = async () => {
     if (!newMessage.trim() || !activeConv || !user) return
     setSending(true)
@@ -447,7 +436,7 @@ export default function MessagesPage() {
                   </div>
                   {activeConv.ad_id && (
                     <a href={'/annonce/' + activeConv.ad_id} style={{ padding: '5px 10px', background: '#f5f7f5', border: '1px solid #e8ede9', borderRadius: '7px', fontSize: '0.72rem', fontWeight: 600, color: '#1a7a4a', textDecoration: 'none', flexShrink: 0 }}>
-                      Voir l'annonce →
+                      Voir l&apos;annonce →
                     </a>
                   )}
                 </div>
@@ -475,7 +464,7 @@ export default function MessagesPage() {
                           {parts.map((part, j) =>
                             part.startsWith('https://sokodeal.app/annonce/') ? (
                               <a key={j} href={part} style={{ color: isMe ? '#a7f3d0' : '#1a7a4a', fontWeight: 600, display: 'block', marginTop: '4px', fontSize: '0.8rem' }}>
-                                🔗 Voir l'annonce →
+                                🔗 Voir l&apos;annonce →
                               </a>
                             ) : (
                               <span key={j}>{part}</span>

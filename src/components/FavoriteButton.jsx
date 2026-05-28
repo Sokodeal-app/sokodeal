@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useFavorites } from '../hooks/useFavorites'
 
-export default function FavoriteButton({ adId, onLogin = () => {}, size = 'md', className = '' }) {
+export default function FavoriteButton({ adId, onLogin = () => {}, size = 'md' }) {
   const { isFavorite, toggleFavorite, userId } = useFavorites()
   const [pending, setPending] = useState(false)
 

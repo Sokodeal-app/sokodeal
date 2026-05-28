@@ -1388,7 +1388,7 @@ export default function PublicProfile() {
           {editMode && isOwner && (
             <div className="edit-box">
               <p className="edit-hint">
-                D'autres options de personnalisation pourront etre ajoutees ici plus tard.
+                D&apos;autres options de personnalisation pourront etre ajoutees ici plus tard.
               </p>
             </div>
           )}
@@ -1407,7 +1407,7 @@ export default function PublicProfile() {
           {ads.length === 0 ? (
             <div className="empty-card">
               <h3>Aucune annonce</h3>
-              <p>Cet utilisateur n'a pas encore publie d'annonce.</p>
+              <p>Cet utilisateur n&apos;a pas encore publie d&apos;annonce.</p>
             </div>
           ) : (
             <ListingGrid columns={3} gap="md" className="ads-grid">

@@ -338,7 +338,7 @@ export default function ModifierAnnoncePage() {
 
       <div style={{maxWidth:'800px', margin:'24px auto', padding:'0 5% 60px'}}>
         <h1 style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.4rem', color:'#111a14', marginBottom:'20px'}}>
-          ✏️ Modifier l'annonce
+          ✏️ Modifier l&apos;annonce
         </h1>
 
         {msg && (
