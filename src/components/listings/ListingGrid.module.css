@@ -18,7 +18,7 @@
 }
 
 .gapMd {
-  gap: 14px;
+  gap: var(--sd-space-5, var(--soko-space-5));
 }
 
 .gapLg {
@@ -31,7 +31,13 @@
   }
 
   .gapMd {
-    gap: var(--sd-space-4, var(--soko-space-4));
+    gap: var(--sd-space-5, var(--soko-space-5));
+  }
+}
+
+@media (min-width: 1280px) {
+  .columns3 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 

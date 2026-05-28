@@ -564,6 +564,10 @@ export default function Home() {
           padding-left: max(var(--sd-page-padding-x), env(safe-area-inset-left));
           box-sizing: border-box;
         }
+        .homepage-section {
+          padding-top: var(--sd-section-gap);
+          padding-bottom: var(--sd-section-gap);
+        }
         .homepage-header-inner {
           width: 100%;
           max-width: 480px !important;
@@ -607,7 +611,7 @@ export default function Home() {
           .homepage-spec-shell,
           .homepage-footer-inner,
           .homepage-header-inner {
-            max-width: 1120px !important;
+            max-width: 1280px !important;
           }
         }
       `}</style>
@@ -625,7 +629,7 @@ export default function Home() {
 
       {/* ── HEADER ── */}
       <header className="sd-full-bleed" style={{background:'var(--sd-surface)', position:'sticky', top:0, zIndex:'var(--sd-z-header)', borderBottom:'1px solid var(--sd-border)', paddingTop:'env(safe-area-inset-top)'}}>
-        <div className="header-inner homepage-header-inner sd-full-bleed-inner" style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 5%', height:'62px', gap:'14px', maxWidth:'1300px', margin:'0 auto'}}>
+        <div className="header-inner homepage-header-inner sd-full-bleed-inner" style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 5%', height:'62px', gap:'14px', maxWidth:'1280px', margin:'0 auto'}}>
           <Link href="/" style={{display:'flex', alignItems:'center', gap:'8px', textDecoration:'none', flexShrink:0}}>
             <div className="header-logo-mark" style={{width:'34px', height:'34px', background:'#1a7a4a', borderRadius:'9px', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'17px', color:'white'}}>S</div>
             <span className="header-logo-name" style={{fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:'1.25rem', color:'#111a14'}}>Soko<span style={{color:'#1a7a4a'}}>Deal</span></span>
@@ -717,7 +721,7 @@ export default function Home() {
 
       <main className={`sd-page sd-page--full sd-page--bleed sd-page--with-bottom-nav homepage-content-safe${isImmoMode ? ' homepage-content-safe--with-reserve' : ''}`}>
         {!search.startsWith('@') && activeSection === 'main' && !search && !filterCat && (
-          <section className="homepage-spec-shell sd-section" style={{paddingTop:'16px', display:'flex', flexDirection:'column', gap:'16px'}}>
+          <section className="homepage-spec-shell sd-section homepage-section" style={{paddingTop:'24px', display:'flex', flexDirection:'column', gap:'24px'}}>
             <SearchBar />
             <CategoryBar />
             <HeroBanner />
@@ -726,7 +730,7 @@ export default function Home() {
 
       {/* ── RECHERCHE @USERNAME ── */}
       {search.startsWith('@') && (
-        <section className="homepage-spec-shell sd-section">
+        <section className="homepage-spec-shell sd-section homepage-section">
           <div style={{marginBottom:'14px'}}>
             <SectionHeader title={`Profils pour "${search}"`} />
           </div>
@@ -910,8 +914,8 @@ export default function Home() {
 
       {/* ── MODE NORMAL — Grid annonces ── */}
       {!search && !filterCat && !isImmoMode && user && ads.length > 0 && (
-        <section className="homepage-spec-shell sd-section">
-          <div style={{marginBottom:'16px'}}>
+        <section className="homepage-spec-shell sd-section homepage-section">
+          <div style={{marginBottom:'20px'}}>
             <SectionHeader
               title="Recommandé pour vous"
               description="Basé sur vos favoris, recherches, historique et alertes"
@@ -940,8 +944,8 @@ export default function Home() {
       )}
 
       {!search.startsWith('@') && activeSection === 'main' && !search && !filterCat && !isImmoMode && (
-        <section id="explore-rapidement" className="homepage-spec-shell sd-section">
-          <div style={{marginBottom:'16px'}}>
+        <section id="explore-rapidement" className="homepage-spec-shell sd-section homepage-section">
+          <div style={{marginBottom:'20px'}}>
             <SectionHeader title="Explorer rapidement" />
           </div>
           <QuickExplore />
@@ -949,8 +953,8 @@ export default function Home() {
       )}
 
       {!search.startsWith('@') && activeSection === 'main' && !isImmoMode && (
-        <section className="home-results-wrap homepage-spec-shell sd-section">
-          <div className="home-filter-card" style={{background:'white', borderRadius:'12px', padding:'12px 16px', marginBottom:'20px', border:'1px solid #e8e4de'}}>
+        <section className="home-results-wrap homepage-spec-shell sd-section homepage-section">
+          <div className="home-filter-card" style={{background:'var(--sd-surface)', borderRadius:'var(--sd-radius-lg)', padding:'16px 18px', marginBottom:'24px', border:'1px solid var(--sd-border)', boxShadow:'var(--sd-shadow-sm)'}}>
             <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'10px', flexWrap:'wrap'}}>
               <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
                 <button onClick={() => setShowFilters(!showFilters)} style={{display:'flex', alignItems:'center', gap:'5px', padding:'7px 13px', background: showFilters ? '#1a7a4a' : '#faf9f7', color: showFilters ? 'white' : '#111a14', border:'1px solid ' + (showFilters ? '#1a7a4a' : '#e8e4de'), borderRadius:'8px', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:'0.82rem', cursor:'pointer'}}>
@@ -1043,7 +1047,7 @@ export default function Home() {
 
       {/* ── JOBS ── */}
       {activeSection === 'jobs' && (
-        <section className="homepage-spec-shell sd-section">
+        <section className="homepage-spec-shell sd-section homepage-section">
           <div style={{marginBottom:'20px'}}>
             <SectionHeader title="Offres d’emploi" />
           </div>

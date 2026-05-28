@@ -21,11 +21,13 @@
 
 .cardWithHref {
   cursor: pointer;
+  border: 1px solid transparent;
 }
 
 .cardWithHref:hover {
-  border-color: var(--sd-primary, var(--soko-green-800));
-  box-shadow: var(--sd-shadow-card, var(--soko-shadow-md));
+  border-color: var(--sd-border, var(--soko-line));
+  box-shadow: var(--sd-shadow-floating, var(--soko-shadow-md));
+  transform: translateY(-1px);
 }
 
 .cardWithHref:active {
