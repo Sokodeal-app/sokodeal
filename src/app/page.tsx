@@ -913,7 +913,7 @@ export default function Home() {
       )}
 
       {/* ── MODE NORMAL — Grid annonces ── */}
-      {!search && !filterCat && !isImmoMode && user && ads.length > 0 && (
+      {!search && !filterCat && !isImmoMode && ads.length > 0 && (
         <section className="homepage-spec-shell sd-section homepage-section">
           <div style={{marginBottom:'20px'}}>
             <SectionHeader
