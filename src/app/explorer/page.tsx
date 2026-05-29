@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { AppShell } from '@/components/layout';
 import { ListingCard, ListingCardSkeleton, ListingGrid } from '@/components/listings';
 import { supabasePublic } from '@/lib/supabase-public';
 import { adaptListingToCardViewModel } from '@/lib/listingAdapter';
@@ -128,163 +130,155 @@ export default function ExplorerPage() {
   }, [ads, category, search, sortBy]);
 
   return (
-    <div
-      className="explorer-page"
-      style={{
-        padding: '16px',
-        minHeight: '100vh',
-        background: 'var(--sd-bg)',
-        color: 'var(--sd-text)',
-      }}
-    >
-      <div style={{ maxWidth: '1120px', margin: '0 auto' }}>
-        <header
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '18px',
-            marginBottom: '22px',
-          }}
-        >
+    <AppShell maxWidth="desktop" withBottomNav>
+      <div
+        className="explorer-page"
+        style={{
+          padding: '16px',
+          paddingBottom: 'calc(var(--sd-bottom-nav-height) + 24px)',
+          minHeight: '100vh',
+          background: 'var(--sd-bg)',
+          color: 'var(--sd-text)',
+        }}
+      >
+        <div style={{ maxWidth: '1120px', margin: '0 auto' }}>
           <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: '12px',
+              flexWrap: 'wrap',
+              marginBottom: '18px',
+            }}
+          >
+            <Link
+              href="/"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 14px',
+                borderRadius: '999px',
+                border: '1px solid var(--sd-border)',
+                background: 'var(--sd-surface)',
+                color: 'var(--sd-text)',
+                textDecoration: 'none',
+                fontWeight: 700,
+                fontSize: '0.95rem',
+              }}
+            >
+              ← Accueil
+            </Link>
+          </div>
+
+          <section
             style={{
               background: 'var(--sd-surface)',
               border: '1px solid var(--sd-border)',
               borderRadius: '20px',
-              padding: '22px 20px',
+              padding: '18px 18px 20px',
               boxShadow: 'var(--sd-shadow-sm)',
+              marginBottom: '18px',
             }}
           >
             <p
               style={{
                 margin: 0,
                 color: 'var(--sd-muted)',
-                fontSize: '0.88rem',
+                fontSize: '0.82rem',
                 textTransform: 'uppercase',
-                letterSpacing: '0.07em',
+                letterSpacing: '0.08em',
+                fontWeight: 700,
               }}
             >
               Explorer
             </p>
             <h1
               style={{
-                margin: '10px 0 0',
+                margin: '12px 0 0',
                 fontFamily: 'Syne, sans-serif',
-                fontSize: '2rem',
-                lineHeight: 1.05,
-                maxWidth: '540px',
+                fontSize: '1.9rem',
+                lineHeight: 1.08,
+                maxWidth: '560px',
               }}
             >
               Explorez les annonces à Kigali
             </h1>
             <p
               style={{
-                margin: '12px 0 0',
-                maxWidth: '540px',
+                margin: '10px 0 0',
+                maxWidth: '560px',
                 color: 'var(--sd-muted)',
-                fontSize: '0.98rem',
+                fontSize: '0.95rem',
                 lineHeight: 1.6,
               }}
             >
               Trouvez rapidement ce que vous cherchez.
             </p>
-          </div>
+          </section>
 
-          <div
+          <section
             style={{
               background: 'var(--sd-surface)',
               border: '1px solid var(--sd-border)',
               borderRadius: '20px',
-              padding: '20px',
+              padding: '18px',
               boxShadow: 'var(--sd-shadow-sm)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '18px',
+              marginBottom: '22px',
             }}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <label
-                htmlFor="explorer-search"
-                style={{
-                  fontWeight: 700,
-                  color: 'var(--sd-text)',
-                  fontSize: '0.95rem',
-                }}
-              >
-                Recherche
-              </label>
-              <input
-                id="explorer-search"
-                type="text"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Titre, catégorie ou sous-catégorie"
-                style={{
-                  width: '100%',
-                  minHeight: '52px',
-                  padding: '0 18px',
-                  borderRadius: '999px',
-                  border: '1px solid var(--sd-border)',
-                  background: 'var(--sd-surface)',
-                  color: 'var(--sd-text)',
-                  fontSize: '1rem',
-                  outline: 'none',
-                }}
-              />
-            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <label
+                  htmlFor="explorer-search"
+                  style={{
+                    fontWeight: 700,
+                    color: 'var(--sd-text)',
+                    fontSize: '0.95rem',
+                  }}
+                >
+                  Recherche
+                </label>
+                <input
+                  id="explorer-search"
+                  type="text"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Titre, catégorie ou sous-catégorie"
+                  style={{
+                    width: '100%',
+                    minHeight: '48px',
+                    padding: '0 16px',
+                    borderRadius: '999px',
+                    border: '1px solid var(--sd-border)',
+                    background: 'var(--sd-surface)',
+                    color: 'var(--sd-text)',
+                    fontSize: '1rem',
+                    outline: 'none',
+                  }}
+                />
+              </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  gap: '12px',
                   flexWrap: 'wrap',
+                  gap: '12px',
                 }}
               >
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                  <button
-                    type="button"
-                    onClick={() => setCategory('')}
-                    style={{
-                      borderRadius: '999px',
-                      border: category === '' ? '1px solid var(--sd-primary)' : '1px solid var(--sd-border)',
-                      background: category === '' ? 'var(--sd-primary-soft)' : 'var(--sd-surface)',
-                      color: category === '' ? 'var(--sd-primary-dark)' : 'var(--sd-text)',
-                      padding: '10px 14px',
-                      cursor: 'pointer',
-                      minWidth: '110px',
-                      fontSize: '0.92rem',
-                      fontWeight: 600,
-                    }}
-                  >
-                    Toutes
-                  </button>
-                  {categoryOptions.slice(0, 8).map((option) => (
-                    <button
-                      type="button"
-                      key={option}
-                      onClick={() => setCategory(option)}
-                      style={{
-                        borderRadius: '999px',
-                        border: category === option ? '1px solid var(--sd-primary)' : '1px solid var(--sd-border)',
-                        background: category === option ? 'var(--sd-primary-soft)' : 'var(--sd-surface)',
-                        color: category === option ? 'var(--sd-primary-dark)' : 'var(--sd-text)',
-                        padding: '10px 14px',
-                        cursor: 'pointer',
-                        minWidth: '110px',
-                        fontSize: '0.92rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {option}
-                    </button>
-                  ))}
+                <div style={{ color: 'var(--sd-text)', fontWeight: 700, fontSize: '0.95rem' }}>
+                  {loading
+                    ? 'Chargement des annonces...'
+                    : error
+                    ? 'Erreur de chargement'
+                    : `${filteredAds.length} annonce${filteredAds.length > 1 ? 's' : ''}`}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                   <label htmlFor="explorer-sort" style={{ fontWeight: 700, color: 'var(--sd-text)', fontSize: '0.95rem' }}>
-                    Trier
+                    Trier :
                   </label>
                   <select
                     id="explorer-sort"
@@ -292,7 +286,7 @@ export default function ExplorerPage() {
                     onChange={(event) => setSortBy(event.target.value as ExplorerSortOption)}
                     style={{
                       minWidth: '160px',
-                      padding: '11px 14px',
+                      padding: '10px 14px',
                       borderRadius: '999px',
                       border: '1px solid var(--sd-border)',
                       background: 'var(--sd-surface)',
@@ -308,73 +302,117 @@ export default function ExplorerPage() {
                   </select>
                 </div>
               </div>
-              <div style={{ color: 'var(--sd-muted)', fontSize: '0.95rem' }}>
-                {loading
-                  ? 'Chargement des annonces...'
-                  : error
-                  ? 'Erreur de chargement'
-                  : `${filteredAds.length} annonce${filteredAds.length > 1 ? 's' : ''} trouvée${filteredAds.length > 1 ? 's' : ''}`}
+
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '10px',
+                  overflowX: 'auto',
+                  paddingBottom: '4px',
+                  marginBottom: '-4px',
+                  WebkitOverflowScrolling: 'touch',
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setCategory('')}
+                  style={{
+                    flexShrink: 0,
+                    borderRadius: '999px',
+                    border: category === '' ? '1px solid var(--sd-primary)' : '1px solid var(--sd-border)',
+                    background: category === '' ? 'var(--sd-primary-soft)' : 'var(--sd-surface)',
+                    color: category === '' ? 'var(--sd-primary-dark)' : 'var(--sd-text)',
+                    padding: '10px 14px',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Toutes
+                </button>
+                {categoryOptions.map((option) => (
+                  <button
+                    type="button"
+                    key={option}
+                    onClick={() => setCategory(option)}
+                    style={{
+                      flexShrink: 0,
+                      borderRadius: '999px',
+                      border: category === option ? '1px solid var(--sd-primary)' : '1px solid var(--sd-border)',
+                      background: category === option ? 'var(--sd-primary-soft)' : 'var(--sd-surface)',
+                      color: category === option ? 'var(--sd-primary-dark)' : 'var(--sd-text)',
+                      padding: '10px 14px',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem',
+                      fontWeight: 600,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {option}
+                  </button>
+                ))}
               </div>
             </div>
-          </div>
-        </header>
+          </section>
 
-        {error ? (
-          <div
-            style={{
-              background: 'var(--sd-surface)',
-              border: '1px solid rgba(185, 28, 28, 0.12)',
-              borderRadius: '18px',
-              padding: '28px 24px',
-              color: 'var(--sd-text)',
-            }}
-          >
-            <div style={{ fontWeight: 700, marginBottom: '8px', color: 'var(--sd-error)' }}>
-              Impossible de charger les annonces.
+          {error ? (
+            <div
+              style={{
+                background: 'var(--sd-surface)',
+                border: '1px solid rgba(185, 28, 28, 0.12)',
+                borderRadius: '18px',
+                padding: '28px 24px',
+                color: 'var(--sd-text)',
+              }}
+            >
+              <div style={{ fontWeight: 700, marginBottom: '8px', color: 'var(--sd-error)' }}>
+                Impossible de charger les annonces.
+              </div>
+              <div style={{ color: 'var(--sd-muted)' }}>
+                Veuillez réessayer plus tard ou vérifier votre connexion.
+              </div>
             </div>
-            <div style={{ color: 'var(--sd-muted)' }}>
-              Veuillez réessayer plus tard ou vérifier votre connexion.
+          ) : loading ? (
+            <ListingGrid columns={3} gap="md">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <ListingCardSkeleton key={index} variant="grid" />
+              ))}
+            </ListingGrid>
+          ) : filteredAds.length === 0 ? (
+            <div
+              style={{
+                background: 'var(--sd-surface)',
+                border: '1px solid var(--sd-border)',
+                borderRadius: '18px',
+                padding: '40px 24px',
+                textAlign: 'center',
+                color: 'var(--sd-text)',
+              }}
+            >
+              <div style={{ fontSize: '1.6rem', fontWeight: 700, marginBottom: '12px' }}>Aucune annonce</div>
+              <p style={{ color: 'var(--sd-muted)', marginBottom: '4px', fontSize: '0.96rem' }}>
+                Aucun résultat ne correspond à votre recherche.
+              </p>
+              <p style={{ color: 'var(--sd-muted)', fontSize: '0.96rem' }}>
+                Essayez un autre mot-clé ou catégorie.
+              </p>
             </div>
-          </div>
-        ) : loading ? (
-          <ListingGrid columns={3} gap="md">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <ListingCardSkeleton key={index} variant="grid" />
-            ))}
-          </ListingGrid>
-        ) : filteredAds.length === 0 ? (
-          <div
-            style={{
-              background: 'var(--sd-surface)',
-              border: '1px solid var(--sd-border)',
-              borderRadius: '18px',
-              padding: '40px 24px',
-              textAlign: 'center',
-              color: 'var(--sd-text)',
-            }}
-          >
-            <div style={{ fontSize: '1.6rem', fontWeight: 700, marginBottom: '12px' }}>Aucune annonce</div>
-            <p style={{ color: 'var(--sd-muted)', marginBottom: '4px', fontSize: '0.96rem' }}>
-              Aucun résultat ne correspond à votre recherche.
-            </p>
-            <p style={{ color: 'var(--sd-muted)', fontSize: '0.96rem' }}>
-              Essayez un autre mot-clé ou catégorie.
-            </p>
-          </div>
-        ) : (
-          <ListingGrid columns={3} gap="md">
-            {filteredAds.map((ad) => (
-              <ListingCard
-                key={ad.id}
-                viewModel={adaptExplorerAdToCardViewModel(ad)}
-                isFavorited={false}
-                href={getExplorerAdHref(ad)}
-                variant="grid"
-              />
-            ))}
-          </ListingGrid>
-        )}
+          ) : (
+            <ListingGrid columns={3} gap="md">
+              {filteredAds.map((ad) => (
+                <ListingCard
+                  key={ad.id}
+                  viewModel={adaptExplorerAdToCardViewModel(ad)}
+                  isFavorited={false}
+                  href={getExplorerAdHref(ad)}
+                  variant="grid"
+                />
+              ))}
+            </ListingGrid>
+          )}
+        </div>
       </div>
-    </div>
+    </AppShell>
   );
 }
