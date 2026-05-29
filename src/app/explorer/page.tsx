@@ -7,6 +7,7 @@ import { ListingCard, ListingCardSkeleton, ListingGrid } from '@/components/list
 import { supabasePublic } from '@/lib/supabase-public';
 import { adaptListingToCardViewModel } from '@/lib/listingAdapter';
 import { generateSlug } from '@/lib/slug';
+import { LAUNCH_MAIN_CATEGORIES, matchesCategoryGroup } from '@/lib/market-config';
 
 type ExplorerAd = {
   id: string;
@@ -90,15 +91,6 @@ export default function ExplorerPage() {
     void fetchAds();
   }, []);
 
-  const categoryOptions = useMemo(() => {
-    const values = new Set<string>();
-    ads.forEach((ad) => {
-      if (ad.subcategory) values.add(ad.subcategory);
-      if (ad.category) values.add(ad.category);
-    });
-    return Array.from(values).sort((a, b) => a.localeCompare(b, 'fr'));
-  }, [ads]);
-
   const filteredAds = useMemo(() => {
     const query = search.trim().toLowerCase();
 
@@ -113,7 +105,7 @@ export default function ExplorerPage() {
         }
 
         if (category) {
-          return ad.category === category || ad.subcategory === category;
+          return matchesCategoryGroup(category, ad.category);
         }
 
         return true;
@@ -142,14 +134,14 @@ export default function ExplorerPage() {
         }}
       >
         <div style={{ maxWidth: '1120px', margin: '0 auto' }}>
+          {/* Header with back button */}
           <div
             style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
               gap: '12px',
-              flexWrap: 'wrap',
-              marginBottom: '18px',
+              marginBottom: '16px',
             }}
           >
             <Link
@@ -159,7 +151,7 @@ export default function ExplorerPage() {
                 alignItems: 'center',
                 gap: '8px',
                 padding: '10px 14px',
-                borderRadius: '999px',
+                borderRadius: 'var(--sd-radius-pill)',
                 border: '1px solid var(--sd-border)',
                 background: 'var(--sd-surface)',
                 color: 'var(--sd-text)',
@@ -170,199 +162,149 @@ export default function ExplorerPage() {
             >
               ← Accueil
             </Link>
-          </div>
-
-          <section
-            style={{
-              background: 'var(--sd-surface)',
-              border: '1px solid var(--sd-border)',
-              borderRadius: '20px',
-              padding: '18px 18px 20px',
-              boxShadow: 'var(--sd-shadow-sm)',
-              marginBottom: '18px',
-            }}
-          >
-            <p
+            <div
               style={{
-                margin: 0,
                 color: 'var(--sd-muted)',
-                fontSize: '0.82rem',
+                fontSize: '0.88rem',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
                 fontWeight: 700,
               }}
             >
               Explorer
-            </p>
-            <h1
-              style={{
-                margin: '12px 0 0',
-                fontFamily: 'Syne, sans-serif',
-                fontSize: '1.9rem',
-                lineHeight: 1.08,
-                maxWidth: '560px',
-              }}
-            >
-              Explorez les annonces à Kigali
-            </h1>
-            <p
-              style={{
-                margin: '10px 0 0',
-                maxWidth: '560px',
-                color: 'var(--sd-muted)',
-                fontSize: '0.95rem',
-                lineHeight: 1.6,
-              }}
-            >
-              Trouvez rapidement ce que vous cherchez.
-            </p>
-          </section>
+            </div>
+          </div>
 
-          <section
+          {/* Search - Primary Element */}
+          <div
             style={{
-              background: 'var(--sd-surface)',
-              border: '1px solid var(--sd-border)',
-              borderRadius: '20px',
-              padding: '18px',
-              boxShadow: 'var(--sd-shadow-sm)',
-              marginBottom: '22px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              marginBottom: '18px',
             }}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <label
-                  htmlFor="explorer-search"
-                  style={{
-                    fontWeight: 700,
-                    color: 'var(--sd-text)',
-                    fontSize: '0.95rem',
-                  }}
-                >
-                  Recherche
-                </label>
-                <input
-                  id="explorer-search"
-                  type="text"
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Titre, catégorie ou sous-catégorie"
-                  style={{
-                    width: '100%',
-                    minHeight: '48px',
-                    padding: '0 16px',
-                    borderRadius: '999px',
-                    border: '1px solid var(--sd-border)',
-                    background: 'var(--sd-surface)',
-                    color: 'var(--sd-text)',
-                    fontSize: '1rem',
-                    outline: 'none',
-                  }}
-                />
-              </div>
+            <input
+              id="explorer-search"
+              type="text"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Que recherchez-vous ?"
+              style={{
+                width: '100%',
+                minHeight: '48px',
+                padding: '0 20px',
+                borderRadius: 'var(--sd-radius-pill)',
+                border: '1px solid var(--sd-border)',
+                background: 'var(--sd-surface)',
+                color: 'var(--sd-text)',
+                fontSize: '1rem',
+                outline: 'none',
+              }}
+            />
+          </div>
 
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  gap: '12px',
-                }}
-              >
-                <div style={{ color: 'var(--sd-text)', fontWeight: 700, fontSize: '0.95rem' }}>
-                  {loading
-                    ? 'Chargement des annonces...'
-                    : error
-                    ? 'Erreur de chargement'
-                    : `${filteredAds.length} annonce${filteredAds.length > 1 ? 's' : ''}`}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                  <label htmlFor="explorer-sort" style={{ fontWeight: 700, color: 'var(--sd-text)', fontSize: '0.95rem' }}>
-                    Trier :
-                  </label>
-                  <select
-                    id="explorer-sort"
-                    value={sortBy}
-                    onChange={(event) => setSortBy(event.target.value as ExplorerSortOption)}
-                    style={{
-                      minWidth: '160px',
-                      padding: '10px 14px',
-                      borderRadius: '999px',
-                      border: '1px solid var(--sd-border)',
-                      background: 'var(--sd-surface)',
-                      color: 'var(--sd-text)',
-                      fontSize: '0.95rem',
-                      outline: 'none',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <option value="recent">Plus récent</option>
-                    <option value="moins-cher">Moins cher</option>
-                    <option value="plus-cher">Plus cher</option>
-                  </select>
-                </div>
-              </div>
-
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '10px',
-                  overflowX: 'auto',
-                  paddingBottom: '4px',
-                  marginBottom: '-4px',
-                  WebkitOverflowScrolling: 'touch',
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => setCategory('')}
-                  style={{
-                    flexShrink: 0,
-                    borderRadius: '999px',
-                    border: category === '' ? '1px solid var(--sd-primary)' : '1px solid var(--sd-border)',
-                    background: category === '' ? 'var(--sd-primary-soft)' : 'var(--sd-surface)',
-                    color: category === '' ? 'var(--sd-primary-dark)' : 'var(--sd-text)',
-                    padding: '10px 14px',
-                    cursor: 'pointer',
-                    fontSize: '0.9rem',
-                    fontWeight: 600,
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  Toutes
-                </button>
-                {categoryOptions.map((option) => (
-                  <button
-                    type="button"
-                    key={option}
-                    onClick={() => setCategory(option)}
-                    style={{
-                      flexShrink: 0,
-                      borderRadius: '999px',
-                      border: category === option ? '1px solid var(--sd-primary)' : '1px solid var(--sd-border)',
-                      background: category === option ? 'var(--sd-primary-soft)' : 'var(--sd-surface)',
-                      color: category === option ? 'var(--sd-primary-dark)' : 'var(--sd-text)',
-                      padding: '10px 14px',
-                      cursor: 'pointer',
-                      fontSize: '0.9rem',
-                      fontWeight: 600,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
+          {/* Counter + Sort - Single Line */}
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '12px',
+              marginBottom: '16px',
+            }}
+          >
+            <div style={{ color: 'var(--sd-text)', fontWeight: 700, fontSize: '0.95rem' }}>
+              {loading
+                ? 'Chargement...'
+                : error
+                ? 'Erreur'
+                : `${filteredAds.length} annonce${filteredAds.length > 1 ? 's' : ''}`}
             </div>
-          </section>
+            <select
+              id="explorer-sort"
+              value={sortBy}
+              onChange={(event) => setSortBy(event.target.value as ExplorerSortOption)}
+              style={{
+                minWidth: '150px',
+                padding: '10px 14px',
+                borderRadius: 'var(--sd-radius-md)',
+                border: '1px solid var(--sd-border)',
+                background: 'var(--sd-surface)',
+                color: 'var(--sd-text)',
+                fontSize: '0.95rem',
+                outline: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              <option value="recent">Plus récent</option>
+              <option value="moins-cher">Moins cher</option>
+              <option value="plus-cher">Plus cher</option>
+            </select>
+          </div>
 
+          {/* Category Chips - Horizontal Scroll */}
+          <div
+            style={{
+              display: 'flex',
+              gap: '10px',
+              overflowX: 'auto',
+              paddingBottom: '8px',
+              marginBottom: '18px',
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setCategory('')}
+              style={{
+                flexShrink: 0,
+                borderRadius: 'var(--sd-radius-pill)',
+                border: category === '' ? '1px solid var(--sd-primary)' : '1px solid var(--sd-border)',
+                background: category === '' ? 'var(--sd-primary-soft)' : 'var(--sd-surface)',
+                color: category === '' ? 'var(--sd-primary-dark)' : 'var(--sd-text)',
+                padding: '10px 14px',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Tous
+            </button>
+            {LAUNCH_MAIN_CATEGORIES.map((cat) => (
+              <button
+                type="button"
+                key={cat.value}
+                onClick={() => setCategory(cat.value)}
+                style={{
+                  flexShrink: 0,
+                  borderRadius: 'var(--sd-radius-pill)',
+                  border: category === cat.value ? '1px solid var(--sd-primary)' : '1px solid var(--sd-border)',
+                  background: category === cat.value ? 'var(--sd-primary-soft)' : 'var(--sd-surface)',
+                  color: category === cat.value ? 'var(--sd-primary-dark)' : 'var(--sd-text)',
+                  padding: '10px 14px',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Results Section */}
           {error ? (
             <div
               style={{
                 background: 'var(--sd-surface)',
                 border: '1px solid rgba(185, 28, 28, 0.12)',
-                borderRadius: '18px',
-                padding: '28px 24px',
+                borderRadius: 'var(--sd-radius-lg)',
+                padding: '24px',
                 color: 'var(--sd-text)',
               }}
             >
@@ -384,18 +326,15 @@ export default function ExplorerPage() {
               style={{
                 background: 'var(--sd-surface)',
                 border: '1px solid var(--sd-border)',
-                borderRadius: '18px',
+                borderRadius: 'var(--sd-radius-lg)',
                 padding: '40px 24px',
                 textAlign: 'center',
                 color: 'var(--sd-text)',
               }}
             >
-              <div style={{ fontSize: '1.6rem', fontWeight: 700, marginBottom: '12px' }}>Aucune annonce</div>
-              <p style={{ color: 'var(--sd-muted)', marginBottom: '4px', fontSize: '0.96rem' }}>
-                Aucun résultat ne correspond à votre recherche.
-              </p>
+              <div style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '12px' }}>Aucune annonce</div>
               <p style={{ color: 'var(--sd-muted)', fontSize: '0.96rem' }}>
-                Essayez un autre mot-clé ou catégorie.
+                Aucun résultat. Essayez un autre mot-clé ou catégorie.
               </p>
             </div>
           ) : (
