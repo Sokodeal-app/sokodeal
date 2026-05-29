@@ -128,73 +128,213 @@ export default function ExplorerPage() {
   }, [ads, category, search, sortBy]);
 
   return (
-    <div className="explorer-page" style={{ padding: '20px', minHeight: '100vh' }}>
+    <div
+      className="explorer-page"
+      style={{
+        padding: '16px',
+        minHeight: '100vh',
+        background: 'var(--sd-bg)',
+        color: 'var(--sd-text)',
+      }}
+    >
       <div style={{ maxWidth: '1120px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
-            <div style={{ flex: '1 1 240px' }}>
-              <label htmlFor="explorer-search" style={{ display: 'block', marginBottom: '6px', fontWeight: 700 }}>
-                Rechercher
+        <header
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '18px',
+            marginBottom: '22px',
+          }}
+        >
+          <div
+            style={{
+              background: 'var(--sd-surface)',
+              border: '1px solid var(--sd-border)',
+              borderRadius: '20px',
+              padding: '22px 20px',
+              boxShadow: 'var(--sd-shadow-sm)',
+            }}
+          >
+            <p
+              style={{
+                margin: 0,
+                color: 'var(--sd-muted)',
+                fontSize: '0.88rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.07em',
+              }}
+            >
+              Explorer
+            </p>
+            <h1
+              style={{
+                margin: '10px 0 0',
+                fontFamily: 'Syne, sans-serif',
+                fontSize: '2rem',
+                lineHeight: 1.05,
+                maxWidth: '540px',
+              }}
+            >
+              Explorez les annonces à Kigali
+            </h1>
+            <p
+              style={{
+                margin: '12px 0 0',
+                maxWidth: '540px',
+                color: 'var(--sd-muted)',
+                fontSize: '0.98rem',
+                lineHeight: 1.6,
+              }}
+            >
+              Trouvez rapidement ce que vous cherchez.
+            </p>
+          </div>
+
+          <div
+            style={{
+              background: 'var(--sd-surface)',
+              border: '1px solid var(--sd-border)',
+              borderRadius: '20px',
+              padding: '20px',
+              boxShadow: 'var(--sd-shadow-sm)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '18px',
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <label
+                htmlFor="explorer-search"
+                style={{
+                  fontWeight: 700,
+                  color: 'var(--sd-text)',
+                  fontSize: '0.95rem',
+                }}
+              >
+                Recherche
               </label>
               <input
                 id="explorer-search"
                 type="text"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Titre, catégorie, sous-catégorie"
-                style={{ width: '100%', padding: '12px 14px', borderRadius: '12px', border: '1px solid #d8d3c4', fontSize: '0.95rem' }}
+                placeholder="Titre, catégorie ou sous-catégorie"
+                style={{
+                  width: '100%',
+                  minHeight: '52px',
+                  padding: '0 18px',
+                  borderRadius: '999px',
+                  border: '1px solid var(--sd-border)',
+                  background: 'var(--sd-surface)',
+                  color: 'var(--sd-text)',
+                  fontSize: '1rem',
+                  outline: 'none',
+                }}
               />
             </div>
 
-            <div style={{ minWidth: '200px', flex: '1 1 200px' }}>
-              <label htmlFor="explorer-category" style={{ display: 'block', marginBottom: '6px', fontWeight: 700 }}>
-                Catégorie
-              </label>
-              <select
-                id="explorer-category"
-                value={category}
-                onChange={(event) => setCategory(event.target.value)}
-                style={{ width: '100%', padding: '12px 14px', borderRadius: '12px', border: '1px solid #d8d3c4', fontSize: '0.95rem' }}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: '12px',
+                  flexWrap: 'wrap',
+                }}
               >
-                <option value="">Toutes les catégories</option>
-                {categoryOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div style={{ minWidth: '180px', flex: '1 1 180px' }}>
-              <label htmlFor="explorer-sort" style={{ display: 'block', marginBottom: '6px', fontWeight: 700 }}>
-                Trier
-              </label>
-              <select
-                id="explorer-sort"
-                value={sortBy}
-                onChange={(event) => setSortBy(event.target.value as ExplorerSortOption)}
-                style={{ width: '100%', padding: '12px 14px', borderRadius: '12px', border: '1px solid #d8d3c4', fontSize: '0.95rem' }}
-              >
-                <option value="recent">Plus récent</option>
-                <option value="moins-cher">Moins cher</option>
-                <option value="plus-cher">Plus cher</option>
-              </select>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCategory('')}
+                    style={{
+                      borderRadius: '999px',
+                      border: category === '' ? '1px solid var(--sd-primary)' : '1px solid var(--sd-border)',
+                      background: category === '' ? 'var(--sd-primary-soft)' : 'var(--sd-surface)',
+                      color: category === '' ? 'var(--sd-primary-dark)' : 'var(--sd-text)',
+                      padding: '10px 14px',
+                      cursor: 'pointer',
+                      minWidth: '110px',
+                      fontSize: '0.92rem',
+                      fontWeight: 600,
+                    }}
+                  >
+                    Toutes
+                  </button>
+                  {categoryOptions.slice(0, 8).map((option) => (
+                    <button
+                      type="button"
+                      key={option}
+                      onClick={() => setCategory(option)}
+                      style={{
+                        borderRadius: '999px',
+                        border: category === option ? '1px solid var(--sd-primary)' : '1px solid var(--sd-border)',
+                        background: category === option ? 'var(--sd-primary-soft)' : 'var(--sd-surface)',
+                        color: category === option ? 'var(--sd-primary-dark)' : 'var(--sd-text)',
+                        padding: '10px 14px',
+                        cursor: 'pointer',
+                        minWidth: '110px',
+                        fontSize: '0.92rem',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <label htmlFor="explorer-sort" style={{ fontWeight: 700, color: 'var(--sd-text)', fontSize: '0.95rem' }}>
+                    Trier
+                  </label>
+                  <select
+                    id="explorer-sort"
+                    value={sortBy}
+                    onChange={(event) => setSortBy(event.target.value as ExplorerSortOption)}
+                    style={{
+                      minWidth: '160px',
+                      padding: '11px 14px',
+                      borderRadius: '999px',
+                      border: '1px solid var(--sd-border)',
+                      background: 'var(--sd-surface)',
+                      color: 'var(--sd-text)',
+                      fontSize: '0.95rem',
+                      outline: 'none',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <option value="recent">Plus récent</option>
+                    <option value="moins-cher">Moins cher</option>
+                    <option value="plus-cher">Plus cher</option>
+                  </select>
+                </div>
+              </div>
+              <div style={{ color: 'var(--sd-muted)', fontSize: '0.95rem' }}>
+                {loading
+                  ? 'Chargement des annonces...'
+                  : error
+                  ? 'Erreur de chargement'
+                  : `${filteredAds.length} annonce${filteredAds.length > 1 ? 's' : ''} trouvée${filteredAds.length > 1 ? 's' : ''}`}
+              </div>
             </div>
           </div>
-
-          <div style={{ color: '#6f6b63', fontSize: '0.95rem' }}>
-            {loading
-              ? 'Chargement des annonces...'
-              : error
-              ? 'Erreur de chargement'
-              : `${filteredAds.length} annonce${filteredAds.length > 1 ? 's' : ''} trouvée${filteredAds.length > 1 ? 's' : ''}`}
-          </div>
-        </div>
+        </header>
 
         {error ? (
-          <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #fde3e3', color: '#7f1d1d', padding: '24px' }}>
-            <strong>Impossible de charger les annonces.</strong>
-            <div>Veuillez réessayer plus tard ou vérifier votre connexion.</div>
+          <div
+            style={{
+              background: 'var(--sd-surface)',
+              border: '1px solid rgba(185, 28, 28, 0.12)',
+              borderRadius: '18px',
+              padding: '28px 24px',
+              color: 'var(--sd-text)',
+            }}
+          >
+            <div style={{ fontWeight: 700, marginBottom: '8px', color: 'var(--sd-error)' }}>
+              Impossible de charger les annonces.
+            </div>
+            <div style={{ color: 'var(--sd-muted)' }}>
+              Veuillez réessayer plus tard ou vérifier votre connexion.
+            </div>
           </div>
         ) : loading ? (
           <ListingGrid columns={3} gap="md">
@@ -203,10 +343,22 @@ export default function ExplorerPage() {
             ))}
           </ListingGrid>
         ) : filteredAds.length === 0 ? (
-          <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #e8e4de', padding: '34px', textAlign: 'center' }}>
-            <div style={{ fontSize: '1.8rem', marginBottom: '10px' }}>Aucune annonce</div>
-            <p style={{ color: '#6f6b63', marginBottom: '16px' }}>
-              Aucun résultat ne correspond à votre recherche. Essayez un autre mot-clé ou catégorie.
+          <div
+            style={{
+              background: 'var(--sd-surface)',
+              border: '1px solid var(--sd-border)',
+              borderRadius: '18px',
+              padding: '40px 24px',
+              textAlign: 'center',
+              color: 'var(--sd-text)',
+            }}
+          >
+            <div style={{ fontSize: '1.6rem', fontWeight: 700, marginBottom: '12px' }}>Aucune annonce</div>
+            <p style={{ color: 'var(--sd-muted)', marginBottom: '4px', fontSize: '0.96rem' }}>
+              Aucun résultat ne correspond à votre recherche.
+            </p>
+            <p style={{ color: 'var(--sd-muted)', fontSize: '0.96rem' }}>
+              Essayez un autre mot-clé ou catégorie.
             </p>
           </div>
         ) : (
