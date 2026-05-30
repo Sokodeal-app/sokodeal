@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { getCurrentSession } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { adaptListingToCardViewModel } from '@/lib/listingAdapter';
-import type { ListingCardViewModel } from '@/lib/types';
+import type { ListingCardViewModel } from '@/lib/listingAdapter';
 
 export interface MyListingsPageProps {
   listings: ListingCardViewModel[];
